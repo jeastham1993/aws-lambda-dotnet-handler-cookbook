@@ -6,10 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Amazon.Extensions.Configuration.SystemsManager" Version="5.1.0" />
     <PackageReference Include="Amazon.Lambda.Annotations" Version="0.13.4" />
     <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.6.0" />
+    <PackageReference Include="AWS.Lambda.Powertools.Idempotency" Version="0.0.1-preview" />
     <PackageReference Include="AWS.Lambda.Powertools.Logging" Version="1.1.0" />
     <PackageReference Include="AWS.Lambda.Powertools.Metrics" Version="1.2.0" />
+    <PackageReference Include="AWS.Lambda.Powertools.Parameters" Version="0.0.2-preview" />
     <PackageReference Include="AWS.Lambda.Powertools.Tracing" Version="1.1.0" />
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.104" />
     <PackageReference Include="AWSSDK.EventBridge" Version="3.7.102.37" />

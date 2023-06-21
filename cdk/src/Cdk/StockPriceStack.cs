@@ -9,16 +9,21 @@ using Amazon.CDK.AWS.Events;
 using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.Logs;
+using Amazon.CDK.AWS.SSM;
 
 using Constructs;
 
 using XaasKit.CDK.AWS.Lambda.DotNet;
+
+public record StockPriceStackProps(
+    StringParameter Parameter);
 
 public class StockPriceStack : Stack
 {
     internal StockPriceStack(
         Construct scope,
         string id,
+        StockPriceStackProps customProps,
         IStackProps props = null) : base(
         scope,
         id,
@@ -28,6 +33,20 @@ public class StockPriceStack : Stack
             this,
             "StockPriceApi",
             new RestApiProps());
+
+        var idempotencyTracker = new Table(
+            this,
+            "Idempotency",
+            new TableProps
+            {
+                BillingMode = BillingMode.PAY_PER_REQUEST,
+                PartitionKey = new Attribute
+                {
+                    Name = "id",
+                    Type = AttributeType.STRING
+                },
+                TimeToLiveAttribute = "expiration"
+            });
 
         var table = new Table(
             this,
@@ -61,16 +80,20 @@ public class StockPriceStack : Stack
                 Environment = new Dictionary<string, string>(1)
                 {
                     { "TABLE_NAME", table.TableName },
+                    { "IDEMPOTENCY_TABLE_NAME", idempotencyTracker.TableName },
                     { "EVENT_BUS_NAME", eventBus.EventBusName },
                     { "ENV", "prod" },
                     { "POWERTOOLS_SERVICE_NAME", "pricing" },
-                    { "POWERTOOLS_METRICS_NAMESPACE", "pricing"}
+                    { "POWERTOOLS_METRICS_NAMESPACE", "pricing"},
+                    { "CONFIGURATION_PARAM_NAME", customProps.Parameter.ParameterName },
                 },
                 Tracing = Tracing.ACTIVE,
             });
 
         table.GrantReadWriteData(setStockPriceFunction);
+        idempotencyTracker.GrantReadWriteData(setStockPriceFunction);
         eventBus.GrantPutEventsTo(setStockPriceFunction);
+        customProps.Parameter.GrantRead(setStockPriceFunction);
 
         var describeEventBusPolicy = new PolicyStatement(
             new PolicyStatementProps()
@@ -78,10 +101,17 @@ public class StockPriceStack : Stack
                 Actions = new[] { "events:DescribeEventBus" },
                 Resources = new[] { eventBus.EventBusArn }
             });
+
+        var appConfigPolicy = new PolicyStatement(
+            new PolicyStatementProps()
+            {
+                Actions = new[] { "ssm:GetParametersByPath" },
+                Resources = new[] { customProps.Parameter.ParameterArn }
+            });
         
         setStockPriceFunction.Role.AttachInlinePolicy(new Policy(this, "DescribeEventBus", new PolicyProps()
         {
-            Statements = new []{describeEventBusPolicy}
+            Statements = new []{describeEventBusPolicy, appConfigPolicy}
         }));
 
         var priceResource = api.Root.AddResource("price");

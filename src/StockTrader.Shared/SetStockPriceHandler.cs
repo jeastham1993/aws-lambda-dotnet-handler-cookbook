@@ -7,11 +7,13 @@ public class SetStockPriceHandler
 {
     private readonly IStockRepository stockRepository;
     private readonly IEventBus eventBus;
+    private readonly IFeatureFlags featureFlags;
 
-    public SetStockPriceHandler(IStockRepository stockRepository, IEventBus eventBus)
+    public SetStockPriceHandler(IStockRepository stockRepository, IEventBus eventBus, IFeatureFlags featureFlags)
     {
         this.stockRepository = stockRepository;
         this.eventBus = eventBus;
+        this.featureFlags = featureFlags;
     }
     
     [Tracing]
@@ -21,7 +23,31 @@ public class SetStockPriceHandler
 
         Logger.LogInformation("Handling update stock price request");
 
+        var shouldIncreaseStockPrice = this.featureFlags.Evaluate("ten_percent_share_increase");
+
+        if (shouldIncreaseStockPrice.ToString() == "True")
+        {
+            Tracing.AddAnnotation("is_price_increase", true);
+            
+            request.NewPrice *= 1.1M;
+        }
+
+        var isCustomerInlineForDecrease = this.featureFlags.Evaluate(
+            "reduce_stock_price_for_company",
+            new Dictionary<string, object>(1)
+            {
+                { "stock_symbol", request.StockSymbol }
+            });
+        
+        if (isCustomerInlineForDecrease.ToString() == "True")
+        {
+            Tracing.AddAnnotation("is_stock_decrease", true);
+            
+            request.NewPrice *= 0.5M;
+        }
+
         var stock = Stock.CreateStock(new StockSymbol(request.StockSymbol));
+        
         stock.SetStockPrice(request.NewPrice);
 
         await this.stockRepository.UpdateStock(stock);
@@ -31,6 +57,6 @@ public class SetStockPriceHandler
                 stock.StockSymbol.Code,
                 stock.CurrentStockPrice));
 
-        return new SetStockPriceResponse() { StockSymbol = stock.StockSymbol.Code };
+        return new SetStockPriceResponse() { StockSymbol = stock.StockSymbol.Code, Price = stock.CurrentStockPrice };
     }
 }

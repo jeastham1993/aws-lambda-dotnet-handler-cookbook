@@ -18,4 +18,10 @@
     -->
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="configuration\prod_configuration.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

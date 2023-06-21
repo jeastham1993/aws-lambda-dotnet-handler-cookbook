@@ -1,0 +1,20 @@
+﻿{
+  "reduce_stock_price_for_company": {
+    "default": false,
+    "rules": {
+      "decrease stock price by 50 percent for certain stocks": {
+        "when_match": true,
+        "conditions": [
+          {
+            "action": "EQUALS",
+            "key": "stock_symbol",
+            "value": "AMZ"
+          }
+        ]
+      }
+    }
+  },
+  "ten_percent_share_increase": {
+    "default": true
+  }
+}
