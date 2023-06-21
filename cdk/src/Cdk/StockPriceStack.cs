@@ -102,7 +102,7 @@ public class StockPriceStack : Stack
                 Resources = new[] { eventBus.EventBusArn }
             });
 
-        var appConfigPolicy = new PolicyStatement(
+        var parameterReadPolicy = new PolicyStatement(
             new PolicyStatementProps()
             {
                 Actions = new[] { "ssm:GetParametersByPath" },
@@ -111,7 +111,40 @@ public class StockPriceStack : Stack
         
         setStockPriceFunction.Role.AttachInlinePolicy(new Policy(this, "DescribeEventBus", new PolicyProps()
         {
-            Statements = new []{describeEventBusPolicy, appConfigPolicy}
+            Statements = new []{describeEventBusPolicy, parameterReadPolicy}
+        }));
+
+        var getStockPriceFunction = new DotNetFunction(
+            this,
+            "GetStockPrice",
+            new DotNetFunctionProps
+            {
+                Runtime = Runtime.DOTNET_6,
+                MemorySize = 1024,
+                LogRetention = RetentionDays.ONE_DAY,
+                Handler =
+                    "GetStockPriceFunction::GetStockPriceFunction.Function_FunctionHandler_Generated::FunctionHandler",
+                ProjectDir = "../src/GetStockPriceFunction",
+                Environment = new Dictionary<string, string>(1)
+                {
+                    { "TABLE_NAME", table.TableName },
+                    { "EVENT_BUS_NAME", eventBus.EventBusName },
+                    { "IDEMPOTENCY_TABLE_NAME", idempotencyTracker.TableName },
+                    { "ENV", "prod" },
+                    { "POWERTOOLS_SERVICE_NAME", "pricing" },
+                    { "POWERTOOLS_METRICS_NAMESPACE", "pricing"},
+                    { "CONFIGURATION_PARAM_NAME", customProps.Parameter.ParameterName },
+                },
+                Tracing = Tracing.ACTIVE,
+            });
+
+        table.GrantReadData(getStockPriceFunction);
+        idempotencyTracker.GrantReadWriteData(getStockPriceFunction);
+        customProps.Parameter.GrantRead(getStockPriceFunction);
+        
+        getStockPriceFunction.Role.AttachInlinePolicy(new Policy(this, "GetStockPriceGetParameters", new PolicyProps()
+        {
+            Statements = new []{parameterReadPolicy, describeEventBusPolicy}
         }));
 
         var priceResource = api.Root.AddResource("price");
@@ -119,5 +152,9 @@ public class StockPriceStack : Stack
         priceResource.AddMethod(
             "PUT",
             new LambdaIntegration(setStockPriceFunction));
+
+        var getResource = priceResource.AddResource("{stockSymbol}");
+
+        getResource.AddMethod("GET", new LambdaIntegration(getStockPriceFunction));
     }
 }
