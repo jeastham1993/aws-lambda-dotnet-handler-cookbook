@@ -28,7 +28,8 @@ public static class StartupExtensions
             .AddEnvironmentVariables()
             .Build();
 
-        var provider = ParametersManager.SsmProvider;
+        var provider = ParametersManager.SsmProvider
+            .WithMaxAge(TimeSpan.FromMinutes(5));
 
         var dataString = provider.Get(config["CONFIGURATION_PARAM_NAME"]);
 
