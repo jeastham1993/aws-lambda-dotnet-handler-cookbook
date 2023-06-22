@@ -35,7 +35,7 @@ public class EventBridgeEventBus : IEventBus
                      new PutEventsRequestEntry()
                      {
                          EventBusName = this._settings.EventBusName,
-                         Detail = JsonSerializer.Serialize(evt),
+                         Detail = JsonSerializer.Serialize(evt, typeof(T), CustomSerializationContext.Default),
                          DetailType = evt.EventType,
                          Source = this._settings.ServiceName,
                          TraceHeader = Tracing.GetEntity().TraceId

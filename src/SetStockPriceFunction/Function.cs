@@ -1,13 +1,12 @@
 using Amazon.Lambda.Core;
+using Amazon.Lambda.Serialization.SystemTextJson;
 
-// Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
-[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
+[assembly: LambdaSerializer(typeof(SourceGeneratorLambdaJsonSerializer<CustomSerializationContext>))]
 
 namespace SetStockPriceFunction;
 
 using System.Net;
 
-using Amazon.Extensions.Configuration.SystemsManager;
 using Amazon.Lambda.Annotations;
 using Amazon.Lambda.Annotations.APIGateway;
 using Amazon.Lambda.APIGatewayEvents;
@@ -52,7 +51,7 @@ public class Function
             
             return ApiGatewayResponseBuilder.Build(
                 HttpStatusCode.BadRequest,
-                new { });
+                "");
         }
     }
 }
