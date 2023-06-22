@@ -1,46 +1,39 @@
-using Amazon.Lambda.Core;
-
-// Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
-[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
-
-namespace SetStockPriceFunction;
-
 using System.Net;
-
-using Amazon.Extensions.Configuration.SystemsManager;
 using Amazon.Lambda.Annotations;
 using Amazon.Lambda.Annotations.APIGateway;
 using Amazon.Lambda.APIGatewayEvents;
-
+using Amazon.Lambda.Core;
 using AWS.Lambda.Powertools.Idempotency;
 using AWS.Lambda.Powertools.Logging;
 using AWS.Lambda.Powertools.Metrics;
 using AWS.Lambda.Powertools.Tracing;
-
-using Microsoft.Extensions.Configuration;
-
 using StockTrader.Infrastructure;
 using StockTrader.Shared;
 
+// Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
+[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
+
+namespace GetStockPriceFunction;
+
 public class Function
 {
-    private readonly SetStockPriceHandler handler;
+    private readonly IStockRepository repository;
 
-    public Function(SetStockPriceHandler handler)
+    public Function(IStockRepository repository)
     {
-        this.handler = handler;
+        this.repository = repository;
     }
 
     [LambdaFunction]
-    [RestApi(LambdaHttpMethod.Put, "/price")]
+    [RestApi(LambdaHttpMethod.Get, "/price/{stockSymbol}")]
     [Metrics(CaptureColdStart = true)]
     [Tracing]
     [Idempotent]
-    public async Task<APIGatewayProxyResponse> FunctionHandler([FromBody] SetStockPriceRequest request, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(string stockSymbol, ILambdaContext context)
     {
         try
         {
-            var result = await this.handler.Handle(request);
+            var result = await this.repository.GetStock(new StockSymbol(stockSymbol));
 
             return ApiGatewayResponseBuilder.Build(
                 HttpStatusCode.OK,
