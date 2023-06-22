@@ -42,6 +42,7 @@ jobs:
           dotnet test ./tests/Stocks.UnitTests/Stocks.UnitTests.csproj
       - name: Deploy to AWS
         run: |
+          cd ./cdk/
           cdk deploy --all --require-approval=never
       - name: Integration tests
         run: |
