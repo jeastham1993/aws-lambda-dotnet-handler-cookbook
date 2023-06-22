@@ -46,7 +46,6 @@ public class SetStockPriceTests
         // Act
         var result = await function.FunctionHandler(testRequest, new Mock<ILambdaContext>().Object);
         
-        // Assert
         result.StatusCode.Should().Be(200);
 
         var response = JsonSerializer.Deserialize<SetStockPriceResponse>(result.Body);
