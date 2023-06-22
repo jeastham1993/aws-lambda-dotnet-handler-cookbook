@@ -42,8 +42,6 @@ public class Function
     {
         try
         {
-            this.configuration.WaitForSystemsManagerReloadToComplete(TimeSpan.FromSeconds(2));
-            
             var result = await this.handler.Handle(request);
 
             return ApiGatewayResponseBuilder.Build(

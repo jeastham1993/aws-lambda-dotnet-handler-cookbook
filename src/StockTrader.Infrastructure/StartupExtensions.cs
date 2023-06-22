@@ -8,9 +8,7 @@ using Amazon.EventBridge.Model;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 
 using AWS.Lambda.Powertools.Idempotency;
-using AWS.Lambda.Powertools.Logging;
 using AWS.Lambda.Powertools.Parameters;
-using AWS.Lambda.Powertools.Parameters.SimpleSystemsManagement;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,8 +20,17 @@ public static class StartupExtensions
 {
     public static IServiceCollection AddSharedServices(this IServiceCollection services)
     {
-        AWSSDKHandler.RegisterXRayForAllServices();
+        services.AddApplicationConfiguration();
+        services.AddAwsSdks();
+        
+        services.AddSingleton<IStockRepository, StockRepository>();
+        services.AddSingleton<IEventBus, EventBridgeEventBus>();
 
+        return services;
+    }
+
+    private static IServiceCollection AddApplicationConfiguration(this IServiceCollection services)
+    {
         var config = new ConfigurationBuilder()
             .AddEnvironmentVariables()
             .Build();
@@ -47,25 +54,29 @@ public static class StartupExtensions
         services.AddSingleton(Options.Create(infrastructureSettings));
         services.AddSingleton<IConfiguration>(config);
 
+        return services;
+    }
+    
+    private static IServiceCollection AddAwsSdks(this IServiceCollection services)
+    {
+        AWSSDKHandler.RegisterXRayForAllServices();
+
         var dynamoDbClient = new AmazonDynamoDBClient();
         var eventBridgeClient = new AmazonEventBridgeClient();
 
         var primingTasks = new List<Task>();
-        primingTasks.Add(dynamoDbClient.DescribeTableAsync(infrastructureSettings.TableName));
+        primingTasks.Add(dynamoDbClient.DescribeTableAsync(Environment.GetEnvironmentVariable("TABLE_NAME")));
         primingTasks.Add(
             eventBridgeClient.DescribeEventBusAsync(
                 new DescribeEventBusRequest
                 {
-                    Name = infrastructureSettings.EventBusName
+                    Name = Environment.GetEnvironmentVariable("EVENT_BUS_NAME")
                 }));
 
         Task.WaitAll(primingTasks.ToArray());
 
         services.AddSingleton(dynamoDbClient);
         services.AddSingleton(eventBridgeClient);
-
-        services.AddSingleton<IStockRepository, StockRepository>();
-        services.AddSingleton<IEventBus, EventBridgeEventBus>();
 
         var options = new IdempotencyOptionsBuilder()
             .WithThrowOnNoIdempotencyKey(true)
@@ -75,12 +86,8 @@ public static class StartupExtensions
         Idempotency.Configure(
             builder => builder
                 .WithOptions(options)
-                .UseDynamoDb(
-                    storeBuilder =>
-                        storeBuilder
-                            .WithTableName(config["IDEMPOTENCY_TABLE_NAME"])
-                            .WithDynamoDBClient(dynamoDbClient)));
-
+                .UseDynamoDb(storeBuilder => storeBuilder.WithTableName(Environment.GetEnvironmentVariable("IDEMPOTENCY_TABLE_NAME"))));
+        
         return services;
     }
 }
