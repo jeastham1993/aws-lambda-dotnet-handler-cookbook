@@ -1,0 +1,48 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Serverless Service CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: write # This is required for actions/checkout
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - uses: actions/setup-python@v2
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.x
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          npm install -g aws-cdk
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: Unit tests
+        run: |
+          dotnet test ./tests/Stocks.UnitTests/Stocks.UnitTests.csproj
+      - name: Deploy to AWS
+        run: |
+          cdk deploy --all --require-approval=never
+      - name: Integration tests
+        run: |
+          dotnet test ./tests/Stocks.IntegrationTests/Stocks.IntegrationTests.csproj

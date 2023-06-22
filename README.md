@@ -1,5 +1,5 @@
 
-# AWS Lambda Handler Cookbook (Python)
+# AWS Lambda Handler Cookbook (.NET)
 
 [![license](https://img.shields.io/github/license/jeastham1993/aws-lambda-dotnet-handler-cookbook)](https://github.com/jeastham1993/aws-lambda-dotnet-handler-cookbook/blob/master/LICENSE)
 ![github-star-badge](https://img.shields.io/github/stars/jeastham1993/aws-lambda-dotnet-handler-cookbook.svg?style=social)
@@ -50,11 +50,7 @@ This project aims to reduce cognitive load and answer these questions for you by
 
 
 ## CDK Deployment
-The CDK code create an API GW with a path of /api/orders which triggers the lambda on 'POST' requests.
-
-The AWS Lambda handler uses a Lambda layer optimization which takes all the packages under the [packages] section in the Pipfile and downloads them in via a Docker instance.
-
-This allows you to package any custom dependencies you might have, just add them to the Pipfile under the [packages] section.
+The CDK code create an API GW with a path of /prod/price which triggers the lambda on 'POST' requests.
 
 ## Serverless Best Practices
 The AWS Lambda handler will implement multiple best practice utilities.
@@ -63,14 +59,14 @@ Each utility is implemented when a new blog post is published about that utility
 
 The utilities cover multiple aspect of a production-ready service, including:
 
-- [Logging](https://www.ranthebuilder.cloud/post/aws-lambda-cookbook-elevate-your-handler-s-code-part-1-logging)
-- [Observability: Monitoring and Tracing](https://www.ranthebuilder.cloud/post/aws-lambda-cookbook-elevate-your-handler-s-code-part-2-observability)
-- [Observability: Business KPIs Metrics](https://www.ranthebuilder.cloud/post/aws-lambda-cookbook-elevate-your-handler-s-code-part-3-business-domain-observability)
-- [Environment Variables](https://www.ranthebuilder.cloud/post/aws-lambda-cookbook-environment-variables)
-- [Input Validation](https://www.ranthebuilder.cloud/post/aws-lambda-cookbook-elevate-your-handler-s-code-part-5-input-validation)
-- [Dynamic Configuration & feature flags](https://www.ranthebuilder.cloud/post/aws-lambda-cookbook-part-6-feature-flags-configuration-best-practices)
-- [Start Your AWS Serverless Service With Two Clicks](https://www.ranthebuilder.cloud/post/aws-lambda-cookbook-part-7-how-to-use-the-aws-lambda-cookbook-github-template-project)
-- [CDK Best practices](https://github.com/jeastham1993/aws-lambda-dotnet-handler-cookbook)
+- [Logging](#)
+- [Observability: Monitoring and Tracing](#)
+- [Observability: Business KPIs Metrics](#)
+- [Environment Variables](#)
+- [Input Validation](#)
+- [Dynamic Configuration & feature flags](#)
+- [Start Your AWS Serverless Service With Two Clicks](#)
+- [CDK Best practices](#)
 
 ## Getting started
 Head over to the complete project documentation pages at GitHub pages at [https://jeastham1993.github.io/aws-lambda-dotnet-handler-cookbook](https://jeastham1993.github.io/aws-lambda-dotnet-handler-cookbook/)
