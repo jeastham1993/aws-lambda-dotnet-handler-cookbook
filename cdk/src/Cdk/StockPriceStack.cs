@@ -156,5 +156,15 @@ public class StockPriceStack : Stack
         var getResource = priceResource.AddResource("{stockSymbol}");
 
         getResource.AddMethod("GET", new LambdaIntegration(getStockPriceFunction));
+
+        var tableNameOutput = new CfnOutput(
+            this,
+            "TableNameOutput",
+            new CfnOutputProps()
+            {
+                Value = table.TableName,
+                ExportName = "TableName",
+                Description = "Name of the main DynamoDB table"
+            });
     }
 }

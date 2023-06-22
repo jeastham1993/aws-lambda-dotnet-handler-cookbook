@@ -1,15 +1,8 @@
 namespace Stocks.UnitTests;
 
 using System.Text.Json;
-
 using Amazon.Lambda.Core;
-
-using FluentAssertions;
-
-using Moq;
-
 using SetStockPriceFunction;
-
 using StockTrader.Shared;
 
 public class SetStockPriceTests

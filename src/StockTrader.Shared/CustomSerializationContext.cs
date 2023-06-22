@@ -8,6 +8,7 @@ using StockTrader.Shared;
 [JsonSerializable(typeof(SetStockPriceResponse))]
 [JsonSerializable(typeof(APIGatewayProxyRequest))]
 [JsonSerializable(typeof(APIGatewayProxyResponse))]
+[JsonSerializable(typeof(StockDTO))]
 [JsonSerializable(typeof(StockPriceUpdatedV1Event))]
 public partial class CustomSerializationContext : JsonSerializerContext
 {

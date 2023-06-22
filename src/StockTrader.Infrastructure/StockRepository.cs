@@ -39,7 +39,7 @@ public class StockRepository : IStockRepository
     }
 
     [Tracing]
-    public async Task<Stock> GetStock(StockSymbol symbol)
+    public async Task<StockDTO> GetStock(StockSymbol symbol)
     {
         var result = await this._dynamoDbClient.GetItemAsync(_settings.TableName,
             new Dictionary<string, AttributeValue>(1)
@@ -47,8 +47,7 @@ public class StockRepository : IStockRepository
                 { "StockSymbol", new AttributeValue(symbol.Code) }
             });
 
-        var stock = Stock.CreateStock(symbol);
-        stock.SetStockPrice(decimal.Parse(result.Item["Price"].N));
+        var stock = new StockDTO(symbol.Code, decimal.Parse(result.Item["Price"].N));
 
         return stock;
     }
