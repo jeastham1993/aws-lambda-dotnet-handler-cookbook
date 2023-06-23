@@ -27,14 +27,12 @@ jobs:
         run: |
           pip install --upgrade pip
           npm install -g aws-cdk
-          npm install -g @xaaskit-cdk/aws-lambda-dotnet
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: Unit tests
         run: |
           dotnet test ./tests/Stocks.UnitTests/Stocks.UnitTests.csproj
