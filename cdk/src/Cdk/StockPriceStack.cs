@@ -1,3 +1,5 @@
+using Cdk.SharedConstructs;
+
 namespace Cdk;
 
 using System.Collections.Generic;
@@ -66,34 +68,23 @@ public class StockPriceStack : Stack
             "StockSystemEventBus",
             new EventBusProps());
 
-        var setStockPriceFunction = new DotNetFunction(
-            this,
-            "SetStockPrice",
-            new DotNetFunctionProps
+        var setStockPriceFunction = new LambdaFunction(this, "GetStockPrice", "./src/SetStockPriceFunction",
+            "SetStockPriceFunction::SetStockPriceFunction.Function_FunctionHandler_Generated::FunctionHandler",
+            new Dictionary<string, string>(1)
             {
-                Runtime = Runtime.DOTNET_6,
-                MemorySize = 1024,
-                LogRetention = RetentionDays.ONE_DAY,
-                Handler =
-                    "SetStockPriceFunction::SetStockPriceFunction.Function_FunctionHandler_Generated::FunctionHandler",
-                ProjectDir = "./src/SetStockPriceFunction",
-                Environment = new Dictionary<string, string>(1)
-                {
-                    { "TABLE_NAME", table.TableName },
-                    { "IDEMPOTENCY_TABLE_NAME", idempotencyTracker.TableName },
-                    { "EVENT_BUS_NAME", eventBus.EventBusName },
-                    { "ENV", "prod" },
-                    { "POWERTOOLS_SERVICE_NAME", "pricing" },
-                    { "POWERTOOLS_METRICS_NAMESPACE", "pricing"},
-                    { "CONFIGURATION_PARAM_NAME", customProps.Parameter.ParameterName },
-                },
-                Tracing = Tracing.ACTIVE,
+                { "TABLE_NAME", table.TableName },
+                { "EVENT_BUS_NAME", eventBus.EventBusName },
+                { "IDEMPOTENCY_TABLE_NAME", idempotencyTracker.TableName },
+                { "ENV", "prod" },
+                { "POWERTOOLS_SERVICE_NAME", "pricing" },
+                { "POWERTOOLS_METRICS_NAMESPACE", "pricing" },
+                { "CONFIGURATION_PARAM_NAME", customProps.Parameter.ParameterName },
             });
 
-        table.GrantReadWriteData(setStockPriceFunction);
-        idempotencyTracker.GrantReadWriteData(setStockPriceFunction);
-        eventBus.GrantPutEventsTo(setStockPriceFunction);
-        customProps.Parameter.GrantRead(setStockPriceFunction);
+        table.GrantReadWriteData(setStockPriceFunction.Function);
+        idempotencyTracker.GrantReadWriteData(setStockPriceFunction.Function);
+        eventBus.GrantPutEventsTo(setStockPriceFunction.Function);
+        customProps.Parameter.GrantRead(setStockPriceFunction.Function);
 
         var describeEventBusPolicy = new PolicyStatement(
             new PolicyStatementProps()
@@ -109,40 +100,29 @@ public class StockPriceStack : Stack
                 Resources = new[] { customProps.Parameter.ParameterArn }
             });
         
-        setStockPriceFunction.Role.AttachInlinePolicy(new Policy(this, "DescribeEventBus", new PolicyProps()
+        setStockPriceFunction.Function.Role.AttachInlinePolicy(new Policy(this, "DescribeEventBus", new PolicyProps()
         {
             Statements = new []{describeEventBusPolicy, parameterReadPolicy}
         }));
 
-        var getStockPriceFunction = new DotNetFunction(
-            this,
-            "GetStockPrice",
-            new DotNetFunctionProps
+        var getStockPriceFunction = new LambdaFunction(this, "GetStockPrice", "./src/GetStockPriceFunction",
+            "GetStockPriceFunction::GetStockPriceFunction.Function_FunctionHandler_Generated::FunctionHandler",
+            new Dictionary<string, string>(1)
             {
-                Runtime = Runtime.DOTNET_6,
-                MemorySize = 1024,
-                LogRetention = RetentionDays.ONE_DAY,
-                Handler =
-                    "GetStockPriceFunction::GetStockPriceFunction.Function_FunctionHandler_Generated::FunctionHandler",
-                ProjectDir = "./src/GetStockPriceFunction",
-                Environment = new Dictionary<string, string>(1)
-                {
-                    { "TABLE_NAME", table.TableName },
-                    { "EVENT_BUS_NAME", eventBus.EventBusName },
-                    { "IDEMPOTENCY_TABLE_NAME", idempotencyTracker.TableName },
-                    { "ENV", "prod" },
-                    { "POWERTOOLS_SERVICE_NAME", "pricing" },
-                    { "POWERTOOLS_METRICS_NAMESPACE", "pricing"},
-                    { "CONFIGURATION_PARAM_NAME", customProps.Parameter.ParameterName },
-                },
-                Tracing = Tracing.ACTIVE,
+                { "TABLE_NAME", table.TableName },
+                { "EVENT_BUS_NAME", eventBus.EventBusName },
+                { "IDEMPOTENCY_TABLE_NAME", idempotencyTracker.TableName },
+                { "ENV", "prod" },
+                { "POWERTOOLS_SERVICE_NAME", "pricing" },
+                { "POWERTOOLS_METRICS_NAMESPACE", "pricing" },
+                { "CONFIGURATION_PARAM_NAME", customProps.Parameter.ParameterName },
             });
 
-        table.GrantReadData(getStockPriceFunction);
-        idempotencyTracker.GrantReadWriteData(getStockPriceFunction);
-        customProps.Parameter.GrantRead(getStockPriceFunction);
+        table.GrantReadData(getStockPriceFunction.Function);
+        idempotencyTracker.GrantReadWriteData(getStockPriceFunction.Function);
+        customProps.Parameter.GrantRead(getStockPriceFunction.Function);
         
-        getStockPriceFunction.Role.AttachInlinePolicy(new Policy(this, "GetStockPriceGetParameters", new PolicyProps()
+        getStockPriceFunction.Function.Role.AttachInlinePolicy(new Policy(this, "GetStockPriceGetParameters", new PolicyProps()
         {
             Statements = new []{parameterReadPolicy, describeEventBusPolicy}
         }));
@@ -151,11 +131,11 @@ public class StockPriceStack : Stack
 
         priceResource.AddMethod(
             "PUT",
-            new LambdaIntegration(setStockPriceFunction));
+            new LambdaIntegration(setStockPriceFunction.Function));
 
         var getResource = priceResource.AddResource("{stockSymbol}");
 
-        getResource.AddMethod("GET", new LambdaIntegration(getStockPriceFunction));
+        getResource.AddMethod("GET", new LambdaIntegration(getStockPriceFunction.Function));
 
         var tableNameOutput = new CfnOutput(
             this,
