@@ -76,7 +76,7 @@ public class StockPriceStack : Stack
                 LogRetention = RetentionDays.ONE_DAY,
                 Handler =
                     "SetStockPriceFunction::SetStockPriceFunction.Function_FunctionHandler_Generated::FunctionHandler",
-                ProjectDir = "../src/SetStockPriceFunction",
+                ProjectDir = "../cdk/src/SetStockPriceFunction",
                 Environment = new Dictionary<string, string>(1)
                 {
                     { "TABLE_NAME", table.TableName },
@@ -124,7 +124,7 @@ public class StockPriceStack : Stack
                 LogRetention = RetentionDays.ONE_DAY,
                 Handler =
                     "GetStockPriceFunction::GetStockPriceFunction.Function_FunctionHandler_Generated::FunctionHandler",
-                ProjectDir = "../src/GetStockPriceFunction",
+                ProjectDir = "../cdk/src/GetStockPriceFunction",
                 Environment = new Dictionary<string, string>(1)
                 {
                     { "TABLE_NAME", table.TableName },
