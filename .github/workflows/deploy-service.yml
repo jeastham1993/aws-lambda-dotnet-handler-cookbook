@@ -12,9 +12,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write # This is required for requesting the JWT
-      contents: write # This is required for actions/checkout
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -25,7 +22,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: "20"
       - name: Install dependencies
         run: |
           pip install --upgrade pip
