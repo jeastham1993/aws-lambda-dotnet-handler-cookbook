@@ -1,22 +1,17 @@
-﻿namespace StockTrader.Infrastructure;
-
-using System.Text.Json;
-
+﻿using System.Text.Json;
 using Amazon.EventBridge;
 using Amazon.EventBridge.Model;
-
 using AWS.Lambda.Powertools.Tracing;
-
 using Microsoft.Extensions.Options;
 
-using StockTrader.Shared;
+namespace Shared;
 
-public class EventBridgeEventBus : IEventBus
+internal class EventBridgeEventBus : IEventBus
 {
     private readonly AmazonEventBridgeClient _eventBridgeClient;
-    private readonly InfrastructureSettings _settings;
+    private readonly SharedSettings _settings;
 
-    public EventBridgeEventBus(IOptions<InfrastructureSettings> settings, AmazonEventBridgeClient eventBridgeClient)
+    internal EventBridgeEventBus(IOptions<SharedSettings> settings, AmazonEventBridgeClient eventBridgeClient)
     {
         this._eventBridgeClient = eventBridgeClient;
         this._settings = settings.Value;
@@ -35,7 +30,7 @@ public class EventBridgeEventBus : IEventBus
                      new PutEventsRequestEntry()
                      {
                          EventBusName = this._settings.EventBusName,
-                         Detail = JsonSerializer.Serialize(evt, typeof(T), CustomSerializationContext.Default),
+                         Detail = JsonSerializer.Serialize(evt),
                          DetailType = evt.EventType,
                          Source = this._settings.ServiceName,
                          TraceHeader = Tracing.GetEntity().TraceId

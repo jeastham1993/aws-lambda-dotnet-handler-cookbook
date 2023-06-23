@@ -1,6 +1,6 @@
-﻿namespace StockTrader.Shared;
+﻿using System.Text.Json.Serialization;
 
-using System.Text.Json.Serialization;
+namespace Shared;
 
 public abstract class Event
 {

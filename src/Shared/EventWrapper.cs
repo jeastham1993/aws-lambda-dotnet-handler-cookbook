@@ -1,6 +1,6 @@
-﻿namespace StockTrader.Shared;
+﻿using AWS.Lambda.Powertools.Tracing;
 
-using AWS.Lambda.Powertools.Tracing;
+namespace Shared;
 
 public record Metadata(string EventType, string EventVersion)
 {

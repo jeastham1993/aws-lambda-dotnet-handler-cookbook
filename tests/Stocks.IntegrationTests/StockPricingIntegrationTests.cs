@@ -2,9 +2,6 @@ namespace Stocks.IntegrationTests;
 
 using System.Net;
 using System.Net.Http.Json;
-
-using ApiTests.IntegrationTest;
-
 using FluentAssertions;
 
 using StockTrader.Shared;

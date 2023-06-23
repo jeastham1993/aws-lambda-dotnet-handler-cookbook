@@ -1,3 +1,5 @@
+using Shared;
+
 namespace Stocks.UnitTests;
 
 using System.Text.Json;

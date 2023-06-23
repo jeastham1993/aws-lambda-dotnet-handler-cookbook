@@ -1,4 +1,6 @@
-﻿namespace StockTrader.Shared;
+﻿using Shared;
+
+namespace StockTrader.Shared;
 
 public class StockPriceUpdatedV1Event : Event
 {

@@ -12,7 +12,7 @@ public static class ApiGatewayResponseBuilder
         return new APIGatewayProxyResponse()
         {
             StatusCode = (int)statusCode,
-            Body = JsonSerializer.Serialize(body, typeof(T), CustomSerializationContext.Default),
+            Body = JsonSerializer.Serialize(body, typeof(T), Shared.CustomSerializationContext.Default),
             Headers = new Dictionary<string, string>(1)
             {
                 {"ContentType", "application/json"},

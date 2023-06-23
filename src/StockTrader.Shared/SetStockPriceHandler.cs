@@ -1,4 +1,6 @@
-﻿namespace StockTrader.Shared;
+﻿using Shared;
+
+namespace StockTrader.Shared;
 
 using AWS.Lambda.Powertools.Logging;
 using AWS.Lambda.Powertools.Tracing;

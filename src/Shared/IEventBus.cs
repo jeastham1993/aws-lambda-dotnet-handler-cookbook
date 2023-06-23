@@ -1,4 +1,4 @@
-﻿namespace StockTrader.Shared;
+﻿namespace Shared;
 
 public interface IEventBus
 {

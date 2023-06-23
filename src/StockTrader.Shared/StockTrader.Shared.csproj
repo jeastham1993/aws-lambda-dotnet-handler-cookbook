@@ -12,5 +12,9 @@
     <PackageReference Include="AWS.Lambda.Powertools.Metrics" Version="1.2.0" />
     <PackageReference Include="AWS.Lambda.Powertools.Tracing" Version="1.1.0" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.csproj" />
+  </ItemGroup>
 
 </Project>

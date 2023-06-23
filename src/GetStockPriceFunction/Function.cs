@@ -12,7 +12,7 @@ using AWS.Lambda.Powertools.Tracing;
 using StockTrader.Infrastructure;
 using StockTrader.Shared;
 
-[assembly: LambdaSerializer(typeof(SourceGeneratorLambdaJsonSerializer<CustomSerializationContext>))]
+[assembly: LambdaSerializer(typeof(SourceGeneratorLambdaJsonSerializer<StockTrader.Shared.CustomSerializationContext>))]
 
 namespace GetStockPriceFunction;
 

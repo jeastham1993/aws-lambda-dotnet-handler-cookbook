@@ -1,4 +1,6 @@
-﻿namespace StockTrader.Infrastructure;
+﻿using Shared;
+
+namespace StockTrader.Infrastructure;
 
 using System.Text.Json;
 
@@ -24,7 +26,6 @@ public static class StartupExtensions
         services.AddAwsSdks();
         
         services.AddSingleton<IStockRepository, StockRepository>();
-        services.AddSingleton<IEventBus, EventBridgeEventBus>();
 
         return services;
     }
@@ -35,22 +36,12 @@ public static class StartupExtensions
             .AddEnvironmentVariables()
             .Build();
 
-        var provider = ParametersManager.SsmProvider
-            .WithMaxAge(TimeSpan.FromMinutes(5));
-
-        var dataString = provider.Get(config["CONFIGURATION_PARAM_NAME"]);
-
-        Console.WriteLine(dataString);
-
-        services.AddSingleton<IFeatureFlags>(new FeatureFlags(JsonSerializer.Deserialize<Dictionary<string, object>>(dataString)));
-
         var infrastructureSettings = new InfrastructureSettings
         {
             TableName = config["TABLE_NAME"],
-            EventBusName = config["EVENT_BUS_NAME"],
-            ServiceName = $"{config["POWERTOOLS_SERVICE_NAME"]}.{config["ENV"]}"
         };
 
+        services.AddSharedInfrastructure(config);
         services.AddSingleton(Options.Create(infrastructureSettings));
         services.AddSingleton<IConfiguration>(config);
 

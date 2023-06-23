@@ -3,7 +3,7 @@ using Amazon.CloudFormation;
 using Amazon.CloudFormation.Model;
 using Amazon.DynamoDBv2;
 
-namespace ApiTests.IntegrationTest;
+namespace Stocks.IntegrationTests;
 
 public class Setup : IAsyncLifetime
 {

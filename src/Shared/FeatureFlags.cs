@@ -1,10 +1,8 @@
-﻿namespace StockTrader.Infrastructure;
+﻿using System.Text.Json;
 
-using System.Text.Json;
+namespace Shared;
 
-using StockTrader.Shared;
-
-public class FeatureFlags : IFeatureFlags
+internal class FeatureFlags : IFeatureFlags
 {
     private readonly Dictionary<string, object> features;
 
