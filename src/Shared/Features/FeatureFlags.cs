@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Shared;
+namespace Shared.Features;
 
 internal class FeatureFlags : IFeatureFlags
 {

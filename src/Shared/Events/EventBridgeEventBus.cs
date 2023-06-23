@@ -4,7 +4,7 @@ using Amazon.EventBridge.Model;
 using AWS.Lambda.Powertools.Tracing;
 using Microsoft.Extensions.Options;
 
-namespace Shared;
+namespace Shared.Events;
 
 internal class EventBridgeEventBus : IEventBus
 {

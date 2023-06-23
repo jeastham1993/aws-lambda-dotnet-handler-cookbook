@@ -15,9 +15,6 @@ using AWS.Lambda.Powertools.Idempotency;
 using AWS.Lambda.Powertools.Logging;
 using AWS.Lambda.Powertools.Metrics;
 using AWS.Lambda.Powertools.Tracing;
-
-using Microsoft.Extensions.Configuration;
-
 using StockTrader.Infrastructure;
 using StockTrader.Shared;
 

@@ -9,7 +9,7 @@ public class Stock
         return new Stock(symbol);
     }
 
-    internal Stock(StockSymbol symbol)
+    private Stock(StockSymbol symbol)
     {
         this.StockSymbol = symbol;
     }

@@ -1,6 +1,6 @@
 ﻿using AWS.Lambda.Powertools.Tracing;
 
-namespace Shared;
+namespace Shared.Events;
 
 public record Metadata(string EventType, string EventVersion)
 {

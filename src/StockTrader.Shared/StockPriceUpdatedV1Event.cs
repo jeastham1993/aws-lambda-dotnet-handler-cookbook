@@ -1,4 +1,4 @@
-﻿using Shared;
+﻿using Shared.Events;
 
 namespace StockTrader.Shared;
 

@@ -3,6 +3,8 @@ using AWS.Lambda.Powertools.Parameters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Shared.Events;
+using Shared.Features;
 
 namespace Shared;
 

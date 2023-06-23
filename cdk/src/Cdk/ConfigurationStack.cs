@@ -1,10 +1,7 @@
 ﻿namespace Cdk;
 
 using System.IO;
-using System.Net;
-
 using Amazon.CDK;
-using Amazon.CDK.AWS.AppConfig;
 using Amazon.CDK.AWS.SSM;
 
 using Constructs;

@@ -28,7 +28,7 @@ public class StockApiDriver
         return response;
     }
 
-    public async Task<StockDTO> GetStock(string stockSymbol)
+    public async Task<StockDTO?> GetStock(string stockSymbol)
     {
         var response = await this.httpClient.GetAsync($"price/{stockSymbol}");
 

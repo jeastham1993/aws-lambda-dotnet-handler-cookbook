@@ -1,4 +1,5 @@
-using Shared;
+using Shared.Events;
+using Shared.Features;
 
 namespace Stocks.UnitTests;
 
@@ -52,8 +53,8 @@ public class SetStockPriceTests
         result.StatusCode.Should().Be(200);
 
         var response = JsonSerializer.Deserialize<SetStockPriceResponse>(result.Body);
-        response.StockSymbol.Should().Be("AMZ");
-        response.Price.Should().Be(100);
+        response?.StockSymbol.Should().Be("AMZ");
+        response?.Price.Should().Be(100);
         
         mockEventBus.Verify(p => p.Publish(It.IsAny<StockPriceUpdatedV1Event>()), Times.Once);
         stockRepository.Verify(p => p.UpdateStock(It.IsAny<Stock>()), Times.Once);
@@ -101,8 +102,8 @@ public class SetStockPriceTests
         result.StatusCode.Should().Be(200);
 
         var response = JsonSerializer.Deserialize<SetStockPriceResponse>(result.Body);
-        response.StockSymbol.Should().Be("AMZ");
-        response.Price.Should().Be(110);
+        response?.StockSymbol.Should().Be("AMZ");
+        response?.Price.Should().Be(110);
         
         mockEventBus.Verify(p => p.Publish(It.IsAny<StockPriceUpdatedV1Event>()), Times.Once);
         stockRepository.Verify(p => p.UpdateStock(It.IsAny<Stock>()), Times.Once);
@@ -150,8 +151,8 @@ public class SetStockPriceTests
         result.StatusCode.Should().Be(200);
 
         var response = JsonSerializer.Deserialize<SetStockPriceResponse>(result.Body);
-        response.StockSymbol.Should().Be("AMZ");
-        response.Price.Should().Be(50);
+        response?.StockSymbol.Should().Be("AMZ");
+        response?.Price.Should().Be(50);
         
         mockEventBus.Verify(p => p.Publish(It.IsAny<StockPriceUpdatedV1Event>()), Times.Once);
         stockRepository.Verify(p => p.UpdateStock(It.IsAny<Stock>()), Times.Once);

@@ -18,11 +18,11 @@ namespace GetStockPriceFunction;
 
 public class Function
 {
-    private readonly IStockRepository repository;
+    private readonly IStockRepository _repository;
 
     public Function(IStockRepository repository)
     {
-        this.repository = repository;
+        this._repository = repository;
     }
 
     [LambdaFunction]
@@ -34,7 +34,7 @@ public class Function
     {
         try
         {
-            var result = await this.repository.GetStock(new StockSymbol(stockSymbol));
+            var result = await this._repository.GetStock(new StockSymbol(stockSymbol));
 
             return ApiGatewayResponseBuilder.Build(
                 HttpStatusCode.OK,

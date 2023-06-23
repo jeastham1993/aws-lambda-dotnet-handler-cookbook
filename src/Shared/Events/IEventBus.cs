@@ -1,4 +1,4 @@
-﻿namespace Shared;
+﻿namespace Shared.Events;
 
 public interface IEventBus
 {

@@ -4,6 +4,7 @@ public record StockDTO
 {
     public StockDTO()
     {
+        this.StockSymbol = "";
     }
 
     public StockDTO(Stock stock)

@@ -2,16 +2,12 @@
 
 namespace StockTrader.Infrastructure;
 
-using System.Text.Json;
-
 using Amazon.DynamoDBv2;
 using Amazon.EventBridge;
 using Amazon.EventBridge.Model;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 
 using AWS.Lambda.Powertools.Idempotency;
-using AWS.Lambda.Powertools.Parameters;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -44,6 +40,8 @@ public static class StartupExtensions
         services.AddSharedInfrastructure(config);
         services.AddSingleton(Options.Create(infrastructureSettings));
         services.AddSingleton<IConfiguration>(config);
+        
+        services.AddSingleton<SetStockPriceHandler>();
 
         return services;
     }
