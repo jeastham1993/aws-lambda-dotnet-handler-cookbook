@@ -1,5 +1,0 @@
-{
-  "dependencies": {
-    "@xaaskit-cdk/aws-lambda-dotnet": "^0.0.9"
-  }
-}
