@@ -27,6 +27,7 @@ jobs:
         run: |
           pip install --upgrade pip
           npm install -g aws-cdk
+          npm install @xaaskit-cdk/aws-lambda-dotnet
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
