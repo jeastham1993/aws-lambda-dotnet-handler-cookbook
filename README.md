@@ -71,6 +71,33 @@ The utilities cover multiple aspect of a production-ready service, including:
 ## Getting started
 Head over to the complete project documentation pages at GitHub pages at [https://jeastham1993.github.io/aws-lambda-dotnet-handler-cookbook](https://jeastham1993.github.io/aws-lambda-dotnet-handler-cookbook/)
 
+### Commands For Auth Flow
+
+```
+aws cognito-idp admin-create-user --user-pool-id us-east-1_a94TspUGB --username john@example.com --user-attributes Name="given_name",Value="john" Name="family_name",Value="smith"
+```
+
+```
+aws cognito-idp admin-set-user-password --user-pool-id us-east-1_a94TspUGB --username john@example.com --password "<PASSWORD>" --permanent
+```
+
+```
+aws cognito-idp admin-initiate-auth --cli-input-json file://auth.json
+```
+
+**auth.json**
+```json
+{
+    "UserPoolId": "<USER_POOl_ID>",
+    "ClientId": "<CLIENT_ID>",
+    "AuthFlow": "ADMIN_NO_SRP_AUTH",
+    "AuthParameters": {
+        "USERNAME": "john@example.com",
+        "PASSWORD": "<PASSWORD>"
+    }
+}
+```
+
 ## Code Contributions
 Code contributions are welcomed. Read this [guide.](https://github.com/jeastham1993/aws-lambda-dotnet-handler-cookbook/blob/main/CONTRIBUTING.md)
 
