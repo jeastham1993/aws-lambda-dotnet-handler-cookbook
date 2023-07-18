@@ -1,6 +1,4 @@
-﻿using Shared;
-
-namespace StockTrader.Infrastructure;
+﻿namespace StockTrader.Infrastructure;
 
 using Amazon.DynamoDBv2;
 using Amazon.EventBridge;
@@ -12,7 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-using StockTrader.Shared;
+using SharedKernel;
+
+using StockTrader.Core.StockAggregate;
+using StockTrader.Core.StockAggregate.Handlers;
 
 public static class StartupExtensions
 {
@@ -22,6 +23,7 @@ public static class StartupExtensions
         services.AddAwsSdks();
         
         services.AddSingleton<IStockRepository, StockRepository>();
+        services.AddSingleton<SetStockPriceHandler>();
 
         return services;
     }

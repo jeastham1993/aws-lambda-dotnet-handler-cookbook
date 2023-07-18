@@ -9,12 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.CloudFormation" Version="3.7.108.1" />
-        <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.104.1" />
+        <PackageReference Include="AWSSDK.CloudFormation" Version="3.7.200" />
+        <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.200" />
         <PackageReference Include="FluentAssertions" Version="6.11.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
-        <PackageReference Include="xunit" Version="2.4.1" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
+        <PackageReference Include="xunit" Version="2.5.0" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\StockTrader.Shared\StockTrader.Shared.csproj" />
+      <ProjectReference Include="..\..\src\StockTrader.Core\StockTrader.Core.csproj" />
     </ItemGroup>
 
 </Project>

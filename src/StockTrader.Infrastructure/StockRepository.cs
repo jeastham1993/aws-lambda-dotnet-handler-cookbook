@@ -7,7 +7,7 @@ using AWS.Lambda.Powertools.Tracing;
 
 using Microsoft.Extensions.Options;
 
-using StockTrader.Shared;
+using StockTrader.Core.StockAggregate;
 
 public class StockRepository : IStockRepository
 {
