@@ -14,7 +14,7 @@ internal class EventBridgeEventBus : IEventBus
     private readonly AmazonEventBridgeClient _eventBridgeClient;
     private readonly SharedSettings _settings;
 
-    internal EventBridgeEventBus(IOptions<SharedSettings> settings, AmazonEventBridgeClient eventBridgeClient)
+    public EventBridgeEventBus(IOptions<SharedSettings> settings, AmazonEventBridgeClient eventBridgeClient)
     {
         this._eventBridgeClient = eventBridgeClient;
         this._settings = settings.Value;

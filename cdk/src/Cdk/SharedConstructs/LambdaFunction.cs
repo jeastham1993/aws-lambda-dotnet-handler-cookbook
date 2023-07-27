@@ -14,14 +14,14 @@ public class LambdaFunction : Construct
     {
         this.Function = new DotNetFunction(this, id, new DotNetFunctionProps()
         {
-            Runtime = Runtime.PROVIDED_AL2,
+            Runtime = Runtime.DOTNET_6,
             MemorySize = 1024,
             LogRetention = RetentionDays.ONE_DAY,
             Handler = handler,
             Environment = environmentVariables,
             Tracing = Tracing.ACTIVE,
             ProjectDir = codePath,
-            Architecture = Architecture.ARM_64
+            Architecture = Architecture.X86_64
         });
     }
 }

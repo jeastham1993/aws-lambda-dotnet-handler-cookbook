@@ -26,7 +26,7 @@ public static class StartupExtensions
         
         var sharedSettings = new SharedSettings()
         {
-            EventBusName = config["TABLE_NAME"],
+            EventBusName = config["EVENT_BUS_NAME"],
             ServiceName = config["SERVICE_NAME"]
         };
 

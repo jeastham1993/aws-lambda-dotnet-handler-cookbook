@@ -1,4 +1,6 @@
-﻿namespace StockTrader.Core.StockAggregate;
+﻿using System.Text.Json.Serialization;
+
+namespace StockTrader.Core.StockAggregate;
 
 public record StockDTO
 {
@@ -19,7 +21,9 @@ public record StockDTO
         this.Price = price;
     }
     
+    [JsonPropertyName("stockSymbol")]
     public string StockSymbol { get;set; }
     
+    [JsonPropertyName("price")]
     public decimal Price { get; set; }
 }

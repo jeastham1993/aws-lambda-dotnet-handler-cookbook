@@ -1,11 +1,10 @@
-﻿namespace Stocks.IntegrationTests;
-
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-
 using StockTrader.Core.StockAggregate;
 using StockTrader.Core.StockAggregate.Handlers;
+
+namespace Stocks.FunctionalTests;
 
 public class StockApiDriver
 {

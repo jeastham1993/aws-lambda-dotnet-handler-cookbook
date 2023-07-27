@@ -139,7 +139,7 @@ public class StockPriceAPIStack : Stack
             this,
             "GetStockPrice",
             "src/StockTrader.API",
-            "StockTrader.API::SetStockPriceFunction.Endpoints.GetStockPriceEndpoint_GetStockPrice_Generated::GetStockPrice",
+            "StockTrader.API::StockTrader.API.Endpoints.GetStockPriceEndpoint_GetStockPrice_Generated::GetStockPrice",
             new Dictionary<string, string>(1)
             {
                 { "TABLE_NAME", table.TableName },
@@ -179,7 +179,7 @@ public class StockPriceAPIStack : Stack
             this,
             "SetStockPrice",
             "src/StockTrader.API",
-            "StockTrader.API::SetStockPriceFunction.Endpoints.SetStockPriceEndpoint_SetStockPrice_Generated::SetStockPrice",
+            "StockTrader.API::StockTrader.API.Endpoints.SetStockPriceEndpoint_SetStockPrice_Generated::SetStockPrice",
             new Dictionary<string, string>(1)
             {
                 { "TABLE_NAME", table.TableName },
@@ -312,6 +312,19 @@ public class StockPriceAPIStack : Stack
                         Email = true
                     })
             });
+
+        var userPoolOutput = new CfnOutput(this, "UserPoolId", new CfnOutputProps()
+        {
+            Value = userPool.UserPoolId,
+            ExportName = "UserPoolId"
+        });
+
+        var clientIdOutput = new CfnOutput(this, "ClientId", new CfnOutputProps()
+        {
+            Value = userPoolClient.UserPoolClientId,
+            ExportName = "ClientId"
+        });
+        
         return userPool;
     }
 }
