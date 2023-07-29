@@ -29,6 +29,7 @@
     
     <ItemGroup>
       <ProjectReference Include="..\..\src\StockTrader.API\StockTrader.API.csproj" />
+      <ProjectReference Include="..\Stocks.Tests.Shared\Stocks.Tests.Shared.csproj" />
     </ItemGroup>
 
 </Project>

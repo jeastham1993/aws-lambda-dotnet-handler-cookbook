@@ -16,7 +16,7 @@ public class Setup : IAsyncLifetime
 
     public string ApiUrl { get; private set; } = default!;
     
-    public string AuthToken { get; private set; }
+    public string? AuthToken { get; private set; }
 
     public List<string> CreatedStockSymbols { get; } = new();
 

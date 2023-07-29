@@ -15,14 +15,32 @@ using SharedKernel;
 using StockTrader.Core.StockAggregate;
 using StockTrader.Core.StockAggregate.Handlers;
 
+public record SharedServiceOptions(bool SkipAppConfiguration = false, bool SkipAwsSdks = false, bool SkipRepository = false);
+
 public static class StartupExtensions
 {
-    public static IServiceCollection AddSharedServices(this IServiceCollection services)
+    public static IServiceCollection AddSharedServices(this IServiceCollection services, SharedServiceOptions? options = null)
     {
-        services.AddApplicationConfiguration();
-        services.AddAwsSdks();
+        if (options is null)
+        {
+            options = new SharedServiceOptions();
+        }
+
+        if (!options.SkipAppConfiguration)
+        {
+            services.AddApplicationConfiguration();
+        }
+
+        if (!options.SkipAwsSdks)
+        {
+            services.AddAwsSdks();   
+        }
+
+        if (!options.SkipRepository)
+        {
+            services.AddSingleton<IStockRepository, StockRepository>();    
+        }
         
-        services.AddSingleton<IStockRepository, StockRepository>();
         services.AddSingleton<SetStockPriceHandler>();
 
         return services;
@@ -42,8 +60,6 @@ public static class StartupExtensions
         services.AddSharedInfrastructure(config);
         services.AddSingleton(Options.Create(infrastructureSettings));
         services.AddSingleton<IConfiguration>(config);
-        
-        services.AddSingleton<SetStockPriceHandler>();
 
         return services;
     }
