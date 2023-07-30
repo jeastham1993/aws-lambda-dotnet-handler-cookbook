@@ -1,0 +1,13 @@
+{
+  "Information": [
+    "This file provide defaults that are be used by the Mock Lambda Test Tool."
+  ],
+  "region": "us-east-1",
+  "profile": "dev",
+  "configuration": "Release",
+  "framework": "net6.0",
+  "function-runtime": "dotnet6",
+  "function-memory-size": 256,
+  "function-timeout": 30,
+  "function-handler": "StockTrader.API::StockTrader.API.Endpoints.GetStockPriceEndpoint_GetStockPrice_Generated::GetStockPrice"
+}
