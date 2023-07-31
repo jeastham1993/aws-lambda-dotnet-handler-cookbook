@@ -21,6 +21,8 @@ public static class StartupExtensions
 {
     public static IServiceCollection AddSharedServices(this IServiceCollection services, SharedServiceOptions? options = null)
     {
+        var postfix = Environment.GetEnvironmentVariable("STACK_POSTFIX");
+        
         if (options is null)
         {
             options = new SharedServiceOptions();
@@ -28,12 +30,12 @@ public static class StartupExtensions
 
         if (!options.SkipAppConfiguration)
         {
-            services.AddApplicationConfiguration();
+            services.AddApplicationConfiguration(postfix);
         }
 
         if (!options.SkipAwsSdks)
         {
-            services.AddAwsSdks();   
+            services.AddAwsSdks(postfix);   
         }
 
         if (!options.SkipRepository)
@@ -46,7 +48,7 @@ public static class StartupExtensions
         return services;
     }
 
-    private static IServiceCollection AddApplicationConfiguration(this IServiceCollection services)
+    private static IServiceCollection AddApplicationConfiguration(this IServiceCollection services, string postfix)
     {
         var config = new ConfigurationBuilder()
             .AddEnvironmentVariables()
@@ -54,7 +56,7 @@ public static class StartupExtensions
 
         var infrastructureSettings = new InfrastructureSettings
         {
-            TableName = config["TABLE_NAME"],
+            TableName = $"{config["TABLE_NAME"]}{postfix}",
         };
 
         services.AddSharedInfrastructure(config);
@@ -64,7 +66,7 @@ public static class StartupExtensions
         return services;
     }
     
-    private static IServiceCollection AddAwsSdks(this IServiceCollection services)
+    private static IServiceCollection AddAwsSdks(this IServiceCollection services, string postfix)
     {
         AWSSDKHandler.RegisterXRayForAllServices();
 
@@ -72,12 +74,12 @@ public static class StartupExtensions
         var eventBridgeClient = new AmazonEventBridgeClient();
 
         var primingTasks = new List<Task>();
-        primingTasks.Add(dynamoDbClient.DescribeTableAsync(Environment.GetEnvironmentVariable("TABLE_NAME")));
+        primingTasks.Add(dynamoDbClient.DescribeTableAsync($"{Environment.GetEnvironmentVariable("TABLE_NAME")}{postfix}"));
         primingTasks.Add(
             eventBridgeClient.DescribeEventBusAsync(
                 new DescribeEventBusRequest
                 {
-                    Name = Environment.GetEnvironmentVariable("EVENT_BUS_NAME")
+                    Name = $"{Environment.GetEnvironmentVariable("EVENT_BUS_NAME")}{postfix}"
                 }));
 
         Task.WaitAll(primingTasks.ToArray());
@@ -93,7 +95,7 @@ public static class StartupExtensions
         Idempotency.Configure(
             builder => builder
                 .WithOptions(options)
-                .UseDynamoDb(storeBuilder => storeBuilder.WithTableName(Environment.GetEnvironmentVariable("IDEMPOTENCY_TABLE_NAME"))));
+                .UseDynamoDb(storeBuilder => storeBuilder.WithTableName($"{Environment.GetEnvironmentVariable("IDEMPOTENCY_TABLE_NAME")}{postfix}")));
         
         return services;
     }

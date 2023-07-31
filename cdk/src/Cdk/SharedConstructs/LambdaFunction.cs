@@ -14,6 +14,7 @@ public class LambdaFunction : Construct
     {
         this.Function = new DotNetFunction(this, id, new DotNetFunctionProps()
         {
+            FunctionName = id,
             Runtime = Runtime.DOTNET_6,
             MemorySize = 1024,
             LogRetention = RetentionDays.ONE_DAY,

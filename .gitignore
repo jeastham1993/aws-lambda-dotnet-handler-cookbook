@@ -3,6 +3,8 @@
 
 cdk.out/
 
+*.DS_Store
+
 ###################
 # compiled source #
 ###################

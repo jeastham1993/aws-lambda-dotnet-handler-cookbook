@@ -5,7 +5,6 @@ using Amazon.Runtime.CredentialManagement;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Moq;
 using SharedKernel;
 using SharedKernel.Events;
 using SharedKernel.Features;
@@ -18,8 +17,10 @@ public class TestHarness
 {
     private IServiceProvider _serviceProvider;
 
-    public TestHarness(IFeatureFlags featureFlags, bool useMocks = false)
+    public TestHarness(IFeatureFlags featureFlags)
     {
+        var postfix = Environment.GetEnvironmentVariable("STACK_POSTFIX");
+        
         var serviceCollection = new ServiceCollection();
         
         var config = new ConfigurationBuilder()
@@ -29,12 +30,12 @@ public class TestHarness
 
         var infrastructureSettings = new InfrastructureSettings
         {
-            TableName = config["TABLE_NAME"],
+            TableName = $"{config["TABLE_NAME"]}{postfix}",
         };
 
         var sharedSettings = new SharedSettings
         {
-            EventBusName = config["EVENT_BUS_NAME"],
+            EventBusName = $"{config["EVENT_BUS_NAME"]}{postfix}",
             ServiceName = config["SERVICE_NAME"],
         };
         
