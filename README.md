@@ -5,11 +5,9 @@
 ![github-star-badge](https://img.shields.io/github/stars/jeastham1993/aws-lambda-dotnet-handler-cookbook.svg?style=social)
 ![issues](https://img.shields.io/github/issues/jeastham1993/aws-lambda-dotnet-handler-cookbook)
 
-This project provides a working, open source based, AWS Lambda handler skeleton .NET code including DEPLOYMENT code with CDK and a pipeline.
+This project provides a working, open source based, AWS Lambda handler skeleton .NET code including deployment with the AWS CDK & a GitHub Actions pipeline.
 
-This project can serve as a template for new Serverless services - CDK deployment code, pipeline and handler are covered.
-
-## Cookiecutter Option
+It is inspired by the [Python AWS Lambda Handler Cookbook](https://github.com/ran-isenberg/aws-lambda-handler-cookbook) developed by AWS Hero [Ran Isenberg](https://twitter.com/IsenbergRan).
 
 ## **The Problem**
 
