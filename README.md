@@ -110,7 +110,19 @@ The project contains examples of multiple types of tests:
 
 The integration tests also support using the same `STACK_POSTFIX` environment variable. If you set the variable, deploy the CDK stack and then run the integration tests using the same terminal window your test execution will use the postfixed resources.
 
-For more information on testing, check out this [YouTube Video on testing and debugging your Lambda functions locally]()
+For more information on testing, check out this [YouTube Video on testing and debugging your Lambda functions locally](https://youtu.be/962ba6mgQXI).
+
+## Roadmap
+
+- [] Add examples of different Lambda event sources
+    - [] SQS
+    - [] DynamoDB Stream
+    - [] SNS
+    - [] EventBridge
+    - [] S3
+    - [] Kinesis
+- [] Add multiple micro-service example
+
 
 ## Code Contributions
 Code contributions are welcomed. Read this [guide.](https://github.com/jeastham1993/aws-lambda-dotnet-handler-cookbook/blob/main/CONTRIBUTING.md)
@@ -125,4 +137,3 @@ Read our code of conduct [here.](https://github.com/jeastham1993/aws-lambda-dotn
 
 ## License
 This library is licensed under the MIT License. See the [LICENSE](https://github.com/jeastham1993/aws-lambda-dotnet-handler-cookbook/blob/main/LICENSE) file.
-
