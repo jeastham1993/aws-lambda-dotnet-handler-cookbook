@@ -37,6 +37,7 @@ TestResults/
 #############
 /_ReSharper.*
 *.ReSharper.*
+**/.idea/*
 ############
 # Packages #
 ############
