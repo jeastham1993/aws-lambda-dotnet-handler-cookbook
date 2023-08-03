@@ -15,20 +15,40 @@ using SharedKernel;
 using StockTrader.Core.StockAggregate;
 using StockTrader.Core.StockAggregate.Handlers;
 
+public record SharedServiceOptions(bool SkipAppConfiguration = false, bool SkipAwsSdks = false, bool SkipRepository = false);
+
 public static class StartupExtensions
 {
-    public static IServiceCollection AddSharedServices(this IServiceCollection services)
+    public static IServiceCollection AddSharedServices(this IServiceCollection services, SharedServiceOptions? options = null)
     {
-        services.AddApplicationConfiguration();
-        services.AddAwsSdks();
+        var postfix = Environment.GetEnvironmentVariable("STACK_POSTFIX");
         
-        services.AddSingleton<IStockRepository, StockRepository>();
+        if (options is null)
+        {
+            options = new SharedServiceOptions();
+        }
+
+        if (!options.SkipAppConfiguration)
+        {
+            services.AddApplicationConfiguration(postfix);
+        }
+
+        if (!options.SkipAwsSdks)
+        {
+            services.AddAwsSdks(postfix);   
+        }
+
+        if (!options.SkipRepository)
+        {
+            services.AddSingleton<IStockRepository, StockRepository>();    
+        }
+        
         services.AddSingleton<SetStockPriceHandler>();
 
         return services;
     }
 
-    private static IServiceCollection AddApplicationConfiguration(this IServiceCollection services)
+    private static IServiceCollection AddApplicationConfiguration(this IServiceCollection services, string postfix)
     {
         var config = new ConfigurationBuilder()
             .AddEnvironmentVariables()
@@ -36,19 +56,17 @@ public static class StartupExtensions
 
         var infrastructureSettings = new InfrastructureSettings
         {
-            TableName = config["TABLE_NAME"],
+            TableName = $"{config["TABLE_NAME"]}{postfix}",
         };
 
         services.AddSharedInfrastructure(config);
         services.AddSingleton(Options.Create(infrastructureSettings));
         services.AddSingleton<IConfiguration>(config);
-        
-        services.AddSingleton<SetStockPriceHandler>();
 
         return services;
     }
     
-    private static IServiceCollection AddAwsSdks(this IServiceCollection services)
+    private static IServiceCollection AddAwsSdks(this IServiceCollection services, string postfix)
     {
         AWSSDKHandler.RegisterXRayForAllServices();
 
@@ -56,12 +74,12 @@ public static class StartupExtensions
         var eventBridgeClient = new AmazonEventBridgeClient();
 
         var primingTasks = new List<Task>();
-        primingTasks.Add(dynamoDbClient.DescribeTableAsync(Environment.GetEnvironmentVariable("TABLE_NAME")));
+        primingTasks.Add(dynamoDbClient.DescribeTableAsync($"{Environment.GetEnvironmentVariable("TABLE_NAME")}{postfix}"));
         primingTasks.Add(
             eventBridgeClient.DescribeEventBusAsync(
                 new DescribeEventBusRequest
                 {
-                    Name = Environment.GetEnvironmentVariable("EVENT_BUS_NAME")
+                    Name = $"{Environment.GetEnvironmentVariable("EVENT_BUS_NAME")}{postfix}"
                 }));
 
         Task.WaitAll(primingTasks.ToArray());
@@ -77,7 +95,7 @@ public static class StartupExtensions
         Idempotency.Configure(
             builder => builder
                 .WithOptions(options)
-                .UseDynamoDb(storeBuilder => storeBuilder.WithTableName(Environment.GetEnvironmentVariable("IDEMPOTENCY_TABLE_NAME"))));
+                .UseDynamoDb(storeBuilder => storeBuilder.WithTableName($"{Environment.GetEnvironmentVariable("IDEMPOTENCY_TABLE_NAME")}{postfix}")));
         
         return services;
     }

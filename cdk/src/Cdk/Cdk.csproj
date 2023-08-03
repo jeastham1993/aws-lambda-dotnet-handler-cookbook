@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <!-- CDK Construct Library dependencies -->
-    <PackageReference Include="Amazon.CDK.Lib" Version="2.87.0" />
+    <PackageReference Include="Amazon.CDK.Lib" Version="2.88.0" />
     <PackageReference Include="Constructs" Version="10.2.69" />
     <PackageReference Include="XaasKit.CDK.AWS.Lambda.DotNet" Version="0.0.9" />
 
@@ -24,6 +24,9 @@
   
   <ItemGroup>
     <None Update="configuration\prod_configuration.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="configuration\prod-je_configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,7 +1,7 @@
-namespace Stocks.IntegrationTests;
-
 using System.Net;
 using FluentAssertions;
+
+namespace Stocks.FunctionalTests;
 
 public class StockPricingIntegrationTests : IClassFixture<Setup>, IDisposable
 {
@@ -16,7 +16,11 @@ public class StockPricingIntegrationTests : IClassFixture<Setup>, IDisposable
         _client = new HttpClient()
         {
             BaseAddress = new(setup.ApiUrl),
-            DefaultRequestHeaders = { { "INTEGRATION_TEST", "true" } },
+            DefaultRequestHeaders =
+            {
+                { "INTEGRATION_TEST", "true" },
+                {"Authorization", $"Bearer {setup.AuthToken}"}
+            },
         };
 
         this._driver = new StockApiDriver(_client);
@@ -41,9 +45,7 @@ public class StockPricingIntegrationTests : IClassFixture<Setup>, IDisposable
     {
         var testStockSymbol = Guid.NewGuid().ToString();
 
-        var createResponse = await this._driver.CreateStock(
-            testStockSymbol,
-            100.00M);
+        await this._driver.CreateStock(testStockSymbol, 100.00M);
 
         var retrievedStock = await this._driver.GetStock(testStockSymbol);
 

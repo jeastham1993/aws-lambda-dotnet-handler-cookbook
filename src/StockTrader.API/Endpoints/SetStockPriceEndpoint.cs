@@ -1,20 +1,16 @@
-﻿namespace SetStockPriceFunction.Endpoints;
-
-using System.Net;
-
+﻿using System.Net;
 using Amazon.Lambda.Annotations;
 using Amazon.Lambda.Annotations.APIGateway;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
-
 using AWS.Lambda.Powertools.Idempotency;
 using AWS.Lambda.Powertools.Logging;
 using AWS.Lambda.Powertools.Metrics;
 using AWS.Lambda.Powertools.Tracing;
-
-using StockTrader.Core.StockAggregate;
 using StockTrader.Core.StockAggregate.Handlers;
 using StockTrader.Infrastructure;
+
+namespace StockTrader.API.Endpoints;
 
 public class SetStockPriceEndpoint
 {
@@ -29,7 +25,6 @@ public class SetStockPriceEndpoint
     [RestApi(LambdaHttpMethod.Put, "/price")]
     [Metrics(CaptureColdStart = true)]
     [Tracing]
-    [Idempotent]
     public async Task<APIGatewayProxyResponse> SetStockPrice([FromBody] SetStockPriceRequest request, ILambdaContext context)
     {
         try

@@ -12,6 +12,7 @@ using Constructs;
 namespace Cdk;
 
 public record StockPriceStackProps(
+    string Postfix,
     StringParameter Parameter);
 
 public class StockPriceAPIStack : Stack
@@ -27,19 +28,25 @@ public class StockPriceAPIStack : Stack
         id,
         props)
     {
-        var userPool = this.CreateUserPool();
+        var userPool = this.CreateUserPool(customProps);
 
         var api = new RestApi(
             this,
-            "StockPriceApi",
-            new RestApiProps());
+            $"StockPriceApi{customProps.Postfix}",
+            new RestApiProps()
+            {
+                RestApiName = $"StockPriceApi{customProps.Postfix}"
+            });
 
-        var idempotencyTracker = this.CreatePersistenceLayer();
+        var idempotencyTracker = this.CreatePersistenceLayer(customProps.Postfix);
 
         var eventBus = new EventBus(
             this,
             "StockSystemEventBus",
-            new EventBusProps());
+            new EventBusProps()
+            {
+                EventBusName = $"StockSystemEventBus{customProps.Postfix}"
+            });
         
         var describeEventBusPolicy = new PolicyStatement(
             new PolicyStatementProps
@@ -76,13 +83,20 @@ public class StockPriceAPIStack : Stack
 
         var tableNameOutput = new CfnOutput(
             this,
-            "TableNameOutput",
+            $"TableNameOutput{customProps.Postfix}",
             new CfnOutputProps
             {
                 Value = this.Table.TableName,
-                ExportName = "TableName",
+                ExportName = $"TableName{customProps.Postfix}",
                 Description = "Name of the main DynamoDB table"
             });
+
+        var apiEndpointOutput = new CfnOutput(this, $"APIEndpointOutput{customProps.Postfix}", new CfnOutputProps()
+        {
+            Value = api.Url,
+            ExportName = $"ApiEndpoint{customProps.Postfix}",
+            Description = "Endpoint of the Stock price API"
+        });
     }
 
     private void AddApiEndpoints(
@@ -137,9 +151,9 @@ public class StockPriceAPIStack : Stack
     {
         var getStockPriceFunction = new LambdaFunction(
             this,
-            "GetStockPrice",
+            $"GetStockPrice{customProps.Postfix}",
             "src/StockTrader.API",
-            "StockTrader.API::SetStockPriceFunction.Endpoints.GetStockPriceEndpoint_GetStockPrice_Generated::GetStockPrice",
+            "StockTrader.API::StockTrader.API.Endpoints.GetStockPriceEndpoint_GetStockPrice_Generated::GetStockPrice",
             new Dictionary<string, string>(1)
             {
                 { "TABLE_NAME", table.TableName },
@@ -177,9 +191,9 @@ public class StockPriceAPIStack : Stack
     {
         var setStockPriceFunction = new LambdaFunction(
             this,
-            "SetStockPrice",
+            $"SetStockPrice{customProps.Postfix}",
             "src/StockTrader.API",
-            "StockTrader.API::SetStockPriceFunction.Endpoints.SetStockPriceEndpoint_SetStockPrice_Generated::SetStockPrice",
+            "StockTrader.API::StockTrader.API.Endpoints.SetStockPriceEndpoint_SetStockPrice_Generated::SetStockPrice",
             new Dictionary<string, string>(1)
             {
                 { "TABLE_NAME", table.TableName },
@@ -207,7 +221,7 @@ public class StockPriceAPIStack : Stack
         return setStockPriceFunction;
     }
 
-    private Table CreatePersistenceLayer()
+    private Table CreatePersistenceLayer(string postfix)
     {
         var idempotencyTracker = new Table(
             this,
@@ -220,7 +234,8 @@ public class StockPriceAPIStack : Stack
                     Name = "id",
                     Type = AttributeType.STRING
                 },
-                TimeToLiveAttribute = "expiration"
+                TimeToLiveAttribute = "expiration",
+                TableName = $"StockPriceIdempotency{postfix}"
             });
 
         this.Table = new Table(
@@ -233,20 +248,21 @@ public class StockPriceAPIStack : Stack
                 {
                     Name = "StockSymbol",
                     Type = AttributeType.STRING
-                }
+                },
+                TableName = $"StockPriceTable{postfix}"
             });
         
         return idempotencyTracker;
     }
 
-    private UserPool CreateUserPool()
+    private UserPool CreateUserPool(StockPriceStackProps props)
     {
         var userPool = new UserPool(
             this,
-            "StockPriceUserPool",
+            $"StockPriceUserPool{props.Postfix}",
             new UserPoolProps
             {
-                UserPoolName = "stock-service-users",
+                UserPoolName = $"stock-service-users{props.Postfix}",
                 SelfSignUpEnabled = true,
                 SignInAliases = new SignInAliases
                 {
@@ -281,7 +297,7 @@ public class StockPriceAPIStack : Stack
 
         var userPoolClient = new UserPoolClient(
             this,
-            "StockPriceClient",
+            $"StockPriceClient{props.Postfix}",
             new UserPoolClientProps()
             {
                 UserPool = userPool,
@@ -312,6 +328,19 @@ public class StockPriceAPIStack : Stack
                         Email = true
                     })
             });
+
+        var userPoolOutput = new CfnOutput(this, $"UserPoolId{props.Postfix}", new CfnOutputProps()
+        {
+            Value = userPool.UserPoolId,
+            ExportName = $"UserPoolId{props.Postfix}"
+        });
+
+        var clientIdOutput = new CfnOutput(this, $"ClientId{props.Postfix}", new CfnOutputProps()
+        {
+            Value = userPoolClient.UserPoolClientId,
+            ExportName = $"ClientId{props.Postfix}"
+        });
+        
         return userPool;
     }
 }

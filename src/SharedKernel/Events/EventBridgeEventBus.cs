@@ -9,12 +9,12 @@ using AWS.Lambda.Powertools.Tracing;
 
 using Microsoft.Extensions.Options;
 
-internal class EventBridgeEventBus : IEventBus
+public class EventBridgeEventBus : IEventBus
 {
     private readonly AmazonEventBridgeClient _eventBridgeClient;
     private readonly SharedSettings _settings;
 
-    internal EventBridgeEventBus(IOptions<SharedSettings> settings, AmazonEventBridgeClient eventBridgeClient)
+    public EventBridgeEventBus(IOptions<SharedSettings> settings, AmazonEventBridgeClient eventBridgeClient)
     {
         this._eventBridgeClient = eventBridgeClient;
         this._settings = settings.Value;

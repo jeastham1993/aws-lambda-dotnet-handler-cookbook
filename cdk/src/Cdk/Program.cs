@@ -4,8 +4,10 @@ using Cdk;
 
 var app = new App();
 
-var configStack = new ConfigurationStack(app, "ConfigurationStack", "prod");
+var postFix = System.Environment.GetEnvironmentVariable("STACK_POSTFIX");
 
-new StockPriceAPIStack(app, "StockPriceStack", new StockPriceStackProps(configStack.Parameter));
+var configStack = new ConfigurationStack(app, $"ConfigurationStack{postFix}", $"prod{postFix}");
+
+new StockPriceAPIStack(app, $"StockPriceStack{postFix}", new StockPriceStackProps(postFix, configStack.Parameter));
 
 app.Synth();
