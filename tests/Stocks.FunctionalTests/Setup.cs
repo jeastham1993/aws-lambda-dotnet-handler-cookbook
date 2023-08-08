@@ -63,7 +63,7 @@ public class Setup : IAsyncLifetime
 
         var authToken = await CreateTestUser(clientId);
 
-        ApiUrl = GetOutputVariable(outputs, $"StockPriceApiEndpoint{stackPostfix}");
+        ApiUrl = GetOutputVariable(outputs, $"APIEndpointOutput{stackPostfix}");
         AuthToken = authToken;
         _tableName = GetOutputVariable(outputs, $"TableNameOutput{stackPostfix}");
         _dynamoDbClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { RegionEndpoint = endpoint });
