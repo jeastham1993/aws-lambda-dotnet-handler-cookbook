@@ -34,7 +34,13 @@ public class ConfigurationStack : Stack
 
     private string parseAndValidateConfiguration(string environment)
     {
-        var fileContents = File.ReadAllText($"./cdk/src/Cdk/configuration/{environment}_configuration.json");
+        var filePath = $"./cdk/src/Cdk/configuration/{environment}_configuration.json";
+
+        if (!File.Exists(filePath))
+        {
+            filePath = $"./cdk/src/Cdk/configuration/Dev_configuration.json";
+        }
+        var fileContents = File.ReadAllText(filePath);
 
         return fileContents;
     }

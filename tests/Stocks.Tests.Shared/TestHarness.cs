@@ -19,6 +19,10 @@ public class TestHarness
 
     public TestHarness(IFeatureFlags featureFlags)
     {
+        Environment.SetEnvironmentVariable("POWERTOOLS_METRICS_NAMESPACE", "test-stock-price");
+        Environment.SetEnvironmentVariable("POWERTOOLS_SERVICE_NAME", "test-stock-price");
+        Environment.SetEnvironmentVariable("POWERTOOLS_TRACE_DISABLED", "true");
+        
         var postfix = Environment.GetEnvironmentVariable("STACK_POSTFIX");
         
         var serviceCollection = new ServiceCollection();

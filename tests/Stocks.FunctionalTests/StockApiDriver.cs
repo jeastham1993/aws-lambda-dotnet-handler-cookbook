@@ -1,8 +1,10 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using StockTrader.Core.StockAggregate;
 using StockTrader.Core.StockAggregate.Handlers;
+using StockTrader.Infrastructure;
 
 namespace Stocks.FunctionalTests;
 
@@ -32,8 +34,13 @@ public class StockApiDriver
     {
         var response = await this.httpClient.GetAsync($"price/{stockSymbol}");
 
-        var stock = await response.Content.ReadFromJsonAsync<StockDTO>();
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            return null;
+        }
 
-        return stock;
+        var stock = await response.Content.ReadFromJsonAsync<ApiWrapper<StockDTO>>();
+
+        return stock.Data;
     }
 }

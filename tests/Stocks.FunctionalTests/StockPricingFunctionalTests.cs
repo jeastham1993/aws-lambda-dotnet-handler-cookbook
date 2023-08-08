@@ -53,6 +53,16 @@ public class StockPricingFunctionalTests : IClassFixture<Setup>, IDisposable
         retrievedStock?.Price.Should().Be(100.00M * 1.1M, "Feature flag is enabled to increase price by 10%");
     }
     
+    [Fact]
+    public async Task GetStockPrice_ForMissingStock_ShouldReturn404()
+    {
+        var testStockSymbol = Guid.NewGuid().ToString();
+
+        var retrievedStock = await this._driver.GetStock(testStockSymbol);
+
+        retrievedStock?.StockSymbol.Should().Be(null);
+    }
+    
     public void Dispose()
     {
         if (disposed)

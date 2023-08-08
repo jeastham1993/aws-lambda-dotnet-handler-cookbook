@@ -3,7 +3,9 @@ using Amazon.Lambda.Core;
 using SharedKernel.Features;
 using Stocks.Tests.Shared;
 using StockTrader.API.Endpoints;
+using StockTrader.Core.StockAggregate;
 using StockTrader.Core.StockAggregate.Handlers;
+using StockTrader.Infrastructure;
 
 namespace Stocks.IntegrationTests;
 
@@ -11,7 +13,7 @@ public class SetStockPriceTests
 {
     public SetStockPriceTests()
     {
-        Environment.SetEnvironmentVariable("POWERTOOLS_METRICS_NAMESPACE", "pricing");
+        Environment.SetEnvironmentVariable("POWERTOOLS_METRICS_NAMESPACE", "test-stock-price");
         Environment.SetEnvironmentVariable("POWERTOOLS_TRACE_DISABLED", "true");
     }
 
@@ -48,9 +50,9 @@ public class SetStockPriceTests
         // Assert
         result.StatusCode.Should().Be(200);
 
-        var response = JsonSerializer.Deserialize<SetStockPriceResponse>(result.Body);
-        response?.StockSymbol.Should().Be("AMZ");
-        response?.Price.Should().Be(100);
+        var response = JsonSerializer.Deserialize<ApiWrapper<SetStockPriceResponse>>(result.Body);
+        response?.Data.StockSymbol.Should().Be("AMZ");
+        response?.Data.Price.Should().Be(100);
     }
     
     [Fact]
@@ -86,27 +88,15 @@ public class SetStockPriceTests
         // Assert
         result.StatusCode.Should().Be(200);
 
-        var response = JsonSerializer.Deserialize<SetStockPriceResponse>(result.Body);
-        response?.StockSymbol.Should().Be("AMZ");
-        response?.Price.Should().Be(110);
+        var response = JsonSerializer.Deserialize<ApiWrapper<SetStockPriceResponse>>(result.Body);
+        response?.Data.StockSymbol.Should().Be("AMZ");
+        response?.Data.Price.Should().Be(110);
     }
     
     [Fact]
     public async Task CanSetStockPrice_WhenReduceStockPriceFeatureFlagEnabled_ShouldStoreAndPublishEvent()
     {
-        var mockFeatureFlags = new Mock<IFeatureFlags>();
-        mockFeatureFlags.Setup(
-                p => p.Evaluate(
-                    It.IsAny<string>(),
-                    It.IsAny<Dictionary<string, object>>(),
-                    It.IsAny<object>()))
-            .Returns("False");
-        mockFeatureFlags.Setup(
-                p => p.Evaluate(
-                    "reduce_stock_price_for_company",
-                    It.IsAny<Dictionary<string, object>>(),
-                    It.IsAny<object>()))
-            .Returns("True");
+        var mockFeatureFlags = FeatureFlagMocks.ReduceStockPriceEnabled;
 
         var testRequest = new SetStockPriceRequest()
         {
@@ -114,7 +104,7 @@ public class SetStockPriceTests
             StockSymbol = "AMZ"
         };
         
-        var testHarness = new TestHarness(mockFeatureFlags.Object);
+        var testHarness = new TestHarness(mockFeatureFlags);
         
         var setStockPriceEndpoint = testHarness.GetService<SetStockPriceEndpoint>();
 
@@ -124,21 +114,15 @@ public class SetStockPriceTests
         // Assert
         result.StatusCode.Should().Be(200);
 
-        var response = JsonSerializer.Deserialize<SetStockPriceResponse>(result.Body);
-        response?.StockSymbol.Should().Be("AMZ");
-        response?.Price.Should().Be(50);
+        var response = JsonSerializer.Deserialize<ApiWrapper<SetStockPriceResponse>>(result.Body);
+        response?.Data.StockSymbol.Should().Be("AMZ");
+        response?.Data.Price.Should().Be(50);
     }
     
     [Fact]
     public async Task CanSetStockPrice_WhenNewStockPriceIsZero_ShouldReturnBadRequest()
     {
-        var mockFeatureFlags = new Mock<IFeatureFlags>();
-        mockFeatureFlags.Setup(
-                p => p.Evaluate(
-                    It.IsAny<string>(),
-                    It.IsAny<Dictionary<string, object>>(),
-                    It.IsAny<object>()))
-            .Returns("False");
+        var mockFeatureFlags = FeatureFlagMocks.Default;
         
         var testRequest = new SetStockPriceRequest()
         {
@@ -146,7 +130,7 @@ public class SetStockPriceTests
             StockSymbol = "AMZ"
         };
         
-        var testHarness = new TestHarness(mockFeatureFlags.Object);
+        var testHarness = new TestHarness(mockFeatureFlags);
         
         var setStockPriceEndpoint = testHarness.GetService<SetStockPriceEndpoint>();
 
@@ -155,5 +139,47 @@ public class SetStockPriceTests
         
         // Assert
         result.StatusCode.Should().Be(400);
+    }
+
+    [Fact]
+    public async Task CanGetStockPrice_WhenRequestIsValid_ShouldRetrieveStock()
+    {
+        var mockFeatureFlags = FeatureFlagMocks.Default;
+        
+        var testHarness = new TestHarness(mockFeatureFlags);
+        
+        var getStockPriceEndpoint = testHarness.GetService<GetStockPriceEndpoint>();
+        var setStockPriceEndpoint = testHarness.GetService<SetStockPriceEndpoint>();
+
+        var testStockSymbol = Guid.NewGuid().ToString();
+        
+        await setStockPriceEndpoint.SetStockPrice(new SetStockPriceRequest(){StockSymbol = testStockSymbol, NewPrice = 100}, new Mock<ILambdaContext>().Object);
+
+        // Act
+        var result = await getStockPriceEndpoint.GetStockPrice(testStockSymbol);
+        
+        // Assert
+        result.StatusCode.Should().Be(200);
+
+        var response = JsonSerializer.Deserialize<ApiWrapper<StockDTO>>(result.Body);
+        response?.Data.StockSymbol.Should().Be(testStockSymbol);
+    }
+
+    [Fact]
+    public async Task CanGetStockPrice_WhenRequestIsForUnknownStockCode_ShouldReturn404()
+    {
+        var mockFeatureFlags = FeatureFlagMocks.Default;
+        
+        var testHarness = new TestHarness(mockFeatureFlags);
+        
+        var getStockPriceEndpoint = testHarness.GetService<GetStockPriceEndpoint>();
+
+        var testStockSymbol = Guid.NewGuid().ToString();
+
+        // Act
+        var result = await getStockPriceEndpoint.GetStockPrice(testStockSymbol);
+        
+        // Assert
+        result.StatusCode.Should().Be(404);
     }
 }

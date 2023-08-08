@@ -47,6 +47,11 @@ public class StockRepository : IStockRepository
                 { "StockSymbol", new AttributeValue(symbol.Code) }
             });
 
+        if (!result.IsItemSet)
+        {
+            throw new StockNotFoundException(symbol);
+        }
+
         var stock = new StockDTO(symbol.Code, decimal.Parse(result.Item["Price"].N));
 
         return stock;

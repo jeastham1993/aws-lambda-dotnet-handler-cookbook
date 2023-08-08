@@ -142,6 +142,6 @@ public class Setup : IAsyncLifetime
     }
 
     private static string GetOutputVariable(List<Output> outputs, string name) =>
-        outputs.FirstOrDefault(o => o.OutputKey.StartsWith(name))?.OutputValue
+        outputs.FirstOrDefault(o => o.OutputKey.StartsWith(name.Replace("-", "")))?.OutputValue
         ?? throw new Exception($"CloudFormation stack does not have an output variable named '{name}'");
 }

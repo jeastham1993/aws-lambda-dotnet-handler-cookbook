@@ -27,6 +27,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\StockTrader.Core\StockTrader.Core.csproj" />
+      <ProjectReference Include="..\..\src\StockTrader.Infrastructure\StockTrader.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

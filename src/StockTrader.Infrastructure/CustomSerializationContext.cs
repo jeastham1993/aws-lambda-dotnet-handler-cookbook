@@ -14,6 +14,9 @@ using StockTrader.Core.StockAggregate.Handlers;
 [JsonSerializable(typeof(APIGatewayProxyResponse))]
 [JsonSerializable(typeof(StockDTO))]
 [JsonSerializable(typeof(StockPriceUpdatedV1Event))]
+[JsonSerializable(typeof(ApiWrapper<String>))]
+[JsonSerializable(typeof(ApiWrapper<StockDTO>))]
+[JsonSerializable(typeof(ApiWrapper<SetStockPriceResponse>))]
 public partial class CustomSerializationContext : JsonSerializerContext
 {
 }

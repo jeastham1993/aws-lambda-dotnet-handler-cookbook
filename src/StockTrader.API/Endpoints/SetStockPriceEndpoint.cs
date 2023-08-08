@@ -23,7 +23,6 @@ public class SetStockPriceEndpoint
 
     [LambdaFunction]
     [RestApi(LambdaHttpMethod.Put, "/price")]
-    [Metrics(CaptureColdStart = true)]
     [Tracing]
     public async Task<APIGatewayProxyResponse> SetStockPrice([FromBody] SetStockPriceRequest request, ILambdaContext context)
     {

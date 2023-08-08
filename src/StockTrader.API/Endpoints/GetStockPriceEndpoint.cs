@@ -22,19 +22,23 @@ public class GetStockPriceEndpoint
     
     [LambdaFunction]
     [RestApi(LambdaHttpMethod.Get, "/price/{stockSymbol}")]
-    [Metrics(CaptureColdStart = true)]
     [Tracing]
     public async Task<APIGatewayProxyResponse> GetStockPrice(string stockSymbol)
     {
         try
         {
             Tracing.AddAnnotation("stock_id", stockSymbol);
-            
+
             var result = await this.repository.GetStock(new StockSymbol(stockSymbol));
 
             return ApiGatewayResponseBuilder.Build(
                 HttpStatusCode.OK,
                 result);
+        }
+        catch (StockNotFoundException)
+        {
+            return ApiGatewayResponseBuilder.Build(HttpStatusCode.NotFound,
+                "NotFound");
         }
         catch (ArgumentException e)
         {
@@ -42,7 +46,7 @@ public class GetStockPriceEndpoint
             
             return ApiGatewayResponseBuilder.Build(
                 HttpStatusCode.BadRequest,
-                new { });
+                "Error");
         }
     }
 }
