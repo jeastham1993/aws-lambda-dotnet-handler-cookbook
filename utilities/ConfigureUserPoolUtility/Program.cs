@@ -5,6 +5,8 @@ using Amazon.CognitoIdentityProvider.Model;
 
 var cognitoClient = new AmazonCognitoIdentityProviderClient();
 
+Console.Wr
+
 Console.WriteLine("What is the UserPool ID?");
 var userPoolId = Console.ReadLine();
 
