@@ -45,9 +45,18 @@ jobs:
           export STACK_POSTFIX=dev
           cdk deploy --all --require-approval=never
       - name: Functional tests
+        env:
+          TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
         run: |
+          export STACK_POSTFIX=dev
           dotnet test ./tests/Stocks.FunctionalTests/Stocks.FunctionalTests.csproj
       - name: Deploy to AWS Production
         run: |
           export STACK_POSTFIX=prod
           cdk deploy --all --require-approval=never
+      - name: Functional tests
+        env:
+          TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
+        run: |
+          export STACK_POSTFIX=prod
+          dotnet test ./tests/Stocks.FunctionalTests/Stocks.FunctionalTests.csproj
