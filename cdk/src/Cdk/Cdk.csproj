@@ -23,13 +23,13 @@
   </ItemGroup>
   
   <ItemGroup>
-    <None Update="configuration\prod_configuration.json">
+    <None Update="configuration\Prod_configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="configuration\prod-je_configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="configuration\dev_configuration.json">
+    <None Update="configuration\Dev_configuration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
