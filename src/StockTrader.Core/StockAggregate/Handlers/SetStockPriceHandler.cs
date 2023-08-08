@@ -12,9 +12,9 @@ public class SetStockPriceHandler
 {
     private readonly IStockRepository stockRepository;
     private readonly IEventBus eventBus;
-    private readonly IFeatureFlags featureFlags;
+    private readonly IStockPriceFeatures featureFlags;
 
-    public SetStockPriceHandler(IStockRepository stockRepository, IEventBus eventBus, IFeatureFlags featureFlags)
+    public SetStockPriceHandler(IStockRepository stockRepository, IEventBus eventBus, IStockPriceFeatures featureFlags)
     {
         this.stockRepository = stockRepository;
         this.eventBus = eventBus;
@@ -28,23 +28,14 @@ public class SetStockPriceHandler
 
         Logger.LogInformation("Handling update stock price request");
 
-        var shouldIncreaseStockPrice = this.featureFlags.Evaluate("ten_percent_share_increase");
-
-        if (shouldIncreaseStockPrice.ToString() == "True")
+        if (this.featureFlags.ShouldIncreaseStockPrice())
         {
             Tracing.AddAnnotation("is_price_increase", true);
             
             request.NewPrice *= 1.1M;
         }
-
-        var isCustomerInlineForDecrease = this.featureFlags.Evaluate(
-            "reduce_stock_price_for_company",
-            new Dictionary<string, object>(1)
-            {
-                { "stock_symbol", request.StockSymbol }
-            });
         
-        if (isCustomerInlineForDecrease.ToString() == "True")
+        if (this.featureFlags.DoesStockCodeHaveDecrease(request.StockSymbol))
         {
             Tracing.AddAnnotation("is_stock_decrease", true);
             

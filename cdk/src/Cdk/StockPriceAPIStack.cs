@@ -11,9 +11,12 @@ using Constructs;
 
 namespace Cdk;
 
+using Cdk.Extensions;
+
 public record StockPriceStackProps(
     string Postfix,
-    StringParameter Parameter);
+    StringParameter Parameter,
+    UserPool UserPool);
 
 public class StockPriceAPIStack : Stack
 {
@@ -22,30 +25,41 @@ public class StockPriceAPIStack : Stack
     internal StockPriceAPIStack(
         Construct scope,
         string id,
-        StockPriceStackProps customProps,
+        StockPriceStackProps apiProps,
         IStackProps props = null) : base(
         scope,
         id,
         props)
     {
-        var userPool = this.CreateUserPool(customProps);
-
         var api = new RestApi(
             this,
-            $"StockPriceApi{customProps.Postfix}",
+            $"StockPriceApi{apiProps.Postfix}",
             new RestApiProps()
             {
-                RestApiName = $"StockPriceApi{customProps.Postfix}"
+                RestApiName = $"StockPriceApi{apiProps.Postfix}"
+            });
+        
+        var authorizer = new CognitoUserPoolsAuthorizer(
+            this,
+            "CognitoAuthorizer",
+            new CognitoUserPoolsAuthorizerProps
+            {
+                CognitoUserPools = new IUserPool[]
+                {
+                    apiProps.UserPool
+                },
+                AuthorizerName = "test_cognitoauthorizer",
+                IdentitySource = "method.request.header.Authorization"
             });
 
-        var idempotencyTracker = this.CreatePersistenceLayer(customProps.Postfix);
+        var idempotencyTracker = this.CreatePersistenceLayer(apiProps.Postfix);
 
         var eventBus = new EventBus(
             this,
             "StockSystemEventBus",
             new EventBusProps()
             {
-                EventBusName = $"StockSystemEventBus{customProps.Postfix}"
+                EventBusName = $"StockSystemEventBus{apiProps.Postfix}"
             });
         
         var describeEventBusPolicy = new PolicyStatement(
@@ -59,86 +73,49 @@ public class StockPriceAPIStack : Stack
             new PolicyStatementProps
             {
                 Actions = new[] { "ssm:GetParametersByPath" },
-                Resources = new[] { customProps.Parameter.ParameterArn }
+                Resources = new[] { apiProps.Parameter.ParameterArn }
             });
 
-        var setStockPriceFunction = this.CreateSetStockPriceEndpoint(customProps,
+        var setStockPriceFunction = this.CreateSetStockPriceEndpoint(apiProps,
             Table,
             eventBus,
             idempotencyTracker,
             describeEventBusPolicy,
             parameterReadPolicy);
 
-        var getStockPriceFunction = this.CreateGetStockPriceFunction(customProps,
+        var getStockPriceFunction = this.CreateGetStockPriceFunction(apiProps,
             this.Table,
             eventBus,
             idempotencyTracker,
             parameterReadPolicy,
             describeEventBusPolicy);
 
-        this.AddApiEndpoints(userPool,
-            api,
-            setStockPriceFunction,
-            getStockPriceFunction);
+        api.AddLambdaEndpoint(
+            setStockPriceFunction.Function,
+            authorizer,
+            "price", "POST");
+        
+        api.AddLambdaEndpoint(
+            getStockPriceFunction.Function,
+            authorizer,
+            "price", "GET");
 
         var tableNameOutput = new CfnOutput(
             this,
-            $"TableNameOutput{customProps.Postfix}",
+            $"TableNameOutput{apiProps.Postfix}",
             new CfnOutputProps
             {
                 Value = this.Table.TableName,
-                ExportName = $"TableName{customProps.Postfix}",
+                ExportName = $"TableName{apiProps.Postfix}",
                 Description = "Name of the main DynamoDB table"
             });
 
-        var apiEndpointOutput = new CfnOutput(this, $"APIEndpointOutput{customProps.Postfix}", new CfnOutputProps()
+        var apiEndpointOutput = new CfnOutput(this, $"APIEndpointOutput{apiProps.Postfix}", new CfnOutputProps()
         {
             Value = api.Url,
-            ExportName = $"ApiEndpoint{customProps.Postfix}",
+            ExportName = $"ApiEndpoint{apiProps.Postfix}",
             Description = "Endpoint of the Stock price API"
         });
-    }
-
-    private void AddApiEndpoints(
-        UserPool userPool,
-        RestApi api,
-        LambdaFunction setStockPriceFunction,
-        LambdaFunction getStockPriceFunction)
-    {
-        var userPoolAuthorizer = new CognitoUserPoolsAuthorizer(
-            this,
-            "CognitoAuthorizer",
-            new CognitoUserPoolsAuthorizerProps
-            {
-                CognitoUserPools = new IUserPool[]
-                {
-                    userPool
-                },
-                AuthorizerName = "test_cognitoauthorizer",
-                IdentitySource = "method.request.header.Authorization"
-            });
-
-        var priceResource = api.Root.AddResource("price");
-
-        priceResource.AddMethod(
-            "PUT",
-            new LambdaIntegration(setStockPriceFunction.Function),
-            new MethodOptions
-            {
-                AuthorizationType = AuthorizationType.COGNITO,
-                Authorizer = userPoolAuthorizer
-            });
-
-        var getResource = priceResource.AddResource("{stockSymbol}");
-
-        getResource.AddMethod(
-            "GET",
-            new LambdaIntegration(getStockPriceFunction.Function),
-            new MethodOptions()
-            {
-                AuthorizationType = AuthorizationType.COGNITO,
-                Authorizer = userPoolAuthorizer
-            });
     }
 
     private LambdaFunction CreateGetStockPriceFunction(
@@ -253,95 +230,6 @@ public class StockPriceAPIStack : Stack
             });
         
         return idempotencyTracker;
-    }
-
-    private UserPool CreateUserPool(StockPriceStackProps props)
-    {
-        var userPool = new UserPool(
-            this,
-            $"StockPriceUserPool{props.Postfix}",
-            new UserPoolProps
-            {
-                UserPoolName = $"stock-service-users{props.Postfix}",
-                SelfSignUpEnabled = true,
-                SignInAliases = new SignInAliases
-                {
-                    Email = true
-                },
-                AutoVerify = new AutoVerifiedAttrs
-                {
-                    Email = true
-                },
-                StandardAttributes = new StandardAttributes
-                {
-                    GivenName = new StandardAttribute
-                    {
-                        Required = true
-                    },
-                    FamilyName = new StandardAttribute
-                    {
-                        Required = true
-                    }
-                },
-                PasswordPolicy = new PasswordPolicy
-                {
-                    MinLength = 6,
-                    RequireDigits = true,
-                    RequireLowercase = true,
-                    RequireSymbols = false,
-                    RequireUppercase = false
-                },
-                AccountRecovery = AccountRecovery.EMAIL_ONLY,
-                RemovalPolicy = RemovalPolicy.DESTROY
-            });
-
-        var userPoolClient = new UserPoolClient(
-            this,
-            $"StockPriceClient{props.Postfix}",
-            new UserPoolClientProps()
-            {
-                UserPool = userPool,
-                UserPoolClientName = "api-login",
-                AuthFlows = new AuthFlow()
-                {
-                    AdminUserPassword = true,
-                    Custom = true,
-                    UserSrp = true
-                },
-                SupportedIdentityProviders = new[]
-                {
-                    UserPoolClientIdentityProvider.COGNITO,
-                },
-                ReadAttributes = new ClientAttributes().WithStandardAttributes(
-                    new StandardAttributesMask()
-                    {
-                        GivenName = true,
-                        FamilyName = true,
-                        Email = true,
-                        EmailVerified = true
-                    }),
-                WriteAttributes = new ClientAttributes().WithStandardAttributes(
-                    new StandardAttributesMask()
-                    {
-                        GivenName = true,
-                        FamilyName = true,
-                        Email = true
-                    })
-            });
-
-        var userPoolOutput = new CfnOutput(this, $"UserPoolId{props.Postfix}", new CfnOutputProps()
-        {
-            Value = userPool.UserPoolId,
-            ExportName = $"UserPoolId{props.Postfix}"
-        });
-
-        var clientIdOutput = new CfnOutput(this, $"ClientId{props.Postfix}", new CfnOutputProps()
-        {
-            Value = userPoolClient.UserPoolClientId,
-            ExportName = $"ClientId{props.Postfix}"
-        });
-        
-        return userPool;
     }
 }
 

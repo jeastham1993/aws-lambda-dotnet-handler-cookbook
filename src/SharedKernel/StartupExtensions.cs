@@ -20,8 +20,6 @@ public static class StartupExtensions
 
         var dataString = provider.Get(config["CONFIGURATION_PARAM_NAME"]);
 
-        Console.WriteLine(dataString);
-
         services.AddSingleton<IFeatureFlags>(new FeatureFlags(JsonSerializer.Deserialize<Dictionary<string, object>>(dataString)));
         
         var sharedSettings = new SharedSettings()

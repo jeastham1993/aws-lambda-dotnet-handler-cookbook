@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 
 using SharedKernel;
 
+using StockTrader.Core;
 using StockTrader.Core.StockAggregate;
 using StockTrader.Core.StockAggregate.Handlers;
 
@@ -27,6 +28,8 @@ public static class StartupExtensions
         {
             options = new SharedServiceOptions();
         }
+
+        services.AddSingleton<IStockPriceFeatures, StockPriceFeatures>();
 
         if (!options.SkipAppConfiguration)
         {
