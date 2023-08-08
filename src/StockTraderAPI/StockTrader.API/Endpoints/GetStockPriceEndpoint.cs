@@ -29,8 +29,6 @@ public class GetStockPriceEndpoint
     {
         try
         {
-            Tracing.AddAnnotation("root_trace", Tracing.GetEntity().TraceId);
-            
             Tracing.AddAnnotation("stock_id", stockSymbol);
 
             var result = await this.repository.GetStock(new StockSymbol(stockSymbol));
