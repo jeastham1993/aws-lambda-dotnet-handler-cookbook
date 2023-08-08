@@ -23,7 +23,7 @@ public class StockApiDriver
             NewPrice = price
         };
         
-        var response = await this.httpClient.PutAsync("price", new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json`"));
+        var response = await this.httpClient.PostAsync("price", new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json`"));
 
         return response;
     }
