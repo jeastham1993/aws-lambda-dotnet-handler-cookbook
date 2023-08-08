@@ -42,21 +42,21 @@ jobs:
           dotnet test ./tests/Stocks.IntegrationTests/Stocks.IntegrationTests.csproj
       - name: Deploy to AWS
         run: |
-          export STACK_POSTFIX=dev
+          export STACK_POSTFIX=Dev
           cdk deploy --all --require-approval=never
       - name: Functional tests
         env:
           TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
         run: |
-          export STACK_POSTFIX=dev
+          export STACK_POSTFIX=Dev
           dotnet test ./tests/Stocks.FunctionalTests/Stocks.FunctionalTests.csproj
       - name: Deploy to AWS Production
         run: |
-          export STACK_POSTFIX=prod
+          export STACK_POSTFIX=Prod
           cdk deploy --all --require-approval=never
       - name: Functional tests
         env:
           TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
         run: |
-          export STACK_POSTFIX=prod
+          export STACK_POSTFIX=Prod
           dotnet test ./tests/Stocks.FunctionalTests/Stocks.FunctionalTests.csproj

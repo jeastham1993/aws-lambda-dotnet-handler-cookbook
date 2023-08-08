@@ -26,8 +26,10 @@ public class Setup : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var stackName = $"{(Environment.GetEnvironmentVariable("STACK_NAME") ?? "StockPriceStack")}{Environment.GetEnvironmentVariable("STACK_POSTFIX")}";
-        var authenticationStackName = $"{(Environment.GetEnvironmentVariable("STACK_NAME") ?? "AuthenticationStack")}{Environment.GetEnvironmentVariable("STACK_POSTFIX")}";
+        var stackPostfix = Environment.GetEnvironmentVariable("STACK_POSTFIX");
+        
+        var stackName = $"{(Environment.GetEnvironmentVariable("STACK_NAME") ?? "StockPriceStack")}{stackPostfix}";
+        var authenticationStackName = $"{(Environment.GetEnvironmentVariable("STACK_NAME") ?? "AuthenticationStack")}{stackPostfix}";
         
         var region = Environment.GetEnvironmentVariable("AWS_REGION_NAME") ?? "eu-west-1";
         var endpoint = RegionEndpoint.GetBySystemName(region);
@@ -54,16 +56,16 @@ public class Setup : IAsyncLifetime
         var outputs = response.Stacks[0].Outputs;
         var authOutputs = authStackResponse.Stacks[0].Outputs;
         
-        this._userPoolId = GetOutputVariable(authOutputs, "UserPoolId");
-        var clientId = GetOutputVariable(authOutputs, "ClientId");
+        this._userPoolId = GetOutputVariable(authOutputs, $"UserPoolId{stackPostfix}");
+        var clientId = GetOutputVariable(authOutputs, $"ClientId{stackPostfix}");
 
         this._testUsername = $"{Guid.NewGuid()}@example.com";
 
         var authToken = await CreateTestUser(clientId);
 
-        ApiUrl = GetOutputVariable(outputs, "StockPriceApiEndpoint");
+        ApiUrl = GetOutputVariable(outputs, $"StockPriceApiEndpoint{stackPostfix}");
         AuthToken = authToken;
-        _tableName = GetOutputVariable(outputs, "TableNameOutput");
+        _tableName = GetOutputVariable(outputs, $"TableNameOutput{stackPostfix}");
         _dynamoDbClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { RegionEndpoint = endpoint });
     }
 
