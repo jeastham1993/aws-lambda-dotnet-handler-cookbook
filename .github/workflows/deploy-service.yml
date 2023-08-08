@@ -43,7 +43,7 @@ jobs:
       - name: Deploy to AWS
         run: |
           export STACK_POSTFIX=Dev
-          cdk deploy StockPriceAPIStack --require-approval=never
+          cdk deploy StockPriceAPIStackDev --require-approval=never
       - name: Functional tests
         env:
           TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
@@ -53,7 +53,7 @@ jobs:
       - name: Deploy to AWS Production
         run: |
           export STACK_POSTFIX=Prod
-          cdk deploy StockPriceAPIStack --require-approval=never
+          cdk deploy StockPriceAPIStackProd --require-approval=never
       - name: Functional tests
         env:
           TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
