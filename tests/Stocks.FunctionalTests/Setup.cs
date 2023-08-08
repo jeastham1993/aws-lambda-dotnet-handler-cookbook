@@ -13,6 +13,10 @@ public class Setup : IAsyncLifetime
 {
     private string? _tableName;
     private AmazonDynamoDBClient? _dynamoDbClient;
+    private AmazonCognitoIdentityProviderClient _cognitoIdentityProviderClient;
+    
+    private string? _userPoolId;
+    private string _testUsername;
 
     public string ApiUrl { get; private set; } = default!;
     
@@ -22,54 +26,107 @@ public class Setup : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var stackName = Environment.GetEnvironmentVariable("STACK_NAME") ?? "StockPriceStack";
+        var stackName = $"{(Environment.GetEnvironmentVariable("STACK_NAME") ?? "StockPriceStack")}{Environment.GetEnvironmentVariable("STACK_POSTFIX")}";
+        var authenticationStackName = $"{(Environment.GetEnvironmentVariable("STACK_NAME") ?? "StockPriceStack")}{Environment.GetEnvironmentVariable("STACK_POSTFIX")}";
+        
         var region = Environment.GetEnvironmentVariable("AWS_REGION_NAME") ?? "eu-west-1";
         var endpoint = RegionEndpoint.GetBySystemName(region);
         
         var chain = new CredentialProfileStoreChain();
 
         AmazonCloudFormationClient cloudFormationClient;
-        AmazonCognitoIdentityProviderClient cognitoIdentityProviderClient;
         
         AWSCredentials awsCredentials;
         
         if (chain.TryGetAWSCredentials("dev", out awsCredentials))
         {
             cloudFormationClient = new AmazonCloudFormationClient(awsCredentials, endpoint);
-            cognitoIdentityProviderClient = new AmazonCognitoIdentityProviderClient(awsCredentials, endpoint);
+            _cognitoIdentityProviderClient = new AmazonCognitoIdentityProviderClient(awsCredentials, endpoint);
         }
         else
         {
             cloudFormationClient = new AmazonCloudFormationClient(endpoint);
-            cognitoIdentityProviderClient = new AmazonCognitoIdentityProviderClient();
+            _cognitoIdentityProviderClient = new AmazonCognitoIdentityProviderClient();
         }
         
         var response = await cloudFormationClient.DescribeStacksAsync(new DescribeStacksRequest() { StackName = stackName });
+        var authStackResponse = await cloudFormationClient.DescribeStacksAsync(new DescribeStacksRequest() { StackName = authenticationStackName });
         var outputs = response.Stacks[0].Outputs;
+        var authOutputs = authStackResponse.Stacks[0].Outputs;
         
-        var userPoolId = GetOutputVariable(outputs, "UserPoolId");
-        var clientId = GetOutputVariable(outputs, "ClientId");
+        this._userPoolId = GetOutputVariable(authOutputs, "UserPoolId");
+        var clientId = GetOutputVariable(authOutputs, "ClientId");
 
-        var auth = cognitoIdentityProviderClient.AdminInitiateAuthAsync(new AdminInitiateAuthRequest()
-        {
-            UserPoolId = userPoolId,
-            ClientId = clientId,
-            AuthFlow = AuthFlowType.ADMIN_NO_SRP_AUTH,
-            AuthParameters = new Dictionary<string, string>(2)
-            {
-                { "USERNAME", "john@example.com" },
-                { "PASSWORD", Environment.GetEnvironmentVariable("USER_PASSWORD") ?? "mypassword123" },
-            }
-        }).GetAwaiter().GetResult();
+        this._testUsername = $"{Guid.NewGuid()}@example.com";
+
+        var authToken = await CreateTestUser(clientId);
 
         ApiUrl = GetOutputVariable(outputs, "StockPriceApiEndpoint");
-        AuthToken = auth.AuthenticationResult.IdToken;
+        AuthToken = authToken;
         _tableName = GetOutputVariable(outputs, "TableNameOutput");
         _dynamoDbClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { RegionEndpoint = endpoint });
     }
 
+    private async Task<string> CreateTestUser(string userPoolClientId)
+    {
+        var createdUser = await _cognitoIdentityProviderClient.AdminCreateUserAsync(new AdminCreateUserRequest()
+        {
+            UserPoolId = this._userPoolId,
+            Username = this._testUsername,
+            UserAttributes = new List<AttributeType>(2)
+            {
+                new()
+                {
+                    Name = "given_name",
+                    Value = "John"
+                },
+                new()
+                {
+                    Name = "family_name",
+                    Value = "Doe"
+                }
+            }
+        });
+    
+        var setUserPassword = await _cognitoIdentityProviderClient.AdminSetUserPasswordAsync(
+            new AdminSetUserPasswordRequest()
+            {
+                UserPoolId = this._userPoolId,
+                Username = this._testUsername,
+                Permanent = true,
+                Password = Environment.GetEnvironmentVariable("TEMPORARY_PASSWORD")
+            });
+    
+        var authOutput = await _cognitoIdentityProviderClient.AdminInitiateAuthAsync(
+            new AdminInitiateAuthRequest()
+            {
+                UserPoolId = this._userPoolId,
+                ClientId = userPoolClientId,
+                AuthFlow = AuthFlowType.ADMIN_NO_SRP_AUTH,
+                AuthParameters = new Dictionary<string, string>(2)
+                {
+                    {"USERNAME", this._testUsername},
+                    {"PASSWORD", Environment.GetEnvironmentVariable("TEMPORARY_PASSWORD")},
+                }
+            });
+
+        return authOutput.AuthenticationResult.IdToken;
+    }
+
+    private async Task DisposeUserAsync()
+    {
+        await _cognitoIdentityProviderClient.AdminDeleteUserAsync(
+            new AdminDeleteUserRequest()
+            {
+                UserPoolId = this._userPoolId,
+                Username = this._testUsername
+            });
+    }
+
     public async Task DisposeAsync()
     {
+        await this.DisposeUserAsync();
+        
         foreach (var id in this.CreatedStockSymbols)
         {
             try
