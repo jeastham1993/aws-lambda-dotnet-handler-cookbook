@@ -20,6 +20,7 @@
     <PackageReference Include="AWS.Lambda.Powertools.Tracing" Version="1.1.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\StockTrader.Core\StockTrader.Core.csproj" />
     <ProjectReference Include="..\StockTrader.Infrastructure\StockTrader.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

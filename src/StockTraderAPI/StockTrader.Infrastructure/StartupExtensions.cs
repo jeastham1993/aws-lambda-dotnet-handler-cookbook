@@ -1,4 +1,6 @@
-﻿namespace StockTrader.Infrastructure;
+﻿using SharedKernel;
+
+namespace StockTrader.Infrastructure;
 
 using Amazon.DynamoDBv2;
 using Amazon.EventBridge;

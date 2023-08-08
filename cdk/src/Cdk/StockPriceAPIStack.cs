@@ -129,7 +129,7 @@ public class StockPriceAPIStack : Stack
         var getStockPriceFunction = new LambdaFunction(
             this,
             $"GetStockPrice{customProps.Postfix}",
-            "src/StockTrader.API",
+            "src/StockTraderAPI/StockTrader.API",
             "StockTrader.API::StockTrader.API.Endpoints.GetStockPriceEndpoint_GetStockPrice_Generated::GetStockPrice",
             new Dictionary<string, string>(1)
             {
@@ -169,7 +169,7 @@ public class StockPriceAPIStack : Stack
         var setStockPriceFunction = new LambdaFunction(
             this,
             $"SetStockPrice{customProps.Postfix}",
-            "src/StockTrader.API",
+            "src/StockTraderAPI/StockTrader.API",
             "StockTrader.API::StockTrader.API.Endpoints.SetStockPriceEndpoint_SetStockPrice_Generated::SetStockPrice",
             new Dictionary<string, string>(1)
             {

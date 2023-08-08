@@ -2,6 +2,7 @@
 using Amazon.DynamoDBv2;
 using Amazon.EventBridge;
 using Amazon.Runtime.CredentialManagement;
+using Castle.Core.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -10,6 +11,7 @@ using SharedKernel.Events;
 using SharedKernel.Features;
 using StockTrader.API.Endpoints;
 using StockTrader.Infrastructure;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Stocks.Tests.Shared;
 

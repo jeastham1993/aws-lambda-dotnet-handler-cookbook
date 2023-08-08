@@ -9,12 +9,15 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
       <PackageReference Include="Moq" Version="4.18.4" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\StockTrader.API\StockTrader.API.csproj" />
-      <ProjectReference Include="..\..\src\StockTrader.Infrastructure\StockTrader.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\SharedKernel\SharedKernel.csproj" />
+      <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.API\StockTrader.API.csproj" />
+      <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.Core\StockTrader.Core.csproj" />
+      <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.Infrastructure\StockTrader.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

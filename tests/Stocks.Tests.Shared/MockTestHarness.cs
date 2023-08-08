@@ -1,10 +1,4 @@
-﻿using Amazon;
-using Amazon.DynamoDBv2;
-using Amazon.EventBridge;
-using Amazon.Runtime.CredentialManagement;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using SharedKernel;
 using SharedKernel.Events;
