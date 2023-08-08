@@ -10,11 +10,15 @@
             "key": "stock_symbol",
             "value": "AMZ"
           },
-
           {
             "action": "EQUALS",
             "key": "stock_symbol",
-            "value": "GOO"
+            "value": "123"
+          },
+          {
+            "action": "EQUALS",
+            "key": "stock_symbol",
+            "value": "456"
           }
         ]
       }
