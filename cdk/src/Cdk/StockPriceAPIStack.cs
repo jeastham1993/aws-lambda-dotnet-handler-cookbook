@@ -98,7 +98,7 @@ public class StockPriceAPIStack : Stack
         api.AddLambdaEndpoint(
             getStockPriceFunction.Function,
             authorizer,
-            "price", "GET");
+            "price/{stockSymbol}", "GET");
 
         var tableNameOutput = new CfnOutput(
             this,
