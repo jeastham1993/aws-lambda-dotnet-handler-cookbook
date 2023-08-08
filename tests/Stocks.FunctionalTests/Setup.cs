@@ -27,7 +27,7 @@ public class Setup : IAsyncLifetime
     public async Task InitializeAsync()
     {
         var stackName = $"{(Environment.GetEnvironmentVariable("STACK_NAME") ?? "StockPriceStack")}{Environment.GetEnvironmentVariable("STACK_POSTFIX")}";
-        var authenticationStackName = $"{(Environment.GetEnvironmentVariable("STACK_NAME") ?? "StockPriceStack")}{Environment.GetEnvironmentVariable("STACK_POSTFIX")}";
+        var authenticationStackName = $"{(Environment.GetEnvironmentVariable("STACK_NAME") ?? "AuthenticationStack")}{Environment.GetEnvironmentVariable("STACK_POSTFIX")}";
         
         var region = Environment.GetEnvironmentVariable("AWS_REGION_NAME") ?? "eu-west-1";
         var endpoint = RegionEndpoint.GetBySystemName(region);
