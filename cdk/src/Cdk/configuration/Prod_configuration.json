@@ -9,6 +9,12 @@
             "action": "EQUALS",
             "key": "stock_symbol",
             "value": "AMZ"
+          },
+
+          {
+            "action": "EQUALS",
+            "key": "stock_symbol",
+            "value": "GOO"
           }
         ]
       }
