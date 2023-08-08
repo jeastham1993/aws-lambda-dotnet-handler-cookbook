@@ -1,0 +1,9 @@
+{
+  "Metadata": {
+    "EventType": "StockPriceUpdated"
+  },
+  "Data": {
+    "Price": <$.dynamodb.NewImage.Price.N>,
+    "StockSymbol": <$.dynamodb.Keys.StockSymbol.S>
+  }
+}

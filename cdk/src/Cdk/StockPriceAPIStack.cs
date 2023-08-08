@@ -100,6 +100,9 @@ public class StockPriceAPIStack : Stack
             authorizer,
             "price/{stockSymbol}", "GET");
 
+        var topicPublisher = new TableToSNSChannel(this, $"StockPriceUpdatedChannel{apiProps.Postfix}", this.Table,
+            $"stock-price-updated{apiProps.Postfix}", "./cdk/src/CDK/input-transformers/stock-price-updated-transformer.json");
+
         var tableNameOutput = new CfnOutput(
             this,
             $"TableNameOutput{apiProps.Postfix}",
@@ -226,7 +229,8 @@ public class StockPriceAPIStack : Stack
                     Name = "StockSymbol",
                     Type = AttributeType.STRING
                 },
-                TableName = $"StockPriceTable{postfix}"
+                TableName = $"StockPriceTable{postfix}",
+                Stream = StreamViewType.NEW_AND_OLD_IMAGES,
             });
         
         return idempotencyTracker;

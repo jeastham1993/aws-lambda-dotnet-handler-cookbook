@@ -11,13 +11,11 @@ using StockTrader.Core.StockAggregate.Events;
 public class SetStockPriceHandler
 {
     private readonly IStockRepository stockRepository;
-    private readonly IEventBus eventBus;
     private readonly IStockPriceFeatures featureFlags;
 
-    public SetStockPriceHandler(IStockRepository stockRepository, IEventBus eventBus, IStockPriceFeatures featureFlags)
+    public SetStockPriceHandler(IStockRepository stockRepository, IStockPriceFeatures featureFlags)
     {
         this.stockRepository = stockRepository;
-        this.eventBus = eventBus;
         this.featureFlags = featureFlags;
     }
     
@@ -47,11 +45,6 @@ public class SetStockPriceHandler
         stock.SetStockPrice(request.NewPrice);
 
         await this.stockRepository.UpdateStock(stock);
-
-        await this.eventBus.Publish(
-            new StockPriceUpdatedV1Event(
-                stock.StockSymbol.Code,
-                stock.CurrentStockPrice));
 
         return new SetStockPriceResponse() { StockSymbol = stock.StockSymbol.Code, Price = stock.CurrentStockPrice };
     }

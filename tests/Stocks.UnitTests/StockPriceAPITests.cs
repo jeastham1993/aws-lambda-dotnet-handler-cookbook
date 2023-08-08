@@ -1,5 +1,6 @@
 using Stocks.Tests.Shared;
 using StockTrader.API.Endpoints;
+using StockTrader.Infrastructure;
 
 namespace Stocks.UnitTests;
 
@@ -47,11 +48,10 @@ public class SetStockPriceTests
         // Assert
         result.StatusCode.Should().Be(200);
 
-        var response = JsonSerializer.Deserialize<SetStockPriceResponse>(result.Body);
-        response?.StockSymbol.Should().Be("AMZ");
-        response?.Price.Should().Be(100);
+        var response = JsonSerializer.Deserialize<ApiWrapper<SetStockPriceResponse>>(result.Body);
+        response?.Data.StockSymbol.Should().Be("AMZ");
+        response?.Data.Price.Should().Be(100);
         
-        testHarness.MockEventBus.Verify(p => p.Publish(It.IsAny<StockPriceUpdatedV1Event>()), Times.Once);
         testHarness.MockStockRepository.Verify(p => p.UpdateStock(It.IsAny<Stock>()), Times.Once);
     }
     
@@ -88,11 +88,10 @@ public class SetStockPriceTests
         // Assert
         result.StatusCode.Should().Be(200);
 
-        var response = JsonSerializer.Deserialize<SetStockPriceResponse>(result.Body);
-        response?.StockSymbol.Should().Be("AMZ");
-        response?.Price.Should().Be(110);
+        var response = JsonSerializer.Deserialize<ApiWrapper<SetStockPriceResponse>>(result.Body);
+        response?.Data.StockSymbol.Should().Be("AMZ");
+        response?.Data.Price.Should().Be(110);
         
-        testHarness.MockEventBus.Verify(p => p.Publish(It.IsAny<StockPriceUpdatedV1Event>()), Times.Once);
         testHarness.MockStockRepository.Verify(p => p.UpdateStock(It.IsAny<Stock>()), Times.Once);
     }
     
@@ -129,11 +128,10 @@ public class SetStockPriceTests
         // Assert
         result.StatusCode.Should().Be(200);
 
-        var response = JsonSerializer.Deserialize<SetStockPriceResponse>(result.Body);
-        response?.StockSymbol.Should().Be("AMZ");
-        response?.Price.Should().Be(50);
+        var response = JsonSerializer.Deserialize<ApiWrapper<SetStockPriceResponse>>(result.Body);
+        response?.Data.StockSymbol.Should().Be("AMZ");
+        response?.Data.Price.Should().Be(50);
         
-        testHarness.MockEventBus.Verify(p => p.Publish(It.IsAny<StockPriceUpdatedV1Event>()), Times.Once);
         testHarness.MockStockRepository.Verify(p => p.UpdateStock(It.IsAny<Stock>()), Times.Once);
     }
     
