@@ -37,9 +37,12 @@ jobs:
       - name: Unit tests
         run: |
           dotnet test ./tests/Stocks.UnitTests/Stocks.UnitTests.csproj
-      - name: Deploy to AWS
-        run: |
-          cdk deploy --all --require-approval=never
       - name: Integration tests
         run: |
           dotnet test ./tests/Stocks.IntegrationTests/Stocks.IntegrationTests.csproj
+      - name: Deploy to AWS
+        run: |
+          cdk deploy --all --require-approval=never
+      - name: Functional tests
+        run: |
+          dotnet test ./tests/Stocks.FunctionalTests/Stocks.FunctionalTests.csproj
