@@ -6,8 +6,8 @@ name: Serverless Service CI/CD
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+    paths:
+      - cdk/src/CDK/configuration
 
 jobs:
   build:
@@ -34,16 +34,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
-      - name: Unit tests
-        run: |
-          dotnet test ./tests/Stocks.UnitTests/Stocks.UnitTests.csproj
-      - name: Integration tests
-        run: |
-          dotnet test ./tests/Stocks.IntegrationTests/Stocks.IntegrationTests.csproj
       - name: Deploy to AWS
         run: |
           export STACK_POSTFIX=Dev
-          cdk deploy StockPriceAPIStack --require-approval=never
+          cdk deploy ConfigurationStack --require-approval=never
       - name: Functional tests
         env:
           TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
@@ -53,7 +47,7 @@ jobs:
       - name: Deploy to AWS Production
         run: |
           export STACK_POSTFIX=Prod
-          cdk deploy StockPriceAPIStack --require-approval=never
+          cdk deploy ConfigurationStack --require-approval=never
       - name: Functional tests
         env:
           TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
