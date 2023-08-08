@@ -7,7 +7,7 @@ on:
   push:
     branches: [main]
     paths:
-      - cdk/src/CDK/configuration
+      - cdk/src/Cdk/configuration/**
 
 jobs:
   build:
