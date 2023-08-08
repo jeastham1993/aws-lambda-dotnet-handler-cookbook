@@ -22,8 +22,8 @@ public class Setup : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var stackName = Environment.GetEnvironmentVariable("AWS_SAM_STACK_NAME") ?? "StockPriceStack";
-        var region = Environment.GetEnvironmentVariable("AWS_SAM_REGION_NAME") ?? "us-east-1";
+        var stackName = Environment.GetEnvironmentVariable("STACK_NAME") ?? "StockPriceStack";
+        var region = Environment.GetEnvironmentVariable("AWS_REGION_NAME") ?? "eu-west-1";
         var endpoint = RegionEndpoint.GetBySystemName(region);
         
         var chain = new CredentialProfileStoreChain();
