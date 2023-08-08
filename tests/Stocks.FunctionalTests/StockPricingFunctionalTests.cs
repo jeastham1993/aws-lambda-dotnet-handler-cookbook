@@ -3,14 +3,14 @@ using FluentAssertions;
 
 namespace Stocks.FunctionalTests;
 
-public class StockPricingIntegrationTests : IClassFixture<Setup>, IDisposable
+public class StockPricingFunctionalTests : IClassFixture<Setup>, IDisposable
 {
     private readonly Setup _setup;
     private readonly HttpClient _client;
     private readonly StockApiDriver _driver;
     private bool disposed;
 
-    public StockPricingIntegrationTests(Setup setup)
+    public StockPricingFunctionalTests(Setup setup)
     {
         _setup = setup;
         _client = new HttpClient()

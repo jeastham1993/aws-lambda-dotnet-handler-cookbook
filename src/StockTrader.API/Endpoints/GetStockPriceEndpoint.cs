@@ -24,7 +24,7 @@ public class GetStockPriceEndpoint
     [RestApi(LambdaHttpMethod.Get, "/price/{stockSymbol}")]
     [Metrics(CaptureColdStart = true)]
     [Tracing]
-    public async Task<APIGatewayProxyResponse> GetStockPrice(string stockSymbol, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> GetStockPrice(string stockSymbol)
     {
         try
         {

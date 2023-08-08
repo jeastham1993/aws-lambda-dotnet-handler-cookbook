@@ -55,7 +55,8 @@ public class TestHarness
         IAmazonDynamoDB dynamoDbClient = null;
         IAmazonEventBridge eventBridgeClient = null;
         
-        var endpoint = RegionEndpoint.GetBySystemName("us-east-1");
+        var region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "eu-west-1";
+        var endpoint = RegionEndpoint.GetBySystemName(region);
         
         if (chain.TryGetAWSCredentials("dev", out var awsCredentials))
         {
@@ -64,7 +65,8 @@ public class TestHarness
         }
         else
         {
-            throw new Exception("Need a profile named dev");
+            serviceCollection.AddSingleton(new AmazonDynamoDBClient(endpoint));
+            serviceCollection.AddSingleton(new AmazonEventBridgeClient(endpoint));
         }
         
         serviceCollection.AddSingleton<IEventBus, EventBridgeEventBus>();
