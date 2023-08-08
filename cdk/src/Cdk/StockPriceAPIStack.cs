@@ -101,7 +101,7 @@ public class StockPriceAPIStack : Stack
             "price/{stockSymbol}", "GET");
 
         var topicPublisher = new TableToSNSChannel(this, $"StockPriceUpdatedChannel{apiProps.Postfix}", this.Table,
-            $"stock-price-updated{apiProps.Postfix}", "./cdk/src/CDK/input-transformers/stock-price-updated-transformer.json");
+            $"stock-price-updated{apiProps.Postfix}", "./cdk/src/Cdk/input-transformers/stock-price-updated-transformer.json");
 
         var tableNameOutput = new CfnOutput(
             this,
