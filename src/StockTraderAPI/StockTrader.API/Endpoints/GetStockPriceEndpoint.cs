@@ -39,8 +39,7 @@ public class GetStockPriceEndpoint
         }
         catch (StockNotFoundException)
         {
-            return ApiGatewayResponseBuilder.Build(HttpStatusCode.NotFound,
-                "NotFound");
+            return ApiGatewayResponseBuilder.Build(HttpStatusCode.NotFound, "NotFound");
         }
         catch (ArgumentException e)
         {
