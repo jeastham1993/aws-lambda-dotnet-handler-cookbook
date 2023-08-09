@@ -142,7 +142,7 @@ public class GetStockPriceEndpoint : Construct
     {
         this.Function = new LambdaFunction(
             this,
-            $"GetStockPrice{props.StackProps.Postfix}",
+            $"GetStockPriceEndpoint{props.StackProps.Postfix}",
             "src/StockTraderAPI/StockTrader.API",
             "StockTrader.API::StockTrader.API.Endpoints.GetStockPriceEndpoint_GetStockPrice_Generated::GetStockPrice",
             new Dictionary<string, string>(1)
@@ -196,7 +196,7 @@ public class SetStockPriceEndpoint : Construct
     {
         this.Function = new LambdaFunction(
             this,
-            $"SetStockPrice{props.StackProps.Postfix}",
+            $"SetStockPriceEndpoint{props.StackProps.Postfix}",
             "src/StockTraderAPI/StockTrader.API",
             "StockTrader.API::StockTrader.API.Endpoints.SetStockPriceEndpoint_SetStockPrice_Generated::SetStockPrice",
             new Dictionary<string, string>(1)
