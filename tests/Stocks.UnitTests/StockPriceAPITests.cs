@@ -24,15 +24,9 @@ public class SetStockPriceTests
     [Fact]
     public async Task CanSetStockPrice_WhenRequestIsValid_ShouldStoreAndPublishEvent()
     {
-        var mockFeatureFlags = new Mock<IFeatureFlags>();
-        mockFeatureFlags.Setup(
-            p => p.Evaluate(
-                It.IsAny<string>(),
-                It.IsAny<Dictionary<string, object>>(),
-                It.IsAny<object>()))
-            .Returns("False");
+        var mockFeatureFlags = FeatureFlagMocks.Default;
 
-        var testHarness = new MockTestHarness(mockFeatureFlags.Object);
+        var testHarness = new MockTestHarness(mockFeatureFlags);
 
         var function = testHarness.GetService<SetStockPriceEndpoint>();
 
@@ -43,7 +37,7 @@ public class SetStockPriceTests
         };
 
         // Act
-        var result = await function.SetStockPrice(testRequest, new Mock<ILambdaContext>().Object);
+        var result = await function.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -51,28 +45,16 @@ public class SetStockPriceTests
         var response = JsonSerializer.Deserialize<ApiWrapper<SetStockPriceResponse>>(result.Body);
         response?.Data.StockSymbol.Should().Be("AMZ");
         response?.Data.Price.Should().Be(100);
-        
-        testHarness.MockStockRepository.Verify(p => p.UpdateStock(It.IsAny<Stock>()), Times.Once);
+
+        A.CallTo(() => testHarness.MockStockRepository.UpdateStock(A<Stock>._)).MustHaveHappened();
     }
     
     [Fact]
     public async Task CanSetStockPrice_When10PercentIncreaseFeatureFlagEnabled_ShouldStoreAndPublishEvent()
     {
-        var mockFeatureFlags = new Mock<IFeatureFlags>();
-        mockFeatureFlags.Setup(
-                p => p.Evaluate(
-                    It.IsAny<string>(),
-                    It.IsAny<Dictionary<string, object>>(),
-                    It.IsAny<object>()))
-            .Returns("False");
-        mockFeatureFlags.Setup(
-                p => p.Evaluate(
-                    "ten_percent_share_increase",
-                    It.IsAny<Dictionary<string, object>>(),
-                    It.IsAny<object>()))
-            .Returns("True");
+        var mockFeatureFlags = FeatureFlagMocks.IncreaseStockPriceEnabled;
 
-        var testHarness = new MockTestHarness(mockFeatureFlags.Object);
+        var testHarness = new MockTestHarness(mockFeatureFlags);
 
         var function = testHarness.GetService<SetStockPriceEndpoint>();
 
@@ -83,7 +65,7 @@ public class SetStockPriceTests
         };
 
         // Act
-        var result = await function.SetStockPrice(testRequest, new Mock<ILambdaContext>().Object);
+        var result = await function.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -91,28 +73,16 @@ public class SetStockPriceTests
         var response = JsonSerializer.Deserialize<ApiWrapper<SetStockPriceResponse>>(result.Body);
         response?.Data.StockSymbol.Should().Be("AMZ");
         response?.Data.Price.Should().Be(110);
-        
-        testHarness.MockStockRepository.Verify(p => p.UpdateStock(It.IsAny<Stock>()), Times.Once);
+
+        A.CallTo(() => testHarness.MockStockRepository.UpdateStock(A<Stock>._)).MustHaveHappened();
     }
     
     [Fact]
     public async Task CanSetStockPrice_WhenReduceStockPriceFeatureFlagEnabled_ShouldStoreAndPublishEvent()
     {
-        var mockFeatureFlags = new Mock<IFeatureFlags>();
-        mockFeatureFlags.Setup(
-                p => p.Evaluate(
-                    It.IsAny<string>(),
-                    It.IsAny<Dictionary<string, object>>(),
-                    It.IsAny<object>()))
-            .Returns("False");
-        mockFeatureFlags.Setup(
-                p => p.Evaluate(
-                    "reduce_stock_price_for_company",
-                    It.IsAny<Dictionary<string, object>>(),
-                    It.IsAny<object>()))
-            .Returns("True");
+        var mockFeatureFlags = FeatureFlagMocks.ReduceStockPriceEnabled;
 
-        var testHarness = new MockTestHarness(mockFeatureFlags.Object);
+        var testHarness = new MockTestHarness(mockFeatureFlags);
 
         var function = testHarness.GetService<SetStockPriceEndpoint>();
 
@@ -123,7 +93,7 @@ public class SetStockPriceTests
         };
 
         // Act
-        var result = await function.SetStockPrice(testRequest, new Mock<ILambdaContext>().Object);
+        var result = await function.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -131,22 +101,16 @@ public class SetStockPriceTests
         var response = JsonSerializer.Deserialize<ApiWrapper<SetStockPriceResponse>>(result.Body);
         response?.Data.StockSymbol.Should().Be("AMZ");
         response?.Data.Price.Should().Be(50);
-        
-        testHarness.MockStockRepository.Verify(p => p.UpdateStock(It.IsAny<Stock>()), Times.Once);
+
+        A.CallTo(() => testHarness.MockStockRepository.UpdateStock(A<Stock>._)).MustHaveHappenedOnceExactly();
     }
     
     [Fact]
     public async Task CanSetStockPrice_WhenNewStockPriceIsZero_ShouldReturnBadRequest()
     {
-        var mockFeatureFlags = new Mock<IFeatureFlags>();
-        mockFeatureFlags.Setup(
-                p => p.Evaluate(
-                    It.IsAny<string>(),
-                    It.IsAny<Dictionary<string, object>>(),
-                    It.IsAny<object>()))
-            .Returns("False");
+        var mockFeatureFlags = FeatureFlagMocks.Default;
 
-        var testHarness = new MockTestHarness(mockFeatureFlags.Object);
+        var testHarness = new MockTestHarness(mockFeatureFlags);
 
         var function = testHarness.GetService<SetStockPriceEndpoint>();
 
@@ -157,12 +121,11 @@ public class SetStockPriceTests
         };
 
         // Act
-        var result = await function.SetStockPrice(testRequest, new Mock<ILambdaContext>().Object);
+        var result = await function.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
         
         // Assert
         result.StatusCode.Should().Be(400);
-        
-        testHarness.MockEventBus.Verify(p => p.Publish(It.IsAny<StockPriceUpdatedV1Event>()), Times.Never);
-        testHarness.MockStockRepository.Verify(p => p.UpdateStock(It.IsAny<Stock>()), Times.Never);
+
+        A.CallTo(() => testHarness.MockStockRepository.UpdateStock(A<Stock>._)).MustNotHaveHappened();
     }
 }

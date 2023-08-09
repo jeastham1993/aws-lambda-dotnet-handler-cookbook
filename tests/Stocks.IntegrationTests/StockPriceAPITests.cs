@@ -20,21 +20,16 @@ public class SetStockPriceTests
     [Fact]
     public async Task CanSetStockPrice_WhenRequestIsValid_ShouldStoreAndPublishEvent()
     {
-        var mockFeatureFlags = new Mock<IFeatureFlags>();
-        mockFeatureFlags.Setup(
-                p => p.Evaluate(
-                    It.IsAny<string>(),
-                    It.IsAny<Dictionary<string, object>>(),
-                    It.IsAny<object>()))
-            .Returns("False");
-        mockFeatureFlags.Setup(
-                p => p.Evaluate(
-                    "ten_percent_share_increase",
-                    It.IsAny<Dictionary<string, object>>(),
-                    It.IsAny<object>()))
+        var mockFeatureFlags = A.Fake<IFeatureFlags>();
+
+        A.CallTo(
+                () => mockFeatureFlags.Evaluate(
+                    A<string>.Ignored,
+                    A<Dictionary<string, object>>.Ignored,
+                    A<object>.Ignored))
             .Returns("False");
         
-        var testHarness = new TestHarness(mockFeatureFlags.Object);
+        var testHarness = new TestHarness(mockFeatureFlags);
         
         var setStockPriceEndpoint = testHarness.GetService<SetStockPriceEndpoint>();
         
@@ -45,7 +40,7 @@ public class SetStockPriceTests
         };
 
         // Act
-        var result = await setStockPriceEndpoint.SetStockPrice(testRequest, new Mock<ILambdaContext>().Object);
+        var result = await setStockPriceEndpoint.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -58,21 +53,23 @@ public class SetStockPriceTests
     [Fact]
     public async Task CanSetStockPrice_When10PercentIncreaseFeatureFlagEnabled_ShouldStoreAndPublishEvent()
     {
-        var mockFeatureFlags = new Mock<IFeatureFlags>();
-        mockFeatureFlags.Setup(
-                p => p.Evaluate(
-                    It.IsAny<string>(),
-                    It.IsAny<Dictionary<string, object>>(),
-                    It.IsAny<object>()))
+        var mockFeatureFlags = A.Fake<IFeatureFlags>();
+
+        A.CallTo(
+                () => mockFeatureFlags.Evaluate(
+                    A<string>._,
+                    A<Dictionary<string, object>>._,
+                    A<object>._))
             .Returns("False");
-        mockFeatureFlags.Setup(
-                p => p.Evaluate(
+
+        A.CallTo(
+                () => mockFeatureFlags.Evaluate(
                     "ten_percent_share_increase",
-                    It.IsAny<Dictionary<string, object>>(),
-                    It.IsAny<object>()))
+                    A<Dictionary<string, object>>._,
+                    A<object>._))
             .Returns("True");
         
-        var testHarness = new TestHarness(mockFeatureFlags.Object);
+        var testHarness = new TestHarness(mockFeatureFlags);
         
         var setStockPriceEndpoint = testHarness.GetService<SetStockPriceEndpoint>();
 
@@ -83,7 +80,7 @@ public class SetStockPriceTests
         };
 
         // Act
-        var result = await setStockPriceEndpoint.SetStockPrice(testRequest, new Mock<ILambdaContext>().Object);
+        var result = await setStockPriceEndpoint.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -109,7 +106,7 @@ public class SetStockPriceTests
         var setStockPriceEndpoint = testHarness.GetService<SetStockPriceEndpoint>();
 
         // Act
-        var result = await setStockPriceEndpoint.SetStockPrice(testRequest, new Mock<ILambdaContext>().Object);
+        var result = await setStockPriceEndpoint.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -135,7 +132,7 @@ public class SetStockPriceTests
         var setStockPriceEndpoint = testHarness.GetService<SetStockPriceEndpoint>();
 
         // Act
-        var result = await setStockPriceEndpoint.SetStockPrice(testRequest, new Mock<ILambdaContext>().Object);
+        var result = await setStockPriceEndpoint.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
         
         // Assert
         result.StatusCode.Should().Be(400);
@@ -153,7 +150,7 @@ public class SetStockPriceTests
 
         var testStockSymbol = Guid.NewGuid().ToString();
         
-        await setStockPriceEndpoint.SetStockPrice(new SetStockPriceRequest(){StockSymbol = testStockSymbol, NewPrice = 100}, new Mock<ILambdaContext>().Object);
+        await setStockPriceEndpoint.SetStockPrice(new SetStockPriceRequest(){StockSymbol = testStockSymbol, NewPrice = 100}, A.Fake<ILambdaContext>());
 
         // Act
         var result = await getStockPriceEndpoint.GetStockPrice(testStockSymbol);

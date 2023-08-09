@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using SharedKernel;
+using FakeItEasy;
 using SharedKernel.Events;
 using SharedKernel.Features;
 using StockTrader.API.Endpoints;
@@ -13,23 +12,22 @@ public class MockTestHarness
 {
     private IServiceProvider _serviceProvider;
     
-    public Mock<IStockRepository> MockStockRepository { get; private set; }
-    public Mock<IEventBus> MockEventBus { get; private set; }
+    public IStockRepository MockStockRepository { get; private set; }
+    public IEventBus MockEventBus { get; private set; }
 
     public MockTestHarness(IFeatureFlags featureFlags, bool useMocks = false)
     {
         var serviceCollection = new ServiceCollection();
         
         // Arrange
-        MockStockRepository = new Mock<IStockRepository>();
-        MockStockRepository.Setup(p => p.UpdateStock(It.IsAny<Stock>())).Verifiable();
-        MockEventBus = new Mock<IEventBus>();
-        MockEventBus.Setup(p => p.Publish(It.IsAny<Event>())).Verifiable();
+        MockStockRepository = A.Fake<IStockRepository>();
         
+        MockEventBus = A.Fake<IEventBus>();
+
         serviceCollection.AddSharedServices(new SharedServiceOptions(true, true, true));
 
-        serviceCollection.AddSingleton(MockStockRepository.Object);
-        serviceCollection.AddSingleton(MockEventBus.Object);
+        serviceCollection.AddSingleton(MockStockRepository);
+        serviceCollection.AddSingleton(MockEventBus);
         serviceCollection.AddSingleton(featureFlags);
         serviceCollection.AddSingleton<SetStockPriceEndpoint>();
 
