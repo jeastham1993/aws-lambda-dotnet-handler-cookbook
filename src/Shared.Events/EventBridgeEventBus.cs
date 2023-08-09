@@ -9,6 +9,8 @@ using AWS.Lambda.Powertools.Tracing;
 
 using Microsoft.Extensions.Options;
 
+using Shared.Events;
+
 public class EventBridgeEventBus : IEventBus
 {
     private readonly AmazonEventBridgeClient _eventBridgeClient;

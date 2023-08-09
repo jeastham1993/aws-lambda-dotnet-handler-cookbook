@@ -2,16 +2,13 @@ using Stocks.Tests.Shared;
 using StockTrader.API.Endpoints;
 using StockTrader.Infrastructure;
 
-namespace Stocks.UnitTests;
-
 using System.Text.Json;
 using Amazon.Lambda.Core;
 
-using SharedKernel.Features;
-
 using StockTrader.Core.StockAggregate;
-using StockTrader.Core.StockAggregate.Events;
 using StockTrader.Core.StockAggregate.Handlers;
+
+namespace Stocks.UnitTests;
 
 public class SetStockPriceTests
 {

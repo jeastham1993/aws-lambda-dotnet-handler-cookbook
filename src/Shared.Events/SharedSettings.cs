@@ -1,4 +1,4 @@
-namespace SharedKernel;
+namespace Shared.Events;
 
 public class SharedSettings
 {

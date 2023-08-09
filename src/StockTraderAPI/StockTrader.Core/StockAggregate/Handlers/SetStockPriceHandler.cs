@@ -3,11 +3,6 @@
 using AWS.Lambda.Powertools.Logging;
 using AWS.Lambda.Powertools.Tracing;
 
-using SharedKernel.Events;
-using SharedKernel.Features;
-
-using StockTrader.Core.StockAggregate.Events;
-
 public class SetStockPriceHandler
 {
     private readonly IStockRepository stockRepository;

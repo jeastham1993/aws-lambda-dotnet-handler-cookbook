@@ -11,7 +11,12 @@ using Constructs;
 
 namespace Cdk;
 
+using Amazon.CDK.AWS.SNS;
+using Amazon.CDK.CloudAssembly.Schema;
+
 using Cdk.Extensions;
+
+using Policy = Amazon.CDK.AWS.IAM.Policy;
 
 public record StockPriceStackProps(
     string Postfix,

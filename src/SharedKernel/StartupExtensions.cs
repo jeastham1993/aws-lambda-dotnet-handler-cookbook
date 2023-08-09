@@ -6,9 +6,7 @@ using AWS.Lambda.Powertools.Parameters;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
-using SharedKernel.Events;
 using SharedKernel.Features;
 
 public static class StartupExtensions
@@ -21,16 +19,6 @@ public static class StartupExtensions
         var dataString = provider.Get(config["CONFIGURATION_PARAM_NAME"]);
 
         services.AddSingleton<IFeatureFlags>(new FeatureFlags(JsonSerializer.Deserialize<Dictionary<string, object>>(dataString)));
-        
-        var sharedSettings = new SharedSettings()
-        {
-            EventBusName = config["EVENT_BUS_NAME"],
-            ServiceName = config["SERVICE_NAME"]
-        };
-
-        services.AddSingleton(Options.Create(sharedSettings));
-        
-        services.AddSingleton<IEventBus, EventBridgeEventBus>();
         
         return services;
     }

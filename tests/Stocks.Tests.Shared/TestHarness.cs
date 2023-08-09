@@ -15,6 +15,8 @@ using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Stocks.Tests.Shared;
 
+using global::Shared.Events;
+
 public class TestHarness
 {
     private IServiceProvider _serviceProvider;
