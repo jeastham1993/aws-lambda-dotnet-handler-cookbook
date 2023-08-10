@@ -18,6 +18,8 @@
       <ProjectReference Include="..\..\src\SharedKernel\SharedKernel.csproj" />
       <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.API\StockTrader.API.csproj" />
       <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.Core\StockTrader.Core.csproj" />
+      <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.HistoryManager\src\StockTrader.HistoryManager\StockTrader.HistoryManager.csproj" />
+      <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.HistoryManager\StockTrader.HistoryManager.csproj" />
       <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.Infrastructure\StockTrader.Infrastructure.csproj" />
     </ItemGroup>
 

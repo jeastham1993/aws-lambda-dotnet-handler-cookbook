@@ -13,7 +13,6 @@ public class SetStockPriceTests
 {
     public SetStockPriceTests()
     {
-        Environment.SetEnvironmentVariable("POWERTOOLS_METRICS_NAMESPACE", "test-stock-price");
         Environment.SetEnvironmentVariable("POWERTOOLS_TRACE_DISABLED", "true");
     }
 

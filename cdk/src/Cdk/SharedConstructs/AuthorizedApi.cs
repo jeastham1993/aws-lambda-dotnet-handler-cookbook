@@ -6,37 +6,39 @@ using Amazon.CDK.AWS.Lambda;
 
 using Constructs;
 
-public class CognitoAuthorizedApi : RestApi
+public class AuthorizedApi : RestApi
 {
-   private CognitoUserPoolsAuthorizer _authorizer;
+   public CognitoUserPoolsAuthorizer Authorizer { get; private set; }
    
-   public CognitoAuthorizedApi(
+   public AuthorizedApi(
       Construct scope,
       string id,
-      RestApiProps props,
-      UserPool userPool) : base(
+      RestApiProps props) : base(
       scope,
       id,
       props)
    {
-      this._authorizer = new CognitoUserPoolsAuthorizer(
+   }
+
+   public AuthorizedApi WithCognito(UserPool cognitoUserPool)
+   {
+      this.Authorizer = new CognitoUserPoolsAuthorizer(
          this,
          "CognitoAuthorizer",
          new CognitoUserPoolsAuthorizerProps
          {
             CognitoUserPools = new IUserPool[]
             {
-               userPool
+               cognitoUserPool
             },
             AuthorizerName = "cognitoauthorizer",
             IdentitySource = "method.request.header.Authorization"
          });
-   }
 
-   public IResource AddLambdaEndpoint(
-      Function lambdaFunction,
-      string path,
-      string httpMethod)
+      return this;
+   }
+   
+   public AuthorizedApi WithEndpoint(string path, HttpMethod method, Function function)
    {
       IResource? lastResource = null;
 
@@ -62,8 +64,8 @@ public class CognitoAuthorizedApi : RestApi
       }
 
       lastResource?.AddMethod(
-         httpMethod,
-         new LambdaIntegration(lambdaFunction),
+         method.ToString().ToUpper(),
+         new LambdaIntegration(function),
          new MethodOptions
          {
             MethodResponses = new IMethodResponse[]
@@ -73,9 +75,9 @@ public class CognitoAuthorizedApi : RestApi
                new MethodResponse { StatusCode = "500" }
             },
             AuthorizationType = AuthorizationType.COGNITO,
-            Authorizer = this._authorizer
+            Authorizer = this.Authorizer
          });
 
-      return lastResource;
+      return this;
    }
 }

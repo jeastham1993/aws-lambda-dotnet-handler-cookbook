@@ -16,7 +16,7 @@ var authenticationStack = new AuthenticationStack(
     $"AuthenticationStack{postFix}",
     new AuthenticationProps($"{postFix}"));
 
-var stockPriceStack = new StockPriceAPIStack(
+var stockPriceStack = new StockPriceApiStack(
     app,
     $"StockPriceStack{postFix}",
     new StockPriceStackProps(

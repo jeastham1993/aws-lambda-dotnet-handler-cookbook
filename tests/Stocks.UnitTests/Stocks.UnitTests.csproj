@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Amazon.Lambda.SNSEvents" Version="2.0.0" />
         <PackageReference Include="FakeItEasy" Version="7.4.0" />
         <PackageReference Include="FluentAssertions" Version="6.11.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
@@ -31,6 +32,8 @@
       <ProjectReference Include="..\..\src\SharedKernel\SharedKernel.csproj" />
       <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.API\StockTrader.API.csproj" />
       <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.Core\StockTrader.Core.csproj" />
+      <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.HistoryManager\src\StockTrader.HistoryManager\StockTrader.HistoryManager.csproj" />
+      <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.HistoryManager\StockTrader.HistoryManager.csproj" />
       <ProjectReference Include="..\Stocks.Tests.Shared\Stocks.Tests.Shared.csproj" />
     </ItemGroup>
 

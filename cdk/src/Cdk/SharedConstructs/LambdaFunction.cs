@@ -7,11 +7,12 @@ using XaasKit.CDK.AWS.Lambda.DotNet;
 
 namespace Cdk.SharedConstructs;
 
-using BundlingOptions = Amazon.CDK.BundlingOptions;
+using Amazon.CDK.AWS.Lambda.Destinations;
+using Amazon.CDK.AWS.SQS;
 
 public class LambdaFunction : Construct
 {
-    public Function Function { get; set; }
+    public Function Function { get; }
     
     public LambdaFunction(Construct scope, string id, string codePath, string handler, Dictionary<string, string> environmentVariables) : base(scope, id)
     {
@@ -25,7 +26,8 @@ public class LambdaFunction : Construct
             Environment = environmentVariables,
             Tracing = Tracing.ACTIVE,
             ProjectDir = codePath,
-            Architecture = Architecture.X86_64
+            Architecture = Architecture.X86_64,
+            OnFailure = new SqsDestination(new Queue(this, $"{id}FunctionDLQ")),
         });
     }
 }

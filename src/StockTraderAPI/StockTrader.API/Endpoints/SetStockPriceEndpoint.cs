@@ -3,9 +3,7 @@ using Amazon.Lambda.Annotations;
 using Amazon.Lambda.Annotations.APIGateway;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
-using AWS.Lambda.Powertools.Idempotency;
 using AWS.Lambda.Powertools.Logging;
-using AWS.Lambda.Powertools.Metrics;
 using AWS.Lambda.Powertools.Tracing;
 using StockTrader.Core.StockAggregate.Handlers;
 using StockTrader.Infrastructure;
@@ -28,6 +26,8 @@ public class SetStockPriceEndpoint
     {
         try
         {
+            Tracing.AddAnnotation("stock_symbol", request.StockSymbol);
+            
             var result = await this.handler.Handle(request);
 
             return ApiGatewayResponseBuilder.Build(

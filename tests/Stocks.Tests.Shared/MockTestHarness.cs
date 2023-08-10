@@ -8,6 +8,8 @@ using StockTrader.Infrastructure;
 
 namespace Stocks.Tests.Shared;
 
+using StockTrader.HistoryManager;
+
 public class MockTestHarness
 {
     private IServiceProvider _serviceProvider;
@@ -30,6 +32,7 @@ public class MockTestHarness
         serviceCollection.AddSingleton(MockEventBus);
         serviceCollection.AddSingleton(featureFlags);
         serviceCollection.AddSingleton<SetStockPriceEndpoint>();
+        serviceCollection.AddSingleton<AddStockHistoryFunction>();
 
         _serviceProvider = serviceCollection.BuildServiceProvider();
     }

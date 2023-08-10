@@ -1,10 +1,6 @@
-﻿using SharedKernel;
-
-namespace StockTrader.Infrastructure;
+﻿namespace StockTrader.Infrastructure;
 
 using Amazon.DynamoDBv2;
-using Amazon.EventBridge;
-using Amazon.EventBridge.Model;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 
 using AWS.Lambda.Powertools.Idempotency;
@@ -24,6 +20,8 @@ public static class StartupExtensions
 {
     public static IServiceCollection AddSharedServices(this IServiceCollection services, SharedServiceOptions? options = null)
     {
+        AWSSDKHandler.RegisterXRayForAllServices();
+        
         var postfix = Environment.GetEnvironmentVariable("STACK_POSTFIX");
         
         if (options is null)
@@ -76,21 +74,13 @@ public static class StartupExtensions
         AWSSDKHandler.RegisterXRayForAllServices();
 
         var dynamoDbClient = new AmazonDynamoDBClient();
-        var eventBridgeClient = new AmazonEventBridgeClient();
 
         var primingTasks = new List<Task>();
         primingTasks.Add(dynamoDbClient.DescribeTableAsync($"{Environment.GetEnvironmentVariable("TABLE_NAME")}{postfix}"));
-        primingTasks.Add(
-            eventBridgeClient.DescribeEventBusAsync(
-                new DescribeEventBusRequest
-                {
-                    Name = $"{Environment.GetEnvironmentVariable("EVENT_BUS_NAME")}{postfix}"
-                }));
 
         Task.WaitAll(primingTasks.ToArray());
 
         services.AddSingleton(dynamoDbClient);
-        services.AddSingleton(eventBridgeClient);
 
         var options = new IdempotencyOptionsBuilder()
             .WithThrowOnNoIdempotencyKey(true)

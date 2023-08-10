@@ -1,10 +1,17 @@
-﻿using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.Model;
-using AWS.Lambda.Powertools.Tracing;
-using Microsoft.Extensions.Options;
-using StockTrader.Core.StockAggregate;
+﻿namespace StockTrader.Infrastructure;
 
-namespace StockTrader.Infrastructure;
+using System.Text.Json;
+
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
+
+using AWS.Lambda.Powertools.Tracing;
+
+using Microsoft.Extensions.Options;
+
+using SharedKernel.Extensions;
+
+using StockTrader.Core.StockAggregate;
 
 public class StockRepository : IStockRepository
 {
@@ -13,46 +20,62 @@ public class StockRepository : IStockRepository
 
     public StockRepository(IOptions<InfrastructureSettings> settings, AmazonDynamoDBClient dynamoDbClient)
     {
-        _dynamoDbClient = dynamoDbClient;
-        _settings = settings.Value;
+        this._dynamoDbClient = dynamoDbClient;
+        this._settings = settings.Value;
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     [Tracing]
     public async Task UpdateStock(Stock stock)
     {
         var item = new Dictionary<string, AttributeValue>(3)
         {
-            { "StockSymbol", new AttributeValue(stock.StockSymbol.Code) },
+            { "PK", new AttributeValue(stock.StockSymbol.Code) },
+            { "SK", new AttributeValue(stock.StockSymbol.Code) },
+            { "Type", new AttributeValue("Stock")},
             {
-                "Price", new AttributeValue
-                {
-                    N = stock.CurrentStockPrice.ToString()
-                }
+                "Data", new AttributeValue(JsonSerializer.Serialize(stock))
             }
         };
 
         if (!string.IsNullOrEmpty(Tracing.GetEntity().TraceId))
-            item.Add("TraceIdentifier", new AttributeValue(Tracing.GetEntity().TraceId));
-        
-        await _dynamoDbClient.PutItemAsync(
-            _settings.TableName,
+            item.Add(
+                "TraceIdentifier",
+                new AttributeValue(Tracing.GetEntity().TraceId));
+
+        await this._dynamoDbClient.PutItemAsync(
+            this._settings.TableName,
             item);
+    }
+
+    /// <inheritdoc/>
+    public async Task AddHistory(StockHistory history)
+    {
+        await this._dynamoDbClient.PutItemAsync(
+            this._settings.TableName,
+            new Dictionary<string, AttributeValue>(3)
+            {
+                { "PK", new AttributeValue(history.StockSymbol.Code) },
+                { "SK", new AttributeValue($"HISTORY{history}#{history.OnDate.ToEpochTime()}") },
+                { "Type", new AttributeValue("StockHistory")},
+                { "Data", new AttributeValue(JsonSerializer.Serialize(history))}
+            });
     }
 
     [Tracing]
     public async Task<StockDTO> GetStock(StockSymbol symbol)
     {
-        var result = await _dynamoDbClient.GetItemAsync(_settings.TableName,
+        var result = await this._dynamoDbClient.GetItemAsync(
+            this._settings.TableName,
             new Dictionary<string, AttributeValue>(1)
             {
-                { "StockSymbol", new AttributeValue(symbol.Code) }
+                { "PK", new AttributeValue(symbol.Code) }
             });
 
         if (!result.IsItemSet) throw new StockNotFoundException(symbol);
 
-        var stock = new StockDTO(symbol.Code, decimal.Parse(result.Item["Price"].N));
+        var stock = JsonSerializer.Deserialize<Stock>(result.Item["Data"].S);
 
-        return stock;
+        return new StockDTO(stock);
     }
 }

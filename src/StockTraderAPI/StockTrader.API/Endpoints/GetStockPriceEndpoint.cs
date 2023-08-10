@@ -2,11 +2,7 @@
 using Amazon.Lambda.Annotations;
 using Amazon.Lambda.Annotations.APIGateway;
 using Amazon.Lambda.APIGatewayEvents;
-using Amazon.Lambda.Core;
-using Amazon.XRay.Recorder.Core.Internal.Context;
-using Amazon.XRay.Recorder.Core.Internal.Entities;
 using AWS.Lambda.Powertools.Logging;
-using AWS.Lambda.Powertools.Metrics;
 using AWS.Lambda.Powertools.Tracing;
 using StockTrader.Core.StockAggregate;
 using StockTrader.Infrastructure;
@@ -29,7 +25,7 @@ public class GetStockPriceEndpoint
     {
         try
         {
-            Tracing.AddAnnotation("stock_id", stockSymbol);
+            Tracing.AddAnnotation("stock_symbol", stockSymbol);
 
             var result = await this.repository.GetStock(new StockSymbol(stockSymbol));
 

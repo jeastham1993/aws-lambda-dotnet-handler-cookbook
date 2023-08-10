@@ -47,7 +47,7 @@ public class TableToSNSChannel : Construct
                 TargetParameters = new CfnPipe.PipeTargetParametersProperty()
                 {
                     InputTemplate = transformerFile == null ? null : File.ReadAllText(transformerFile),
-                }
+                },
             });
     }
 }

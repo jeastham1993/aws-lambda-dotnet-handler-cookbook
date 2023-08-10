@@ -17,13 +17,14 @@ namespace Stocks.Tests.Shared;
 
 using global::Shared.Events;
 
+using StockTrader.HistoryManager;
+
 public class TestHarness
 {
     private IServiceProvider _serviceProvider;
 
     public TestHarness(IFeatureFlags featureFlags)
     {
-        Environment.SetEnvironmentVariable("POWERTOOLS_METRICS_NAMESPACE", "test-stock-price");
         Environment.SetEnvironmentVariable("POWERTOOLS_SERVICE_NAME", "test-stock-price");
         Environment.SetEnvironmentVariable("POWERTOOLS_TRACE_DISABLED", "true");
         
@@ -40,15 +41,8 @@ public class TestHarness
         {
             TableName = $"{config["TABLE_NAME"]}{postfix}",
         };
-
-        var sharedSettings = new SharedSettings
-        {
-            EventBusName = $"{config["EVENT_BUS_NAME"]}{postfix}",
-            ServiceName = config["SERVICE_NAME"],
-        };
         
         serviceCollection.AddSingleton(Options.Create(infrastructureSettings));
-        serviceCollection.AddSingleton(Options.Create(sharedSettings));
         serviceCollection.AddSingleton<IConfiguration>(config);
 
         serviceCollection.AddSingleton(featureFlags);
@@ -57,6 +51,7 @@ public class TestHarness
 
         serviceCollection.AddSingleton<GetStockPriceEndpoint>();
         serviceCollection.AddSingleton<SetStockPriceEndpoint>();
+        serviceCollection.AddSingleton<AddStockHistoryFunction>();
         
         var chain = new CredentialProfileStoreChain();
 
@@ -69,15 +64,11 @@ public class TestHarness
         if (chain.TryGetAWSCredentials("dev", out var awsCredentials))
         {
             serviceCollection.AddSingleton(new AmazonDynamoDBClient(awsCredentials, endpoint));
-            serviceCollection.AddSingleton(new AmazonEventBridgeClient(awsCredentials, endpoint));
         }
         else
         {
             serviceCollection.AddSingleton(new AmazonDynamoDBClient(endpoint));
-            serviceCollection.AddSingleton(new AmazonEventBridgeClient(endpoint));
         }
-        
-        serviceCollection.AddSingleton<IEventBus, EventBridgeEventBus>();
 
         _serviceProvider = serviceCollection.BuildServiceProvider();
     }
