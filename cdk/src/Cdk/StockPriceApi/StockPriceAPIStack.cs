@@ -113,7 +113,8 @@ public class StockPriceApiStack : Stack
                     Type = AttributeType.STRING
                 },
                 TimeToLiveAttribute = "expiration",
-                TableName = $"StockPriceIdempotency{postfix}"
+                TableName = $"StockPriceIdempotency{postfix}",
+                RemovalPolicy = RemovalPolicy.DESTROY
             });
 
         this.Table = new Table(
@@ -134,6 +135,7 @@ public class StockPriceApiStack : Stack
                 },
                 TableName = $"StockPriceTable{postfix}",
                 Stream = StreamViewType.NEW_AND_OLD_IMAGES,
+                RemovalPolicy = RemovalPolicy.DESTROY
             });
 
         return idempotencyTracker;
