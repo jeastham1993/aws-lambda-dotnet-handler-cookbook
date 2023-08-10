@@ -35,6 +35,9 @@
     <None Update="input-transformers\stock-price-updated-transformer.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="filters\stock-updated-filter-pattern.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

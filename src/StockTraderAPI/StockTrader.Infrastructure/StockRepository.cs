@@ -33,6 +33,13 @@ public class StockRepository : IStockRepository
             { "PK", new AttributeValue(stock.StockSymbol.Code) },
             { "SK", new AttributeValue(stock.StockSymbol.Code) },
             { "Type", new AttributeValue("Stock")},
+            { "StockSymbol", new AttributeValue(stock.StockSymbol.Code)},
+            {
+                "Price", new AttributeValue()
+                {
+                    N = stock.CurrentStockPrice.ToString()
+                }
+            },
             {
                 "Data", new AttributeValue(JsonSerializer.Serialize(stock))
             }

@@ -1,6 +1,7 @@
 ﻿namespace Cdk.SharedConstructs;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Amazon.CDK.AWS.DynamoDB;
@@ -16,6 +17,7 @@ public class PointToPointChannel : Construct
     private string _id;
     private Construct _scope;
     private string _inputTransformer;
+    private CfnPipe.FilterCriteriaProperty _filterPattern;
 
     public ITable TableSource { get; private set; }
     
@@ -47,6 +49,29 @@ public class PointToPointChannel : Construct
         }
 
         this._inputTransformer = File.ReadAllText(filePath);
+
+        return this;
+    }
+
+    public PointToPointChannel WithFilterPatternFromFile(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            throw new ArgumentException(
+                "File not found",
+                nameof(filePath));
+        }
+
+        this._filterPattern = new CfnPipe.FilterCriteriaProperty()
+        {
+            Filters = new CfnPipe.FilterProperty[]
+            {
+                new()
+                {
+                    Pattern = File.ReadAllText(filePath)
+                }
+            }
+        };
 
         return this;
     }
@@ -91,6 +116,7 @@ public class PointToPointChannel : Construct
                 Source = this.TableSource.TableStreamArn,
                 SourceParameters = new CfnPipe.PipeSourceParametersProperty
                 {
+                    FilterCriteria = this._filterPattern,
                     DynamoDbStreamParameters = new CfnPipe.PipeSourceDynamoDBStreamParametersProperty()
                     {
                         StartingPosition = "LATEST",

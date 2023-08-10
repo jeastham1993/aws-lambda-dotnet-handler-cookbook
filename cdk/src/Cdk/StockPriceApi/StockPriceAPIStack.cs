@@ -74,6 +74,7 @@ public class StockPriceApiStack : Stack
 
         var messageChannel = new PointToPointChannel(this, $"StockPriceUpdatedChannel{apiProps.Postfix}")
             .WithSource(this.Table)
+            .WithFilterPatternFromFile("./cdk/src/Cdk/filters/stock-updated-filter-pattern.json")
             .WithInputTransformerFromFile("./cdk/src/Cdk/input-transformers/stock-price-updated-transformer.json")
             .WithTarget(pubSubChannel)
             .Build();
