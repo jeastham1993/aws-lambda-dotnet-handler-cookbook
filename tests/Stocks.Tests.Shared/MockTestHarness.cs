@@ -34,7 +34,7 @@ public class MockTestHarness
         _serviceProvider = serviceCollection.BuildServiceProvider();
     }
 
-    public T GetService<T>()
+    public T GetService<T>() where T : notnull
     {
         return this._serviceProvider.GetRequiredService<T>();
     }

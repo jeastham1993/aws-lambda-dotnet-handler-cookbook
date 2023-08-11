@@ -50,8 +50,8 @@ public class TestHarness
         
         var chain = new CredentialProfileStoreChain();
 
-        IAmazonDynamoDB dynamoDbClient = null;
-        IAmazonEventBridge eventBridgeClient = null;
+        IAmazonDynamoDB? dynamoDbClient = null;
+        IAmazonEventBridge? eventBridgeClient = null;
         
         var region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "eu-west-1";
         var endpoint = RegionEndpoint.GetBySystemName(region);
