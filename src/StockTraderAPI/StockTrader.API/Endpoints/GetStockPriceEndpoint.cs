@@ -25,9 +25,13 @@ public class GetStockPriceEndpoint
     {
         try
         {
+            Logger.LogInformation("Entered Handler");
+            
             Tracing.AddAnnotation("stock_symbol", stockSymbol);
 
             var result = await this.repository.GetCurrentStockPrice(new StockSymbol(stockSymbol));
+            
+            Logger.LogInformation("Retrieving Stock price");
 
             return ApiGatewayResponseBuilder.Build(
                 HttpStatusCode.OK,

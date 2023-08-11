@@ -16,7 +16,7 @@ public class StockPriceFeatures : IStockPriceFeatures
     {
         var shouldIncreaseStockPrice = this.featureFlags.Evaluate("ten_percent_share_increase");
 
-        return shouldIncreaseStockPrice.ToString() == "True";
+        return shouldIncreaseStockPrice == null ? false : shouldIncreaseStockPrice.ToString() == "True";
     }
 
     /// <inheritdoc />
@@ -29,6 +29,6 @@ public class StockPriceFeatures : IStockPriceFeatures
                 { "stock_symbol", stockCode }
             });
 
-        return isCustomerInlineForDecrease.ToString() == "True";
+        return isCustomerInlineForDecrease == null ? false : isCustomerInlineForDecrease.ToString() == "True";
     }
 }

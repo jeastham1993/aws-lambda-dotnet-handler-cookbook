@@ -23,7 +23,7 @@ public class GetStockPriceEndpoint : Construct
         this.Function = new LambdaFunction(
             this,
             $"GetStockPriceEndpoint{props.StackProps.Postfix}",
-            "src/StockTraderAPI/StockTrader.API",
+            "./src/StockTraderAPI/StockTrader.API/bin/Release/net7.0/StockTrader.API.zip",
             "StockTrader.API::StockTrader.API.Endpoints.GetStockPriceEndpoint_GetStockPrice_Generated::GetStockPrice",
             new Dictionary<string, string>(1)
             {
@@ -32,7 +32,8 @@ public class GetStockPriceEndpoint : Construct
                 { "ENV", props.StackProps.Postfix },
                 { "POWERTOOLS_SERVICE_NAME", $"StockPriceApi{props.StackProps.Postfix}" },
                 { "CONFIGURATION_PARAM_NAME", props.StackProps.Parameter.ParameterName }
-            }).Function;
+            },
+            isNativeAot: true).Function;
 
         props.Table.GrantReadWriteData(this.Function);
         props.Idempotency.GrantReadWriteData(this.Function);

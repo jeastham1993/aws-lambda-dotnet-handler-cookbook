@@ -19,8 +19,6 @@ public class SetStockPriceHandler
     {
         Tracing.AddAnnotation("stock_id", request.StockSymbol);
 
-        Logger.LogInformation("Handling update stock price request");
-
         if (this.featureFlags.ShouldIncreaseStockPrice())
         {
             Tracing.AddAnnotation("is_price_increase", true);
