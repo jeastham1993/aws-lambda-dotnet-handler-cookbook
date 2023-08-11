@@ -129,6 +129,16 @@ public class StockPriceApiStack : Stack
                 StringValue = topic.TopicArn
             });
 
+        var tableNameOutput = new CfnOutput(
+            this,
+            $"TableNameOutput{apiProps.Postfix}",
+            new CfnOutputProps
+            {
+                Value = this._table.TableName,
+                ExportName = $"TableNameOutput{apiProps.Postfix}",
+                Description = "Table name for storing stocks"
+            });
+
         var apiEndpointOutput = new CfnOutput(
             this,
             $"APIEndpointOutput{apiProps.Postfix}",
