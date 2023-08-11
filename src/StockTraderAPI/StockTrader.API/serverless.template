@@ -60,6 +60,35 @@
           }
         }
       }
+    },
+    "StockTraderAPIEndpointsGetStockPriceEndpointGetStockHistoryGenerated": {
+      "Type": "AWS::Serverless::Function",
+      "Metadata": {
+        "Tool": "Amazon.Lambda.Annotations",
+        "SyncedEvents": [
+          "RootGet"
+        ]
+      },
+      "Properties": {
+        "Runtime": "dotnet6",
+        "CodeUri": ".",
+        "MemorySize": 256,
+        "Timeout": 30,
+        "Policies": [
+          "AWSLambdaBasicExecutionRole"
+        ],
+        "PackageType": "Zip",
+        "Handler": "StockTrader.API::StockTrader.API.Endpoints.GetStockPriceEndpoint_GetStockHistory_Generated::GetStockHistory",
+        "Events": {
+          "RootGet": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/history/{stockSymbol}",
+              "Method": "GET"
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -8,15 +8,12 @@ using Amazon.CDK.AWS.Cognito;
 using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Lambda;
-using Amazon.CDK.AWS.Lambda.EventSources;
 using Amazon.CDK.AWS.SNS;
 using Amazon.CDK.AWS.SSM;
 
 using Cdk.SharedConstructs;
 
 using Constructs;
-
-using Policy = Amazon.CDK.AWS.IAM.Policy;
 
 public record StockPriceStackProps(
     string Postfix,
@@ -25,7 +22,8 @@ public record StockPriceStackProps(
 
 public class StockPriceApiStack : Stack
 {
-    public ITable Table { get; private set; }
+    private ITable _table;
+    private ITable _idempotency;
 
     internal StockPriceApiStack(
         Construct scope,
@@ -36,12 +34,12 @@ public class StockPriceApiStack : Stack
         id,
         props)
     {
-        var idempotencyTracker = this.CreatePersistenceLayer(apiProps.Postfix);
-        
+        this.CreatePersistenceLayer(apiProps.Postfix);
+
         var endpointProps = new SharedLambdaProps(
             apiProps,
-            this.Table,
-            idempotencyTracker);
+            this._table,
+            this._idempotency);
 
         var setStockPriceEndpoint = new SetStockPriceEndpoint(
             this,
@@ -53,40 +51,82 @@ public class StockPriceApiStack : Stack
             "GetStockPriceEndpoint",
             endpointProps);
 
-        var stockHistoryFunction = new AddStockHistoryFunction(
+        var getStockHistoryEndpoint = new GetStockHistoryEndpoint(
             this,
-            "StockHistoryHandler",
+            "GetStockHistoryEndpoint",
             endpointProps);
-        
-        var api = new AuthorizedApi(this, $"StockPriceApi{apiProps.Postfix}",
-            new RestApiProps
-            {
-                RestApiName = $"StockPriceApi{apiProps.Postfix}"
-            })
+
+        var api = new AuthorizedApi(
+                this,
+                $"StockPriceApi{apiProps.Postfix}",
+                new RestApiProps
+                {
+                    RestApiName = $"StockPriceApi{apiProps.Postfix}"
+                })
             .WithCognito(apiProps.UserPool)
-            .WithEndpoint("/price", HttpMethod.GET, getStockPriceEndpoint.Function)
-            .WithEndpoint("/price", HttpMethod.POST, setStockPriceEndpoint.Function);
+            .WithEndpoint(
+                "/price/{stockSymbol}",
+                HttpMethod.GET,
+                getStockPriceEndpoint.Function)
+            .WithEndpoint(
+                "/history/{stockSymbol}",
+                HttpMethod.GET,
+                getStockHistoryEndpoint.Function)
+            .WithEndpoint(
+                "/price",
+                HttpMethod.POST,
+                setStockPriceEndpoint.Function);
 
-        var pubSubChannel = new PublishSubscribeChannel(this, "StockPriceUpdatedChannel")
-            .WithTopicName($"StockPriceUpdatedTopic{apiProps.Postfix}")
-            .WithSubscriber(stockHistoryFunction.Function)
-            .Build();
-
-        var messageChannel = new PointToPointChannel(this, $"StockPriceUpdatedChannel{apiProps.Postfix}")
-            .WithSource(this.Table)
-            .WithFilterPatternFromFile("./cdk/src/Cdk/filters/stock-updated-filter-pattern.json")
-            .WithInputTransformerFromFile("./cdk/src/Cdk/input-transformers/stock-price-updated-transformer.json")
-            .WithTarget(pubSubChannel)
-            .Build();
-
-        var tableNameOutput = new CfnOutput(
+        var topic = new Topic(
             this,
-            $"TableNameOutput{apiProps.Postfix}",
-            new CfnOutputProps
+            $"StockPriceUpdatedTopic{apiProps.Postfix}");
+
+        topic.AddToResourcePolicy(
+            new PolicyStatement(
+                new PolicyStatementProps()
+                {
+                    Principals = new[] { new AccountPrincipal(this.Account) },
+                    Actions = new[] { "sns:Subscribe" },
+                    Resources = new[] { topic.TopicArn }
+                }));
+
+        new PointToPointChannel(
+                this,
+                $"StockPriceUpdatedChannel{apiProps.Postfix}")
+            .From(new DynamoDbSource(this._table))
+            .WithMessageFilter(
+                "eventName",
+                "INSERT")
+            .WithMessageFilter(
+                "dynamodb.NewImage.Type.S",
+                "Stock")
+            .WithMessageTranslation(
+                "GenerateEvent",
+                new Dictionary<string, object>(2)
+                {
+                    {
+                        "Metadata", new Dictionary<string, object>
+                        {
+                            { "EventType", "StockPriceUpdated" }
+                        }
+                    },
+                    {
+                        "Data", new Dictionary<string, object>(2)
+                        {
+                            { "StockSymbol.$", "$.dynamodb.NewImage.StockSymbol.S" },
+                            { "Price.$", "$.dynamodb.NewImage.Price.N" },
+                        }
+                    }
+                })
+            .To(new SnsTarget(topic));
+
+        var stockPriceUpdatedTopicParameter = new StringParameter(
+            this,
+            $"StockPriceUpdatedChannelParameter{apiProps.Postfix}",
+            new StringParameterProps()
             {
-                Value = this.Table.TableName,
-                ExportName = $"TableName{apiProps.Postfix}",
-                Description = "Name of the main DynamoDB table"
+                ParameterName = $"/stocks/{apiProps.Postfix}/stock-price-updated-channel",
+                StringValue = topic.TopicArn
             });
 
         var apiEndpointOutput = new CfnOutput(
@@ -100,9 +140,9 @@ public class StockPriceApiStack : Stack
             });
     }
 
-    private Table CreatePersistenceLayer(string postfix)
+    private void CreatePersistenceLayer(string postfix)
     {
-        var idempotencyTracker = new Table(
+        this._idempotency = new Table(
             this,
             "Idempotency",
             new TableProps
@@ -118,7 +158,7 @@ public class StockPriceApiStack : Stack
                 RemovalPolicy = RemovalPolicy.DESTROY
             });
 
-        this.Table = new Table(
+        this._table = new Table(
             this,
             "StockPriceTable",
             new TableProps
@@ -138,156 +178,5 @@ public class StockPriceApiStack : Stack
                 Stream = StreamViewType.NEW_AND_OLD_IMAGES,
                 RemovalPolicy = RemovalPolicy.DESTROY
             });
-
-        return idempotencyTracker;
-    }
-}
-
-public record SharedLambdaProps(
-    StockPriceStackProps StackProps,
-    ITable Table,
-    ITable Idempotency);
-
-public class GetStockPriceEndpoint : Construct
-{
-    public Function Function { get; }
-
-    public GetStockPriceEndpoint(
-        Construct scope,
-        string id,
-        SharedLambdaProps props) : base(
-        scope,
-        id)
-    {
-        this.Function = new LambdaFunction(
-            this,
-            $"GetStockPriceEndpoint{props.StackProps.Postfix}",
-            "src/StockTraderAPI/StockTrader.API",
-            "StockTrader.API::StockTrader.API.Endpoints.GetStockPriceEndpoint_GetStockPrice_Generated::GetStockPrice",
-            new Dictionary<string, string>(1)
-            {
-                { "TABLE_NAME", props.Table.TableName },
-                { "IDEMPOTENCY_TABLE_NAME", props.Idempotency.TableName },
-                { "ENV", props.StackProps.Postfix },
-                { "POWERTOOLS_SERVICE_NAME", $"StockPriceApi{props.StackProps.Postfix}" },
-                { "CONFIGURATION_PARAM_NAME", props.StackProps.Parameter.ParameterName }
-            }).Function;
-
-        props.Table.GrantReadWriteData(this.Function);
-        props.Idempotency.GrantReadWriteData(this.Function);
-        props.StackProps.Parameter.GrantRead(this.Function);
-
-        this.Function.Role.AttachInlinePolicy(
-            new Policy(
-                this,
-                "DescribeEventBus",
-                new PolicyProps
-                {
-                    Statements = new[]
-                    {
-                        new PolicyStatement(
-                            new PolicyStatementProps
-                            {
-                                Actions = new[] { "ssm:GetParametersByPath" },
-                                Resources = new[] { props.StackProps.Parameter.ParameterArn }
-                            })
-                    }
-                }));
-    }
-}
-
-public class SetStockPriceEndpoint : Construct
-{
-    public Function Function { get; }
-
-    public SetStockPriceEndpoint(
-        Construct scope,
-        string id,
-        SharedLambdaProps props) : base(
-        scope,
-        id)
-    {
-        this.Function = new LambdaFunction(
-            this,
-            $"SetStockPriceEndpoint{props.StackProps.Postfix}",
-            "src/StockTraderAPI/StockTrader.API",
-            "StockTrader.API::StockTrader.API.Endpoints.SetStockPriceEndpoint_SetStockPrice_Generated::SetStockPrice",
-            new Dictionary<string, string>(1)
-            {
-                { "TABLE_NAME", props.Table.TableName },
-                { "IDEMPOTENCY_TABLE_NAME", props.Idempotency.TableName },
-                { "ENV", props.StackProps.Postfix },
-                { "POWERTOOLS_SERVICE_NAME", $"StockPriceApi{props.StackProps.Postfix}" },
-                { "CONFIGURATION_PARAM_NAME", props.StackProps.Parameter.ParameterName }
-            }).Function;
-
-        props.Table.GrantReadWriteData(this.Function);
-        props.Idempotency.GrantReadWriteData(this.Function);
-        props.StackProps.Parameter.GrantRead(this.Function);
-
-        this.Function.Role.AttachInlinePolicy(
-            new Policy(
-                this,
-                "DescribeEventBus",
-                new PolicyProps
-                {
-                    Statements = new[]
-                    {
-                        new PolicyStatement(
-                            new PolicyStatementProps
-                            {
-                                Actions = new[] { "ssm:GetParametersByPath" },
-                                Resources = new[] { props.StackProps.Parameter.ParameterArn }
-                            })
-                    }
-                }));
-    }
-}
-
-public class AddStockHistoryFunction : Construct
-{
-    public Function Function { get; }
-
-    public AddStockHistoryFunction(
-        Construct scope,
-        string id,
-        SharedLambdaProps props) : base(
-        scope,
-        id)
-    {
-        this.Function = new LambdaFunction(
-            this,
-            $"AddStockHistoryHandler{props.StackProps.Postfix}",
-            "src/StockTraderAPI/StockTrader.HistoryManager",
-            "StockTrader.HistoryManager::StockTrader.HistoryManager.AddStockHistoryFunction_UpdateHistory_Generated::UpdateHistory",
-            new Dictionary<string, string>(1)
-            {
-                { "TABLE_NAME", props.Table.TableName },
-                { "ENV", props.StackProps.Postfix },
-                { "IDEMPOTENCY_TABLE_NAME", props.Idempotency.TableName },
-                { "POWERTOOLS_SERVICE_NAME", $"StockPriceApi{props.StackProps.Postfix}" },
-                { "CONFIGURATION_PARAM_NAME", props.StackProps.Parameter.ParameterName }
-            }).Function;
-
-        props.Table.GrantWriteData(this.Function);
-        props.Idempotency.GrantReadWriteData(this.Function);
-        props.StackProps.Parameter.GrantRead(this.Function);
-
-        this.Function.Role.AttachInlinePolicy(
-            new Policy(
-                this,
-                "CustomPolicy",
-                new PolicyProps
-                {
-                    Statements = new[]
-                    {
-                        new PolicyStatement(
-                            new PolicyStatementProps
-                            {
-                                Actions = new[] { "ssm:GetParametersByPath" },
-                                Resources = new[] { props.StackProps.Parameter.ParameterArn }
-                            })
-                    }
-                }));
     }
 }

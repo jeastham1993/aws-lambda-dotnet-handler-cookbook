@@ -1,0 +1,28 @@
+﻿namespace Cdk.SharedConstructs;
+
+using Amazon.CDK.AWS.DynamoDB;
+using Amazon.CDK.AWS.Pipes;
+
+public class DynamoDbSource : ChannelSource
+{
+    public ITable Table { get; }
+
+    public DynamoDbSource(ITable table)
+    {
+        this.Table = table;
+        this.SourceParameters = new CfnPipe.PipeSourceParametersProperty
+        {
+            DynamoDbStreamParameters = new CfnPipe.PipeSourceDynamoDBStreamParametersProperty
+            {
+                StartingPosition = "LATEST",
+                BatchSize = 1
+            }
+        };
+    }
+
+    /// <inheritdoc />
+    public override string SourceArn => this.Table.TableArn;
+
+    /// <inheritdoc />
+    public override CfnPipe.PipeSourceParametersProperty SourceParameters { get; }
+}

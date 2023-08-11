@@ -12,11 +12,14 @@ public class Stock
     private Stock(StockSymbol symbol)
     {
         this.StockSymbol = symbol;
+        this.StockHistories = new List<StockHistory>();
     }
     
     public StockSymbol StockSymbol { get; private set; }
     
     public decimal CurrentStockPrice { get; private set; }
+    
+    public List<StockHistory> StockHistories { get; private set; }
 
     public void SetStockPrice(decimal newStockPrice)
     {
@@ -26,7 +29,8 @@ public class Stock
                 "Stock price must be greater than 0",
                 nameof(newStockPrice));
         }
-
+        
+        this.StockHistories.Add(StockHistory.Create(this.StockSymbol, newStockPrice));
         this.CurrentStockPrice = newStockPrice;
     }
 }

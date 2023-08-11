@@ -43,4 +43,18 @@ public class StockApiDriver
 
         return stock.Data;
     }
+
+    public async Task<StockDTO?> GetStockHistory(string stockSymbol)
+    {
+        var response = await this.httpClient.GetAsync($"history/{stockSymbol}");
+
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            return null;
+        }
+
+        var stock = await response.Content.ReadFromJsonAsync<ApiWrapper<StockDTO>>();
+
+        return stock.Data;
+    }
 }

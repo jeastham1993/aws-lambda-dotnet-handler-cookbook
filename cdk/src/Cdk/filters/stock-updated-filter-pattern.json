@@ -1,9 +1,0 @@
-﻿{
-  "dynamodb": {
-    "NewImage": {
-      "Type": {
-        "S": ["Stock"]
-      }
-    }
-  }
-}

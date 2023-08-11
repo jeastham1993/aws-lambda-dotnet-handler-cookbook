@@ -27,7 +27,36 @@ public class GetStockPriceEndpoint
         {
             Tracing.AddAnnotation("stock_symbol", stockSymbol);
 
-            var result = await this.repository.GetStock(new StockSymbol(stockSymbol));
+            var result = await this.repository.GetCurrentStockPrice(new StockSymbol(stockSymbol));
+
+            return ApiGatewayResponseBuilder.Build(
+                HttpStatusCode.OK,
+                result);
+        }
+        catch (StockNotFoundException)
+        {
+            return ApiGatewayResponseBuilder.Build(HttpStatusCode.NotFound, "NotFound");
+        }
+        catch (ArgumentException e)
+        {
+            Logger.LogError(e);
+            
+            return ApiGatewayResponseBuilder.Build(
+                HttpStatusCode.BadRequest,
+                "Error");
+        }
+    }
+    
+    [LambdaFunction]
+    [RestApi(LambdaHttpMethod.Get, "/history/{stockSymbol}")]
+    [Tracing]
+    public async Task<APIGatewayProxyResponse> GetStockHistory(string stockSymbol)
+    {
+        try
+        {
+            Tracing.AddAnnotation("stock_symbol", stockSymbol);
+
+            var result = await this.repository.GetStockHistory(new StockSymbol(stockSymbol));
 
             return ApiGatewayResponseBuilder.Build(
                 HttpStatusCode.OK,

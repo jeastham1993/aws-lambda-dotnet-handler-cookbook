@@ -54,6 +54,19 @@ public class StockPricingFunctionalTests : IClassFixture<Setup>, IDisposable
     }
     
     [Fact]
+    public async Task ManageStockPrice_WithValidInput_ShouldCreateAndAddHistory()
+    {
+        var testStockSymbol = Guid.NewGuid().ToString();
+
+        await this._driver.CreateStock(testStockSymbol, 100.00M);
+
+        var retrievedStock = await this._driver.GetStockHistory(testStockSymbol);
+
+        retrievedStock?.StockSymbol.Should().Be(testStockSymbol);
+        retrievedStock.History.Count().Should().Be(1);
+    }
+    
+    [Fact]
     public async Task GetStockPrice_ForMissingStock_ShouldReturn404()
     {
         var testStockSymbol = Guid.NewGuid().ToString();

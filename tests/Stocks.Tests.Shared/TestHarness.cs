@@ -15,10 +15,6 @@ using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Stocks.Tests.Shared;
 
-using global::Shared.Events;
-
-using StockTrader.HistoryManager;
-
 public class TestHarness
 {
     private IServiceProvider _serviceProvider;
@@ -51,7 +47,6 @@ public class TestHarness
 
         serviceCollection.AddSingleton<GetStockPriceEndpoint>();
         serviceCollection.AddSingleton<SetStockPriceEndpoint>();
-        serviceCollection.AddSingleton<AddStockHistoryFunction>();
         
         var chain = new CredentialProfileStoreChain();
 

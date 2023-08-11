@@ -3,97 +3,174 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using Amazon.CDK.AWS.DynamoDB;
-using Amazon.CDK.AWS.Events.Targets;
 using Amazon.CDK.AWS.IAM;
+using Amazon.CDK.AWS.Logs;
 using Amazon.CDK.AWS.Pipes;
 using Amazon.CDK.AWS.SNS;
+using Amazon.CDK.AWS.StepFunctions;
 
 using Constructs;
 
+public enum Comparator
+{
+    GreaterThan,
+    LessThan,
+    EqualTo
+}
+
 public class PointToPointChannel : Construct
 {
-    private string _id;
+    private readonly string _id;
     private Construct _scope;
     private string _inputTransformer;
-    private CfnPipe.FilterCriteriaProperty _filterPattern;
+    private List<IChainable> _enrichmentSteps { get; }
+    private Succeed _enrichmentSuccess { get; }
 
-    public ITable TableSource { get; private set; }
+    private Pass _skipToEnd { get; }
     
-    public ITopic Topic { get; private set; }
+    private ChannelSource Source { get; set; }
     
-    public PointToPointChannel(Construct scope,
+    private ChannelTarget Target { get; set; }
+    
+
+    public PointToPointChannel(
+        Construct scope,
         string id) : base(
         scope,
         id)
     {
         this._scope = scope;
         this._id = id;
+        this._enrichmentSteps = new List<IChainable>();
+        this._enrichmentSuccess = new Succeed(
+            this,
+            "EnrichmentSuccess");
+
+        this._skipToEnd = new Pass(
+            this,
+            $"{id}SkipToEnd");
     }
 
-    public PointToPointChannel WithSource(ITable table)
+    public PointToPointChannel From(ChannelSource source)
     {
-        this.TableSource = table;
+        this.Source = source;
 
         return this;
     }
 
-    public PointToPointChannel WithInputTransformerFromFile(string filePath)
+    public PointToPointChannel WithMessageTranslation(string translationIdentifier, Dictionary<string, object> translatedMessage)
     {
-        if (!File.Exists(filePath))
-        {
-            throw new ArgumentException(
-                "File not found",
-                nameof(filePath));
-        }
-
-        this._inputTransformer = File.ReadAllText(filePath);
-
-        return this;
-    }
-
-    public PointToPointChannel WithFilterPatternFromFile(string filePath)
-    {
-        if (!File.Exists(filePath))
-        {
-            throw new ArgumentException(
-                "File not found",
-                nameof(filePath));
-        }
-
-        this._filterPattern = new CfnPipe.FilterCriteriaProperty()
-        {
-            Filters = new CfnPipe.FilterProperty[]
-            {
-                new()
+        this._enrichmentSteps.Add(
+            new Pass(
+                this,
+                $"{this._id}{translationIdentifier}Translator",
+                new PassProps
                 {
-                    Pattern = File.ReadAllText(filePath)
-                }
-            }
-        };
+                    Parameters = translatedMessage
+                }));
 
         return this;
     }
 
-    public PointToPointChannel WithTarget(Topic topic)
+    public PointToPointChannel WithMessageFilter(
+        string keyField,
+        Comparator comparator,
+        double value)
     {
-        this.Topic = topic;
+        Condition comparisonCondition = null;
 
-        return this;
-    }
-
-    public PointToPointChannel WithTarget(PublishSubscribeChannel channel)
-    {
-        if (channel.Topic != null)
+        switch (comparator)
         {
-            this.Topic = channel.Topic;
+            case Comparator.GreaterThan:
+                comparisonCondition = Condition.NumberGreaterThan(
+                    $"$.{keyField}",
+                    value);
+                break;
+            case Comparator.LessThan:
+                comparisonCondition = Condition.NumberLessThan(
+                    $"$.{keyField}",
+                    value);
+                break;
+            default:
+                comparisonCondition = Condition.NumberEquals(
+                    $"$.{keyField}",
+                    value);
+                break;
         }
 
+        var filterComplete = new Pass(
+            this,
+            $"{keyField}FilterComplete");
+
+        var choice = new Choice(
+                this,
+                $"{keyField.Replace(".", "-")}Filter")
+            .When(
+                Condition.And(
+                    Condition.IsPresent($"$.{keyField}"),
+                    comparisonCondition),
+                new Pass(
+                    this,
+                    $"{keyField.Replace(".", "-")}FilterPass").Next(filterComplete))
+            .Otherwise(
+                new Pass(
+                    this,
+                    $"{keyField.Replace(".", "-")}EmptyState",
+                    new PassProps
+                    {
+                        Result = new Result("{}")
+                    }).Next(_skipToEnd))
+            .Afterwards();
+
+        this._enrichmentSteps.Add(choice);
+
         return this;
     }
 
-    public PointToPointChannel Build()
+    public PointToPointChannel WithMessageFilter(string keyField, string value)
+    {
+        var filterComplete = new Pass(
+            this,
+            $"{keyField}FilterComplete");
+
+        var choice = new Choice(
+                this,
+                $"{keyField.Replace(".", "-")}Filter")
+            .When(
+                Condition.And(
+                    Condition.IsPresent($"$.{keyField}"),
+                    Condition.StringEquals(
+                        $"$.{keyField}",
+                        value)),
+                new Pass(
+                    this,
+                    $"{keyField.Replace(".", "-")}FilterPass").Next(filterComplete))
+            .Otherwise(
+                new Pass(
+                    this,
+                    $"{keyField.Replace(".", "-")}EmptyState",
+                    new PassProps
+                    {
+                        Result = new Result("{}")
+                    }).Next(_skipToEnd))
+            .Afterwards();
+
+        this._enrichmentSteps.Add(choice);
+
+        return this;
+    }
+
+    public void To(ChannelTarget target)
+    {
+        this.Target = target;
+
+        this.Build();
+    }
+
+    private void Build()
     {
         var pipeRole = new Role(
             this,
@@ -103,8 +180,66 @@ public class PointToPointChannel : Construct
                 AssumedBy = new ServicePrincipal("pipes.amazonaws.com")
             });
 
-        this.TableSource.GrantStreamRead(pipeRole);
-        this.Topic.GrantPublish(pipeRole);
+        switch (this.Source.GetType().Name)
+        {
+            case nameof(DynamoDbSource):
+                (this.Source as DynamoDbSource).Table.GrantStreamRead(pipeRole);
+                break;
+        }
+        
+        switch (this.Target.GetType().Name)
+        {
+            case nameof(SnsTarget):
+                (this.Target as SnsTarget).Topic.GrantPublish(pipeRole);
+                break;
+        }
+
+        StateMachine enrichment = null;
+
+        if (this._enrichmentSteps.Any())
+        {
+            Chain chain = null;
+            IChainable previousStep = null;
+
+            foreach (var step in this._enrichmentSteps)
+            {
+                if (previousStep == null)
+                {
+                    previousStep = step;
+                    continue;
+                }
+
+                previousStep.EndStates[1].Next(step);
+
+                previousStep = step;
+            }
+
+            chain = Chain.Start(this._enrichmentSteps[0]);
+
+            var loopInputRecords = new Map(
+                this,
+                "LoopRecords",
+                new MapProps()).Iterator(chain);
+
+            enrichment = new StateMachine(
+                this,
+                "StateMachine",
+                new StateMachineProps
+                {
+                    DefinitionBody = new ChainDefinitionBody(loopInputRecords.Next(this._enrichmentSuccess)),
+                    StateMachineType = StateMachineType.EXPRESS,
+                    Logs = new LogOptions
+                    {
+                        Level = LogLevel.ALL,
+                        IncludeExecutionData = true,
+                        Destination = new LogGroup(
+                            this,
+                            $"{this._id}EnrichmentLogGroup")
+                    }
+                });
+
+            enrichment.GrantStartSyncExecution(pipeRole);
+        }
 
         var pipe = new CfnPipe(
             this,
@@ -113,23 +248,11 @@ public class PointToPointChannel : Construct
             {
                 Name = $"{this._id}Pipe",
                 RoleArn = pipeRole.RoleArn,
-                Source = this.TableSource.TableStreamArn,
-                SourceParameters = new CfnPipe.PipeSourceParametersProperty
-                {
-                    FilterCriteria = this._filterPattern,
-                    DynamoDbStreamParameters = new CfnPipe.PipeSourceDynamoDBStreamParametersProperty()
-                    {
-                        StartingPosition = "LATEST",
-                        BatchSize = 1
-                    }
-                },
-                Target = this.Topic.TopicArn,
-                TargetParameters = new CfnPipe.PipeTargetParametersProperty()
-                {
-                    InputTemplate = this._inputTransformer,
-                },
+                Source = this.Source.SourceArn,
+                SourceParameters = this.Source.SourceParameters,
+                Enrichment = enrichment?.StateMachineArn,
+                Target = this.Target.TargetArn,
+                TargetParameters = this.Target.TargetParameters
             });
-
-        return this;
     }
 }
