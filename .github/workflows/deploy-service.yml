@@ -10,6 +10,7 @@ on:
       - cdk/src/Cdk/**
       - src/StockTraderAPI/**
       - tests/**
+      - .github/workflows/**
 
 jobs:
   build:
