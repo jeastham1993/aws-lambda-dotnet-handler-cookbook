@@ -40,9 +40,6 @@ jobs:
       - name: Unit tests
         run: |
           dotnet test ./tests/Stocks.UnitTests/Stocks.UnitTests.csproj
-      - name: Integration tests
-        run: |
-          dotnet test ./tests/Stocks.IntegrationTests/Stocks.IntegrationTests.csproj
       - name: Compile AOT
         run: |
           dotnet lambda package -pl src/StockTraderAPI/StockTrader.API
@@ -54,6 +51,9 @@ jobs:
         run: |
           export STACK_POSTFIX=Dev
           cdk deploy StockPriceStackDev --require-approval=never
+      - name: Integration tests
+        run: |
+          dotnet test ./tests/Stocks.IntegrationTests/Stocks.IntegrationTests.csproj
       - name: Functional tests
         env:
           TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
