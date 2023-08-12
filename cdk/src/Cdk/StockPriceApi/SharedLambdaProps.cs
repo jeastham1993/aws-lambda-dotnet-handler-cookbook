@@ -1,6 +1,6 @@
-﻿namespace Cdk;
+﻿using Amazon.CDK.AWS.DynamoDB;
 
-using Amazon.CDK.AWS.DynamoDB;
+namespace Cdk.StockPriceApi;
 
 public record SharedLambdaProps(
     StockPriceStackProps StackProps,

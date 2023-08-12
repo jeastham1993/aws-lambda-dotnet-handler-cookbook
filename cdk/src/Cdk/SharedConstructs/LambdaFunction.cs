@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using Amazon.CDK;
 using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.Logs;
@@ -10,13 +11,25 @@ namespace Cdk.SharedConstructs;
 using Amazon.CDK.AWS.Lambda.Destinations;
 using Amazon.CDK.AWS.SQS;
 
+public class LambdaFunctionProps : FunctionProps
+{
+    public LambdaFunctionProps(string codePath)
+    {
+        CodePath = codePath;
+    }
+    
+    public bool IsNativeAot { get; set; }
+    
+    public string CodePath { get; set; }
+}
+
 public class LambdaFunction : Construct
 {
     public Function Function { get; }
     
-    public LambdaFunction(Construct scope, string id, string codePath, string handler, Dictionary<string, string> environmentVariables, bool isNativeAot = false) : base(scope, id)
+    public LambdaFunction(Construct scope, string id, LambdaFunctionProps props) : base(scope, id)
     {
-        if (isNativeAot)
+        if (props.IsNativeAot)
         {
             this.Function = new Function(this, id, new FunctionProps()
             {
@@ -25,10 +38,10 @@ public class LambdaFunction : Construct
                 MemorySize = 1024,
                 LogRetention = RetentionDays.ONE_DAY,
                 Handler = "bootstrap",
-                Environment = environmentVariables,
+                Environment = props.Environment,
                 Tracing = Tracing.ACTIVE,
-                Code = Code.FromAsset(codePath),
-                Architecture = Architecture.ARM_64,
+                Code = Code.FromAsset(props.CodePath),
+                Architecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64 ? Architecture.ARM_64 : Architecture.X86_64,
                 OnFailure = new SqsDestination(new Queue(this, $"{id}FunctionDLQ")),
             });
         }
@@ -40,10 +53,10 @@ public class LambdaFunction : Construct
                 Runtime = Runtime.DOTNET_6,
                 MemorySize = 1024,
                 LogRetention = RetentionDays.ONE_DAY,
-                Handler = handler,
-                Environment = environmentVariables,
+                Handler = props.Handler,
+                Environment = props.Environment,
                 Tracing = Tracing.ACTIVE,
-                ProjectDir = codePath,
+                ProjectDir = props.CodePath,
                 Architecture = Architecture.X86_64,
                 OnFailure = new SqsDestination(new Queue(this, $"{id}FunctionDLQ")),
             });   

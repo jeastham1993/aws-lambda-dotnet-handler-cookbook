@@ -2,10 +2,9 @@ using System.Text.Json;
 using Amazon.Lambda.Core;
 using SharedKernel.Features;
 using Stocks.Tests.Shared;
-using StockTrader.API.Endpoints;
-using StockTrader.Core.StockAggregate;
 using StockTrader.Core.StockAggregate.Handlers;
 using StockTrader.Infrastructure;
+using StockTrader.SetStockPriceHandler;
 
 namespace Stocks.IntegrationTests;
 
@@ -30,7 +29,7 @@ public class SetStockPriceTests
         
         var testHarness = new TestHarness(mockFeatureFlags);
         
-        var setStockPriceEndpoint = testHarness.GetService<SetStockPriceEndpoint>();
+        var setStockPriceEndpoint = testHarness.GetService<Function>();
         
         var testRequest = new SetStockPriceRequest()
         {
@@ -70,7 +69,7 @@ public class SetStockPriceTests
         
         var testHarness = new TestHarness(mockFeatureFlags);
         
-        var setStockPriceEndpoint = testHarness.GetService<SetStockPriceEndpoint>();
+        var setStockPriceEndpoint = testHarness.GetService<Function>();
 
         var testRequest = new SetStockPriceRequest()
         {
@@ -102,7 +101,7 @@ public class SetStockPriceTests
         
         var testHarness = new TestHarness(mockFeatureFlags);
         
-        var setStockPriceEndpoint = testHarness.GetService<SetStockPriceEndpoint>();
+        var setStockPriceEndpoint = testHarness.GetService<Function>();
 
         // Act
         var result = await setStockPriceEndpoint.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
@@ -128,54 +127,12 @@ public class SetStockPriceTests
         
         var testHarness = new TestHarness(mockFeatureFlags);
         
-        var setStockPriceEndpoint = testHarness.GetService<SetStockPriceEndpoint>();
+        var setStockPriceEndpoint = testHarness.GetService<Function>();
 
         // Act
         var result = await setStockPriceEndpoint.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
         
         // Assert
         result.StatusCode.Should().Be(400);
-    }
-
-    [Fact]
-    public async Task CanGetStockPrice_WhenRequestIsValid_ShouldRetrieveStock()
-    {
-        var mockFeatureFlags = FeatureFlagMocks.Default;
-        
-        var testHarness = new TestHarness(mockFeatureFlags);
-        
-        var getStockPriceEndpoint = testHarness.GetService<GetStockPriceEndpoint>();
-        var setStockPriceEndpoint = testHarness.GetService<SetStockPriceEndpoint>();
-
-        var testStockSymbol = Guid.NewGuid().ToString();
-        
-        await setStockPriceEndpoint.SetStockPrice(new SetStockPriceRequest(){StockSymbol = testStockSymbol, NewPrice = 100}, A.Fake<ILambdaContext>());
-
-        // Act
-        var result = await getStockPriceEndpoint.GetStockPrice(testStockSymbol);
-        
-        // Assert
-        result.StatusCode.Should().Be(200);
-
-        var response = JsonSerializer.Deserialize<ApiWrapper<StockDTO>>(result.Body);
-        response?.Data.StockSymbol.Should().Be(testStockSymbol);
-    }
-
-    [Fact]
-    public async Task CanGetStockPrice_WhenRequestIsForUnknownStockCode_ShouldReturn404()
-    {
-        var mockFeatureFlags = FeatureFlagMocks.Default;
-        
-        var testHarness = new TestHarness(mockFeatureFlags);
-        
-        var getStockPriceEndpoint = testHarness.GetService<GetStockPriceEndpoint>();
-
-        var testStockSymbol = Guid.NewGuid().ToString();
-
-        // Act
-        var result = await getStockPriceEndpoint.GetStockPrice(testStockSymbol);
-        
-        // Assert
-        result.StatusCode.Should().Be(404);
     }
 }

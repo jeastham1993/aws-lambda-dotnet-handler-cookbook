@@ -6,6 +6,7 @@ using Amazon.CognitoIdentityProvider.Model;
 using Amazon.DynamoDBv2;
 using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
+using Stocks.Tests.Shared;
 
 namespace Stocks.FunctionalTests;
 
@@ -23,6 +24,8 @@ public class Setup : IAsyncLifetime
     public string? AuthToken { get; private set; }
 
     public List<string> CreatedStockSymbols { get; } = new();
+    
+    public AsyncTestManager AsyncTestManager { get; private set; }
 
     public async Task InitializeAsync()
     {
@@ -30,6 +33,7 @@ public class Setup : IAsyncLifetime
         
         var stackName = $"{(Environment.GetEnvironmentVariable("STACK_NAME") ?? "StockPriceStack")}{stackPostfix}";
         var authenticationStackName = $"{(Environment.GetEnvironmentVariable("STACK_NAME") ?? "AuthenticationStack")}{stackPostfix}";
+        var testInfrastructureStackName = $"{(Environment.GetEnvironmentVariable("STACK_NAME") ?? "StockTestInfrastructure")}{stackPostfix}";
         
         var region = Environment.GetEnvironmentVariable("AWS_REGION_NAME") ?? "eu-west-1";
         var endpoint = RegionEndpoint.GetBySystemName(region);
@@ -53,8 +57,11 @@ public class Setup : IAsyncLifetime
         
         var response = await cloudFormationClient.DescribeStacksAsync(new DescribeStacksRequest() { StackName = stackName });
         var authStackResponse = await cloudFormationClient.DescribeStacksAsync(new DescribeStacksRequest() { StackName = authenticationStackName });
+        var testStackResponse = await cloudFormationClient.DescribeStacksAsync(new DescribeStacksRequest() { StackName = testInfrastructureStackName });
+        
         var outputs = response.Stacks[0].Outputs;
         var authOutputs = authStackResponse.Stacks[0].Outputs;
+        var testOutputs = testStackResponse.Stacks[0].Outputs;
         
         this._userPoolId = GetOutputVariable(authOutputs, $"UserPoolId{stackPostfix}");
         var clientId = GetOutputVariable(authOutputs, $"ClientId{stackPostfix}");
@@ -62,11 +69,15 @@ public class Setup : IAsyncLifetime
         this._testUsername = $"{Guid.NewGuid()}@example.com";
 
         var authToken = await CreateTestUser(clientId);
+        _dynamoDbClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { RegionEndpoint = endpoint });
 
         ApiUrl = GetOutputVariable(outputs, $"APIEndpointOutput{stackPostfix}");
+        var asyncTestTable = GetOutputVariable(testOutputs, $"StockPriceTest{stackPostfix}");
+
+        AsyncTestManager = new AsyncTestManager(_dynamoDbClient, asyncTestTable);
+        
         AuthToken = authToken;
         _tableName = GetOutputVariable(outputs, $"TableNameOutput{stackPostfix}");
-        _dynamoDbClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { RegionEndpoint = endpoint });
     }
 
     private async Task<string> CreateTestUser(string userPoolClientId)

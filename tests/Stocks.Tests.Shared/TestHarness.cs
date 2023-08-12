@@ -2,15 +2,12 @@
 using Amazon.DynamoDBv2;
 using Amazon.EventBridge;
 using Amazon.Runtime.CredentialManagement;
-using Castle.Core.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using SharedKernel;
-using SharedKernel.Events;
 using SharedKernel.Features;
-using StockTrader.API.Endpoints;
 using StockTrader.Infrastructure;
+using StockTrader.SetStockPriceHandler;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Stocks.Tests.Shared;
@@ -44,9 +41,8 @@ public class TestHarness
         serviceCollection.AddSingleton(featureFlags);
 
         serviceCollection.AddSharedServices(new SharedServiceOptions(true, true));
-
-        serviceCollection.AddSingleton<GetStockPriceEndpoint>();
-        serviceCollection.AddSingleton<SetStockPriceEndpoint>();
+        
+        serviceCollection.AddSingleton<Function>();
         
         var chain = new CredentialProfileStoreChain();
 

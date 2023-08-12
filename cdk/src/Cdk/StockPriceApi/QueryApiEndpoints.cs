@@ -1,19 +1,16 @@
-﻿namespace Cdk;
-
-using System.Collections.Generic;
-
+﻿using System.Collections.Generic;
 using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Lambda;
-
 using Cdk.SharedConstructs;
-
 using Constructs;
 
-public class GetStockHistoryEndpoint : Construct
+namespace Cdk.StockPriceApi;
+
+public class QueryApiEndpoints : Construct
 {
     public Function Function { get; }
 
-    public GetStockHistoryEndpoint(
+    public QueryApiEndpoints(
         Construct scope,
         string id,
         SharedLambdaProps props) : base(
@@ -22,10 +19,11 @@ public class GetStockHistoryEndpoint : Construct
     {
         this.Function = new LambdaFunction(
             this,
-            $"GetStockHistoryEndpoint{props.StackProps.Postfix}",
-            "./src/StockTraderAPI/StockTrader.API/bin/Release/net7.0/StockTrader.API.zip",
-            "StockTrader.API::StockTrader.API.Endpoints.GetStockPriceEndpoint_GetStockHistory_Generated::GetStockHistory",
-            new Dictionary<string, string>(1)
+            $"StockQueryEndpoints{props.StackProps.Postfix}",
+            new LambdaFunctionProps("./src/StockTraderAPI/StockTrader.API/bin/Release/net7.0/StockTrader.API.zip")
+            {
+                Handler = "StockTrader.API::StockTrader.API.Endpoints.GetStockPriceEndpoint_GetStockPrice_Generated::GetStockPrice",
+            Environment = new Dictionary<string, string>(1)
             {
                 { "TABLE_NAME", props.Table.TableName },
                 { "IDEMPOTENCY_TABLE_NAME", props.Idempotency.TableName },
@@ -33,7 +31,8 @@ public class GetStockHistoryEndpoint : Construct
                 { "POWERTOOLS_SERVICE_NAME", $"StockPriceApi{props.StackProps.Postfix}" },
                 { "CONFIGURATION_PARAM_NAME", props.StackProps.Parameter.ParameterName }
             },
-            isNativeAot: true).Function;
+            IsNativeAot = true
+            }).Function;
 
         props.Table.GrantReadWriteData(this.Function);
         props.Idempotency.GrantReadWriteData(this.Function);

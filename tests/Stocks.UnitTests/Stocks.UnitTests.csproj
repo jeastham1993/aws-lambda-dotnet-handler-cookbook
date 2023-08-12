@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -30,7 +30,6 @@
     
     <ItemGroup>
       <ProjectReference Include="..\..\src\SharedKernel\SharedKernel.csproj" />
-      <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.API\StockTrader.API.csproj" />
       <ProjectReference Include="..\..\src\StockTraderAPI\StockTrader.Core\StockTrader.Core.csproj" />
       <ProjectReference Include="..\Stocks.Tests.Shared\Stocks.Tests.Shared.csproj" />
     </ItemGroup>

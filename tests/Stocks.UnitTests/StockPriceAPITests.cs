@@ -1,5 +1,4 @@
 using Stocks.Tests.Shared;
-using StockTrader.API.Endpoints;
 using StockTrader.Infrastructure;
 
 using System.Text.Json;
@@ -7,6 +6,7 @@ using Amazon.Lambda.Core;
 
 using StockTrader.Core.StockAggregate;
 using StockTrader.Core.StockAggregate.Handlers;
+using StockTrader.SetStockPriceHandler;
 
 namespace Stocks.UnitTests;
 
@@ -24,7 +24,7 @@ public class SetStockPriceTests
 
         var testHarness = new MockTestHarness(mockFeatureFlags);
 
-        var function = testHarness.GetService<SetStockPriceEndpoint>();
+        var function = testHarness.GetService<Function>();
 
         var testRequest = new SetStockPriceRequest()
         {
@@ -52,7 +52,7 @@ public class SetStockPriceTests
 
         var testHarness = new MockTestHarness(mockFeatureFlags);
 
-        var function = testHarness.GetService<SetStockPriceEndpoint>();
+        var function = testHarness.GetService<Function>();
 
         var testRequest = new SetStockPriceRequest()
         {
@@ -80,7 +80,7 @@ public class SetStockPriceTests
 
         var testHarness = new MockTestHarness(mockFeatureFlags);
 
-        var function = testHarness.GetService<SetStockPriceEndpoint>();
+        var function = testHarness.GetService<Function>();
 
         var testRequest = new SetStockPriceRequest()
         {
@@ -108,7 +108,7 @@ public class SetStockPriceTests
 
         var testHarness = new MockTestHarness(mockFeatureFlags);
 
-        var function = testHarness.GetService<SetStockPriceEndpoint>();
+        var function = testHarness.GetService<Function>();
 
         var testRequest = new SetStockPriceRequest()
         {

@@ -1,6 +1,7 @@
 ﻿using Amazon.CDK;
 
 using Cdk;
+using Cdk.StockPriceApi;
 
 var app = new App();
 
@@ -23,5 +24,8 @@ var stockPriceStack = new StockPriceApiStack(
         postFix,
         configStack.Parameter,
         authenticationStack.UserPool));
+
+var testInfrastructure = new StockPriceTestInfrastructureStack(app, $"StockTestInfrastructure{postFix}",
+    new StockPriceTestInfrastructureStackProps(stockPriceStack.StockUpdatedTopic, postFix));
 
 app.Synth();
