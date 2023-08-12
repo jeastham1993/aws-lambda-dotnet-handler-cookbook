@@ -1,13 +1,10 @@
-﻿namespace Cdk;
-
-using System.Collections.Generic;
-
+﻿using System.Collections.Generic;
 using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Lambda;
-
 using Cdk.SharedConstructs;
-
 using Constructs;
+
+namespace Cdk.StockPriceApi;
 
 public class SetStockPriceEndpoint : Construct
 {
@@ -23,15 +20,17 @@ public class SetStockPriceEndpoint : Construct
         this.Function = new LambdaFunction(
             this,
             $"SetStockPriceEndpoint{props.StackProps.Postfix}",
-            "src/StockTraderAPI/StockTrader.API",
-            "StockTrader.API::StockTrader.API.Endpoints.SetStockPriceEndpoint_SetStockPrice_Generated::SetStockPrice",
-            new Dictionary<string, string>(1)
+            new LambdaFunctionProps("./src/StockTraderAPI/StockTrader.SetStockPriceFunction")
             {
-                { "TABLE_NAME", props.Table.TableName },
-                { "IDEMPOTENCY_TABLE_NAME", props.Idempotency.TableName },
-                { "ENV", props.StackProps.Postfix },
-                { "POWERTOOLS_SERVICE_NAME", $"StockPriceApi{props.StackProps.Postfix}" },
-                { "CONFIGURATION_PARAM_NAME", props.StackProps.Parameter.ParameterName }
+                Handler    = "StockTrader.SetStockPriceFunction::StockTrader.SetStockPriceHandler.Function_SetStockPrice_Generated::SetStockPrice",
+                Environment = new Dictionary<string, string>(1)
+                {
+                    { "TABLE_NAME", props.Table.TableName },
+                    { "IDEMPOTENCY_TABLE_NAME", props.Idempotency.TableName },
+                    { "ENV", props.StackProps.Postfix },
+                    { "POWERTOOLS_SERVICE_NAME", $"StockPriceApi{props.StackProps.Postfix}" },
+                    { "CONFIGURATION_PARAM_NAME", props.StackProps.Parameter.ParameterName }
+                }
             }).Function;
 
         props.Table.GrantReadWriteData(this.Function);

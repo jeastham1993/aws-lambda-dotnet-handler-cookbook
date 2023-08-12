@@ -2,9 +2,9 @@
 using FakeItEasy;
 using SharedKernel.Events;
 using SharedKernel.Features;
-using StockTrader.API.Endpoints;
 using StockTrader.Core.StockAggregate;
 using StockTrader.Infrastructure;
+using StockTrader.SetStockPriceHandler;
 
 namespace Stocks.Tests.Shared;
 
@@ -29,7 +29,7 @@ public class MockTestHarness
         serviceCollection.AddSingleton(MockStockRepository);
         serviceCollection.AddSingleton(MockEventBus);
         serviceCollection.AddSingleton(featureFlags);
-        serviceCollection.AddSingleton<SetStockPriceEndpoint>();
+        serviceCollection.AddSingleton<Function>();
 
         _serviceProvider = serviceCollection.BuildServiceProvider();
     }

@@ -9,11 +9,11 @@ using StockTrader.Infrastructure;
 
 namespace StockTrader.API.Endpoints;
 
-public class GetStockPriceEndpoint
+public class GetStockEndpoints
 {
     private readonly IStockRepository repository;
 
-    public GetStockPriceEndpoint(IStockRepository repository)
+    public GetStockEndpoints(IStockRepository repository)
     {
         this.repository = repository;
     }

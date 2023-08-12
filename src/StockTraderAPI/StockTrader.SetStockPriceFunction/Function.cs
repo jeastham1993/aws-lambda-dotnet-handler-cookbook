@@ -8,13 +8,13 @@ using AWS.Lambda.Powertools.Tracing;
 using StockTrader.Core.StockAggregate.Handlers;
 using StockTrader.Infrastructure;
 
-namespace StockTrader.API.Endpoints;
+namespace StockTrader.SetStockPriceHandler;
 
-public class SetStockPriceEndpoint
+public class Function
 {
-    private readonly SetStockPriceHandler handler;
+    private readonly Core.StockAggregate.Handlers.SetStockPriceHandler handler;
 
-    public SetStockPriceEndpoint(SetStockPriceHandler handler)
+    public Function(Core.StockAggregate.Handlers.SetStockPriceHandler handler)
     {
         this.handler = handler;
     }

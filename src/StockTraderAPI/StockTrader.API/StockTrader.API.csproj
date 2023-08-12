@@ -1,19 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>bootstrap</AssemblyName>
+    <OutputType>exe</OutputType>
+    <PublishAot>true</PublishAot>
+    <OptimizationPreference>Size</OptimizationPreference>
+    <EventSourceSupport>false</EventSourceSupport>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <AWSProjectType>Lambda</AWSProjectType>
-    <!-- This property makes the build directory similar to a publish directory and helps the AWS .NET Lambda Mock Test Tool find project dependencies. -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <!-- Generate ready to run images during publishing to improve cold start time. -->
     <PublishReadyToRun>true</PublishReadyToRun>
+    <StripSymbols>true</StripSymbols>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Annotations" Version="1.0.0" />
     <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.6.0" />
     <PackageReference Include="Amazon.Lambda.Core" Version="2.1.0" />
+    <PackageReference Include="Amazon.Lambda.RuntimeSupport" Version="1.8.8" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.3.1" />
     <PackageReference Include="AWS.Lambda.Powertools.Logging" Version="1.1.1" />
     <PackageReference Include="AWS.Lambda.Powertools.Tracing" Version="1.1.1" />
@@ -21,5 +28,16 @@
   <ItemGroup>
     <ProjectReference Include="..\StockTrader.Core\StockTrader.Core.csproj" />
     <ProjectReference Include="..\StockTrader.Infrastructure\StockTrader.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <TrimmerRootAssembly Include="bootstrap" />
+    <TrimmerRootAssembly Include="StockTrader.Core" />
+    <TrimmerRootAssembly Include="StockTrader.Infrastructure" />
+    <TrimmerRootAssembly Include="AWSSDK.Core" />
+    <TrimmerRootAssembly Include="Amazon.Lambda.APIGatewayEvents" />
+    <TrimmerRootAssembly Include="AWS.Lambda.Powertools.Logging" />
+    <TrimmerRootAssembly Include="AWS.Lambda.Powertools.Tracing" />
+    <TrimmerRootAssembly Include="AWSXRayRecorder.Core" />
+    <TrimmerRootAssembly Include="AWSXRayRecorder.Handlers.AwsSdk" />
   </ItemGroup>
 </Project>

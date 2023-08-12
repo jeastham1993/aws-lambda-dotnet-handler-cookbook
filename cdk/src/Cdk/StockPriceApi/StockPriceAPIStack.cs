@@ -1,7 +1,4 @@
-namespace Cdk;
-
 using System.Collections.Generic;
-
 using Amazon.CDK;
 using Amazon.CDK.AWS.APIGateway;
 using Amazon.CDK.AWS.Cognito;
@@ -10,10 +7,10 @@ using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.SNS;
 using Amazon.CDK.AWS.SSM;
-
 using Cdk.SharedConstructs;
-
 using Constructs;
+
+namespace Cdk.StockPriceApi;
 
 public record StockPriceStackProps(
     string Postfix,
@@ -24,6 +21,8 @@ public class StockPriceApiStack : Stack
 {
     private ITable _table;
     private ITable _idempotency;
+    
+    public ITopic StockUpdatedTopic { get; private set; }
 
     internal StockPriceApiStack(
         Construct scope,
@@ -46,14 +45,9 @@ public class StockPriceApiStack : Stack
             "SetStockPriceEndpoint",
             endpointProps);
 
-        var getStockPriceEndpoint = new GetStockPriceEndpoint(
+        var queryApiEndpoints = new QueryApiEndpoints(
             this,
-            "GetStockPriceEndpoint",
-            endpointProps);
-
-        var getStockHistoryEndpoint = new GetStockHistoryEndpoint(
-            this,
-            "GetStockHistoryEndpoint",
+            "QueryApiEndpoints",
             endpointProps);
 
         var api = new AuthorizedApi(
@@ -67,28 +61,19 @@ public class StockPriceApiStack : Stack
             .WithEndpoint(
                 "/price/{stockSymbol}",
                 HttpMethod.GET,
-                getStockPriceEndpoint.Function)
+                queryApiEndpoints.Function)
             .WithEndpoint(
                 "/history/{stockSymbol}",
                 HttpMethod.GET,
-                getStockHistoryEndpoint.Function)
+                queryApiEndpoints.Function)
             .WithEndpoint(
                 "/price",
                 HttpMethod.POST,
                 setStockPriceEndpoint.Function);
 
-        var topic = new Topic(
+        this.StockUpdatedTopic = new Topic(
             this,
             $"StockPriceUpdatedTopic{apiProps.Postfix}");
-
-        topic.AddToResourcePolicy(
-            new PolicyStatement(
-                new PolicyStatementProps()
-                {
-                    Principals = new[] { new AccountPrincipal(this.Account) },
-                    Actions = new[] { "sns:Subscribe" },
-                    Resources = new[] { topic.TopicArn }
-                }));
 
         new PointToPointChannel(
                 this,
@@ -118,7 +103,7 @@ public class StockPriceApiStack : Stack
                         }
                     }
                 })
-            .To(new SnsTarget(topic));
+            .To(new SnsTarget(this.StockUpdatedTopic));
 
         var stockPriceUpdatedTopicParameter = new StringParameter(
             this,
@@ -126,7 +111,7 @@ public class StockPriceApiStack : Stack
             new StringParameterProps()
             {
                 ParameterName = $"/stocks/{apiProps.Postfix}/stock-price-updated-channel",
-                StringValue = topic.TopicArn
+                StringValue = this.StockUpdatedTopic.TopicArn
             });
 
         var tableNameOutput = new CfnOutput(

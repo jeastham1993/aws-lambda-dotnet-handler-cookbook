@@ -2,7 +2,7 @@
 
 using System.Text.Json;
 
-internal class FeatureFlags : IFeatureFlags
+public class FeatureFlags : IFeatureFlags
 {
     private readonly Dictionary<string, object> features;
 

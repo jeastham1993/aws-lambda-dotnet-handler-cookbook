@@ -38,6 +38,10 @@ public class StockPricingFunctionalTests : IClassFixture<Setup>, IDisposable
         // assert
         createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         _setup.CreatedStockSymbols.Add(testStockSymbol);
+
+        var asyncTest = await _setup.AsyncTestManager.PollForOutput(testStockSymbol);
+
+        asyncTest.Should().BeTrue();
     }
     
     [Fact]
@@ -51,6 +55,10 @@ public class StockPricingFunctionalTests : IClassFixture<Setup>, IDisposable
 
         retrievedStock?.StockSymbol.Should().Be(testStockSymbol);
         retrievedStock?.Price.Should().Be(100.00M * 1.1M, "Feature flag is enabled to increase price by 10%");
+
+        var asyncTest = await _setup.AsyncTestManager.PollForOutput(testStockSymbol);
+
+        asyncTest.Should().BeTrue();
     }
     
     [Fact]
