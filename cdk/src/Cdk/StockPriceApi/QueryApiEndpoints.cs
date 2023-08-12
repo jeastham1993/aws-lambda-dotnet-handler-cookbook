@@ -29,14 +29,14 @@ public class QueryApiEndpoints : Construct
                 { "IDEMPOTENCY_TABLE_NAME", props.Idempotency.TableName },
                 { "ENV", props.StackProps.Postfix },
                 { "POWERTOOLS_SERVICE_NAME", $"StockPriceApi{props.StackProps.Postfix}" },
-                { "CONFIGURATION_PARAM_NAME", props.StackProps.Parameter.ParameterName }
+                { "CONFIGURATION_PARAM_NAME", props.ConfigurationParameter.ParameterName }
             },
             IsNativeAot = true
             }).Function;
 
         props.Table.GrantReadWriteData(this.Function);
         props.Idempotency.GrantReadWriteData(this.Function);
-        props.StackProps.Parameter.GrantRead(this.Function);
+        props.ConfigurationParameter.GrantRead(this.Function);
 
         this.Function.Role.AttachInlinePolicy(
             new Policy(
@@ -50,7 +50,7 @@ public class QueryApiEndpoints : Construct
                             new PolicyStatementProps
                             {
                                 Actions = new[] { "ssm:GetParametersByPath" },
-                                Resources = new[] { props.StackProps.Parameter.ParameterArn }
+                                Resources = new[] { props.ConfigurationParameter.ParameterArn }
                             })
                     }
                 }));

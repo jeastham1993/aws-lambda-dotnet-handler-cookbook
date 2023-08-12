@@ -1,4 +1,6 @@
-﻿namespace Cdk;
+﻿using Amazon.CDK.AWS.SSM;
+
+namespace Cdk;
 
 using Amazon.CDK;
 using Amazon.CDK.AWS.APIGateway;
@@ -10,8 +12,6 @@ public record AuthenticationProps(string Postfix);
 
 public class AuthenticationStack : Stack
 {
-    public UserPool UserPool { get; private set; }
-
     internal AuthenticationStack(
         Construct scope,
         string id,
@@ -21,7 +21,7 @@ public class AuthenticationStack : Stack
         id,
         props)
     {
-        this.UserPool = new UserPool(
+        var userPool = new UserPool(
             this,
             $"StockPriceUserPool{authProps.Postfix}",
             new UserPoolProps
@@ -64,7 +64,7 @@ public class AuthenticationStack : Stack
             $"StockPriceClient{authProps.Postfix}",
             new UserPoolClientProps()
             {
-                UserPool = UserPool,
+                UserPool = userPool,
                 UserPoolClientName = "api-login",
                 AuthFlows = new AuthFlow()
                 {
@@ -93,9 +93,24 @@ public class AuthenticationStack : Stack
                     })
             });
 
+
+        var userPoolParameter = new StringParameter(this, $"UserPoolParameter{authProps.Postfix}",
+            new StringParameterProps()
+            {
+                ParameterName = $"/authentication/{authProps.Postfix}/user-pool-id",
+                StringValue = userPool.UserPoolArn
+            });
+        
+        var userPoolClientParameter = new StringParameter(this, $"UserPoolClientParameter{authProps.Postfix}",
+            new StringParameterProps()
+            {
+                ParameterName = $"/authentication/{authProps.Postfix}/user-pool-client-id",
+                StringValue = userPoolClient.UserPoolClientId
+            });
+
         var userPoolOutput = new CfnOutput(this, $"UserPoolId{authProps.Postfix}", new CfnOutputProps()
         {
-            Value = this.UserPool.UserPoolId,
+            Value = userPool.UserPoolId,
             ExportName = $"UserPoolId{authProps.Postfix}"
         });
 

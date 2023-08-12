@@ -21,11 +21,11 @@ var stockPriceStack = new StockPriceApiStack(
     app,
     $"StockPriceStack{postFix}",
     new StockPriceStackProps(
-        postFix,
-        configStack.Parameter,
-        authenticationStack.UserPool));
+        postFix));
 
 var testInfrastructure = new StockPriceTestInfrastructureStack(app, $"StockTestInfrastructure{postFix}",
-    new StockPriceTestInfrastructureStackProps(stockPriceStack.StockUpdatedTopic, postFix));
+    new StockPriceTestInfrastructureStackProps(postFix));
 
 app.Synth();
+
+

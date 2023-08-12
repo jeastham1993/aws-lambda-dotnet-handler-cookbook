@@ -6,7 +6,7 @@ using Constructs;
 
 namespace Cdk.StockPriceApi;
 
-public record StockPriceTestInfrastructureStackProps(ITopic Topic, string Postfix);
+public record StockPriceTestInfrastructureStackProps(string Postfix);
 
 public class StockPriceTestInfrastructureStack : Stack
 {
@@ -19,6 +19,11 @@ public class StockPriceTestInfrastructureStack : Stack
         id,
         props)
     {
-        new AsyncTestInfrastructure(this, $"StockPriceTest{stackProps.Postfix}", stackProps.Topic);
+        var topicArn =
+            StringParameter.ValueForStringParameter(this, $"/stocks/{stackProps.Postfix}/stock-price-updated-channel");
+
+        var topic = Topic.FromTopicArn(this, "StockPriceUpdatedTopic", topicArn);
+        
+        new AsyncTestInfrastructure(this, $"StockPriceTest{stackProps.Postfix}", topic);
     }
 }

@@ -13,9 +13,7 @@ using Constructs;
 namespace Cdk.StockPriceApi;
 
 public record StockPriceStackProps(
-    string Postfix,
-    StringParameter Parameter,
-    UserPool UserPool);
+    string Postfix);
 
 public class StockPriceApiStack : Stack
 {
@@ -33,12 +31,25 @@ public class StockPriceApiStack : Stack
         id,
         props)
     {
+        var parameter =
+            StringParameter.FromStringParameterName(this, "ConfigurationParameter",
+                $"/{apiProps.Postfix}/configuration");
+
+        var userPoolParameterValue =
+            StringParameter.ValueForStringParameter(this, $"/authentication/{apiProps.Postfix}/user-pool-id");
+        
+        var userPoolClientParameterValue =
+            StringParameter.ValueForStringParameter(this, $"/authentication/{apiProps.Postfix}/user-pool-client-id");
+
+        var userPool = UserPool.FromUserPoolArn(this, "UserPool", userPoolParameterValue);
+        
         this.CreatePersistenceLayer(apiProps.Postfix);
 
         var endpointProps = new SharedLambdaProps(
             apiProps,
             this._table,
-            this._idempotency);
+            this._idempotency,
+            parameter);
 
         var setStockPriceEndpoint = new SetStockPriceEndpoint(
             this,
@@ -57,7 +68,7 @@ public class StockPriceApiStack : Stack
                 {
                     RestApiName = $"StockPriceApi{apiProps.Postfix}"
                 })
-            .WithCognito(apiProps.UserPool)
+            .WithCognito(userPool)
             .WithEndpoint(
                 "/price/{stockSymbol}",
                 HttpMethod.GET,
@@ -92,7 +103,8 @@ public class StockPriceApiStack : Stack
                     {
                         "Metadata", new Dictionary<string, object>
                         {
-                            { "EventType", "StockPriceUpdated" }
+                            { "EventType", "StockPriceUpdated" },
+                            { "TraceParent", "$.dynamodb.NewImage.TraceIdentifier.S" },
                         }
                     },
                     {

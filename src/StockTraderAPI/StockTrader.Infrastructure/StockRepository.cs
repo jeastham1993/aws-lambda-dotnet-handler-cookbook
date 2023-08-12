@@ -1,4 +1,6 @@
-﻿namespace StockTrader.Infrastructure;
+﻿using Amazon.XRay.Recorder.Core;
+
+namespace StockTrader.Infrastructure;
 
 using System.Text.Json;
 
@@ -28,6 +30,8 @@ public class StockRepository : IStockRepository
     [Tracing]
     public async Task UpdateStock(Stock stock)
     {
+        var traceId = Environment.GetEnvironmentVariable("_X_AMZN_TRACE_ID");
+        
         var item = new Dictionary<string, AttributeValue>(3)
         {
             { "PK", new AttributeValue(stock.StockSymbol.Code) },
@@ -42,6 +46,9 @@ public class StockRepository : IStockRepository
             },
             {
                 "Data", new AttributeValue(JsonSerializer.Serialize(stock))
+            },
+            {
+                "TraceIdentifier", new AttributeValue(traceId)
             }
         };
 
@@ -51,7 +58,10 @@ public class StockRepository : IStockRepository
             { "SK", new AttributeValue($"HISTORY#{stock.StockHistories[0].OnDate.ToEpochTime()}") },
             { "Type", new AttributeValue("StockHistory") },
             { "Price", new AttributeValue(){N = stock.StockHistories[0].Price.ToString()} },
-            { "OnDate", new AttributeValue(){N = stock.StockHistories[0].OnDate.ToEpochTime().ToString()} }
+            { "OnDate", new AttributeValue(){N = stock.StockHistories[0].OnDate.ToEpochTime().ToString()} },
+            {
+                "TraceIdentifier", new AttributeValue(traceId)
+            }
         };
 
         if (!string.IsNullOrEmpty(Tracing.GetEntity().TraceId))

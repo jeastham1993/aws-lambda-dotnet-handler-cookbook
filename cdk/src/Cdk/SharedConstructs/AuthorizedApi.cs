@@ -20,7 +20,7 @@ public class AuthorizedApi : RestApi
    {
    }
 
-   public AuthorizedApi WithCognito(UserPool cognitoUserPool)
+   public AuthorizedApi WithCognito(IUserPool cognitoUserPool)
    {
       this.Authorizer = new CognitoUserPoolsAuthorizer(
          this,
