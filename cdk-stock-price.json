@@ -1,5 +1,5 @@
 {
-  "app": "dotnet run --project cdk/src/Cdk/Cdk.csproj",
+  "app": "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj",
   "watch": {
     "include": [
       "**"

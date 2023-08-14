@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Amazon.CDK;
 using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.IAM;
@@ -20,7 +19,7 @@ public class AsyncTestInfrastructure : Construct
         var testInfrastructureTable = new Table(this, $"{id}TestTable", new TableProps
         {
             BillingMode = BillingMode.PAY_PER_REQUEST,
-            PartitionKey = new Attribute
+            PartitionKey = new Amazon.CDK.AWS.DynamoDB.Attribute
             {
                 Name = "PK",
                 Type = AttributeType.STRING

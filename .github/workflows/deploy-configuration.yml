@@ -7,8 +7,7 @@ on:
   push:
     branches: [main]
     paths:
-      - cdk/src/Cdk/StockPriceApi/configuration/**
-
+      - cdk/src/StockPriceService/configuration/**
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,7 +39,7 @@ jobs:
       - name: Deploy to AWS
         run: |
           export STACK_POSTFIX=Dev
-          cdk deploy ConfigurationStackDev --require-approval=never
+          cdk deploy ConfigurationStackDev --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
       - name: Functional tests
         env:
           TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
@@ -50,7 +49,7 @@ jobs:
       - name: Deploy to AWS Production
         run: |
           export STACK_POSTFIX=Prod
-          cdk deploy ConfigurationStackProd --require-approval=never
+          cdk deploy ConfigurationStackProd --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
       - name: Functional tests
         env:
           TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
