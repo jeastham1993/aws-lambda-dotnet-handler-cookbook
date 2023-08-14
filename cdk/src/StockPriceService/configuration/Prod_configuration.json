@@ -25,6 +25,6 @@
     }
   },
   "ten_percent_share_increase": {
-    "default": true
+    "default": false
   }
 }
