@@ -64,11 +64,6 @@ public class StockRepository : IStockRepository
             }
         };
 
-        if (!string.IsNullOrEmpty(Tracing.GetEntity().TraceId))
-            item.Add(
-                "TraceIdentifier",
-                new AttributeValue(Tracing.GetEntity().TraceId));
-
         await this._dynamoDbClient.BatchWriteItemAsync(
             new BatchWriteItemRequest(
                 new Dictionary<string, List<WriteRequest>>

@@ -19,16 +19,11 @@ public class StockPriceTestInfrastructureStack : Stack
         id,
         props)
     {
-        // var topicArn =
-        //     StringParameter.ValueForStringParameter(this, $"/stocks/{stackProps.Postfix}/stock-price-updated-channel");
-        //
-        // if (string.IsNullOrEmpty(topicArn))
-        // {
-        //     return;
-        // }
-        //
-        // var topic = Topic.FromTopicArn(this, "StockPriceUpdatedTopic", topicArn);
-        //
-        // new AsyncTestInfrastructure(this, $"StockPriceTest{stackProps.Postfix}", topic);
+        var topicArn =
+            StringParameter.ValueForStringParameter(this, $"/stocks/{stackProps.Postfix}/stock-price-updated-channel");
+        
+        var topic = Topic.FromTopicArn(this, "StockPriceUpdatedTopic", topicArn);
+        
+        new AsyncTestInfrastructure(this, $"StockPriceTest{stackProps.Postfix}", topic);
     }
 }
