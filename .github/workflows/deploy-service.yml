@@ -73,7 +73,7 @@ jobs:
         run: |
           export STACK_POSTFIX=Prod
           cdk deploy StockPriceStackProd --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
-      - name: Functional tests
+      - name: Functional tests prod
         env:
           TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
         run: |
