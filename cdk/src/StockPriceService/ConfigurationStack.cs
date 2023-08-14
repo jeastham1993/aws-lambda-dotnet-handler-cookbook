@@ -35,7 +35,7 @@ public class ConfigurationStack : Stack
 
     private string parseAndValidateConfiguration(string environment)
     {
-        var pathRoot = "./cdk/src/Cdk/StockPriceApi/configuration";
+        var pathRoot = "./cdk/src/StockPriceService/configuration";
         
         var filePath = $"{pathRoot}/{environment}_configuration.json";
 
