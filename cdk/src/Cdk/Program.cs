@@ -1,6 +1,6 @@
 ﻿using Amazon.CDK;
 
-using Cdk;
+using Cdk.Authentication;
 using Cdk.StockPriceApi;
 
 var app = new App();

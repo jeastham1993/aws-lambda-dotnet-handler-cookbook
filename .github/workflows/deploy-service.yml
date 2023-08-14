@@ -7,7 +7,7 @@ on:
   push:
     branches: [main]
     paths:
-      - cdk/src/Cdk/**
+      - cdk/src/Cdk/StockPriceApi**
       - src/StockTraderAPI/**
       - tests/**
       - .github/workflows/**
