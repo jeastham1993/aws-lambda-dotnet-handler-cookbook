@@ -53,6 +53,7 @@ jobs:
           cdk deploy StockPriceStackDev --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
       - name: Integration tests
         run: |
+          export STACK_POSTFIX=Dev
           dotnet test ./tests/Stocks.IntegrationTests/Stocks.IntegrationTests.csproj
       - name: Functional tests
         env:
