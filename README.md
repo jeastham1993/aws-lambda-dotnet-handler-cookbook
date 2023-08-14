@@ -75,6 +75,12 @@ cdk deploy ConfigurationStack<POSTFIX> --require-approval=never --app "dotnet ru
 cdk deploy StockPriceStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
 ```
 
+If you to want to run the functional tests, you will also need to deploy the asynchronous test infrastructure:
+
+```bash
+cdk deploy StockTestInfrastructure<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
+```
+
 ### Commands For Auth Flow
 
 The deployed API Gateway includes authentication using Amazon Cognito. Once deployed, you will need to run the below commands to create and configure a valid user within the Cognito user pool. Alternatively, you can run the application under `./utilities/ConfigureUserPoolUtility` to walk through the setup of a user you can use to access the API.
