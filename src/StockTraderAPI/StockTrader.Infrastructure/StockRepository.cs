@@ -30,7 +30,7 @@ public class StockRepository : IStockRepository
     [Tracing]
     public async Task UpdateStock(Stock stock)
     {
-        var traceId = Environment.GetEnvironmentVariable("_X_AMZN_TRACE_ID");
+        var traceId = Environment.GetEnvironmentVariable("_X_AMZN_TRACE_ID") ?? "test-trace";
         
         var item = new Dictionary<string, AttributeValue>(3)
         {
