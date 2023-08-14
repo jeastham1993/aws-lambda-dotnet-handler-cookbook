@@ -19,11 +19,12 @@ There are many examples of 'hello world' Lambda functions, but few that dive int
 
 This project aims to reduce cognitive load and answer these questions for you by providing a skeleton .NET Serverless service template that implements best practices for AWS Lambda, Serverless CI/CD, and the AWS CDK in one template project.
 
-### Serverless Service - The Stock Price service
+### Application Architecture
 
 ![](./assets/Architecture.png)
 
 - A stock price service that allows users to update the stock price for a given stock, and retrieve the current stock price as well as the history
+    - The Stock Price service splits queries and commands into seperate functions. All GET endpoints are serviced by a single Lambda function that uses native AOT compilation for performance. Commands run as single purpose Lambda functions
 - A customer service that allows users to subscribe to notifications when a given stock price changes 
 
 <br></br>
@@ -31,6 +32,7 @@ This project aims to reduce cognitive load and answer these questions for you by
 ### **Features**
 
 - .NET Serverless service with a recommended file structure, following the hexagonal architecture pattern
+- Demonstrates native ahead of time (AoT) compilation and the right places to introduce it
 - Asynchronous integration between multiple bounded contexts
 - CDK infrastructure with unit, integration and functional tests.
 - CI/CD pipelines based on Github actions that deploys to AWS.

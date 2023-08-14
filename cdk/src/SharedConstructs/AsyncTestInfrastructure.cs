@@ -43,7 +43,8 @@ public class AsyncTestInfrastructure : Construct
                 }
             },
             Resources = new[] { queueSubscription.QueueArn },
-            Principals = new[] { new ServicePrincipal("sns.amazonaws.com") }
+            Principals = new[] { new ServicePrincipal("sns.amazonaws.com") },
+            Actions = new[] {"sqs:SendMessage"}
         }));
 
         source.AddSubscription(new SqsSubscription(queueSubscription));
