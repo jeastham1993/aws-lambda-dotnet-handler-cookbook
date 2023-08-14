@@ -34,6 +34,9 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
+      - name: Compile AOT
+        run: |
+          dotnet lambda package -pl src/StockTraderAPI/StockTrader.API
       - name: Deploy to AWS
         run: |
           export STACK_POSTFIX=Dev
