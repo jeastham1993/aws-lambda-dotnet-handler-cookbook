@@ -5,8 +5,7 @@ on:
     branches: [main]
     paths:
       - cdk/src/NotificationService/**
-      - .github/workflows/**
-
+      - .github/workflows/deploy-notification-service.yml
 jobs:
   build:
     runs-on: ubuntu-latest

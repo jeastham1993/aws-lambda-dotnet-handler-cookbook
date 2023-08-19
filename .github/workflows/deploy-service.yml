@@ -10,7 +10,7 @@ on:
       - cdk/src/StockPriceService/**
       - src/StockTraderAPI/**
       - tests/**
-      - .github/workflows/**
+      - .github/workflows/deploy-service.yml
 
 jobs:
   build:
