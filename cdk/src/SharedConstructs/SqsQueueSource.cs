@@ -14,7 +14,7 @@ public class SqsQueueSource : ChannelSource
         this.Queue = queue;
         this.SourceParameters = new CfnPipe.PipeSourceParametersProperty
         {
-            DynamoDbStreamParameters = new CfnPipe.PipeSourceSqsQueueParametersProperty()
+            SqsQueueParameters = new CfnPipe.PipeSourceSqsQueueParametersProperty()
             {
                 BatchSize = 1
             }

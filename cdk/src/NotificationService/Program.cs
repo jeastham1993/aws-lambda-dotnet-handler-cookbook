@@ -7,11 +7,6 @@ var app = new App();
 
 var postFix = System.Environment.GetEnvironmentVariable("STACK_POSTFIX");
 
-var topicArn =
-    StringParameter.ValueForStringParameter(app, $"/stocks/{postFix}/stock-price-updated-channel");
-
-var stockPriceUpdatedTopic = Topic.FromTopicArn(app, "StockPriceUpdatedTopic", topicArn);
-
 var configStack = new ConfigurationStack(
     app,
     $"ConfigurationStack{postFix}",
@@ -21,8 +16,7 @@ var notificationServiceStack = new NotificationServiceStack(
     app,
     $"NotificationServiceStack{postFix}",
     new NotificationServiceStackProps(
-        postFix,
-        stockPriceUpdatedTopic));
+        postFix));
 
 var testInfrastructure = new NotificationServiceTestInfrastructureStack(app, $"NotificationTestInfrastructure{postFix}",
     new NotificationServiceTestInfrastructureStackProps(postFix));

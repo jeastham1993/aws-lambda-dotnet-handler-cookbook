@@ -36,6 +36,7 @@ public class PublishSubscribeChannel : Construct
         this._id = id;
 
         this.lambdaSubscribers = new List<IFunction>();
+        this.queueSubscribers = new List<IQueue>();
     }
 
     public PublishSubscribeChannel SubscribeTo(string topicName)

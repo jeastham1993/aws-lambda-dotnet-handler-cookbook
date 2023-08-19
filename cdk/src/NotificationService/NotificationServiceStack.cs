@@ -11,8 +11,7 @@ using Constructs;
 namespace NotificationService;
 
 public record NotificationServiceStackProps(
-    string Postfix,
-    ITopic StockPriceUpdatedTopic);
+    string Postfix);
 
 public class NotificationServiceStack : Stack
 {
@@ -36,11 +35,16 @@ public class NotificationServiceStack : Stack
             StringParameter.ValueForStringParameter(this, $"/authentication/{apiProps.Postfix}/user-pool-client-id");
 
         var userPool = UserPool.FromUserPoolArn(this, "UserPool", userPoolParameterValue);
+        
+        var topicArn =
+            StringParameter.ValueForStringParameter(this, $"/stocks/{apiProps.Postfix}/stock-price-updated-channel");
+
+        var stockPriceUpdatedTopic = Topic.FromTopicArn(this, "StockPriceUpdatedTopic", topicArn);
 
         var stockPriceUpdatedQueue = new Queue(this, "StockPriceUpdatedQueue", new QueueProps());
 
         new PublishSubscribeChannel(this, "StockPriceUpdatedSubscription")
-            .SubscribeTo(apiProps.StockPriceUpdatedTopic)
+            .SubscribeTo(stockPriceUpdatedTopic)
             .Targeting(stockPriceUpdatedQueue)
             .Build();
 

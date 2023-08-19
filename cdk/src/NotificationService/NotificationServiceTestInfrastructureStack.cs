@@ -19,6 +19,5 @@ public class NotificationServiceTestInfrastructureStack : Stack
         id,
         props)
     {
-        
     }
 }
