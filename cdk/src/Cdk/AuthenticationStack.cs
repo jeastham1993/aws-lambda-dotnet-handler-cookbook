@@ -56,42 +56,38 @@ public class AuthenticationStack : Stack
                     RequireUppercase = false
                 },
                 AccountRecovery = AccountRecovery.EMAIL_ONLY,
-                RemovalPolicy = RemovalPolicy.DESTROY
+                RemovalPolicy = RemovalPolicy.DESTROY,
             });
 
-        var userPoolClient = new UserPoolClient(
-            this,
-            $"StockPriceClient{authProps.Postfix}",
-            new UserPoolClientProps()
+        var userPoolClient = userPool.AddClient($"StockPriceClient{authProps.Postfix}", new UserPoolClientOptions
+        {
+            UserPoolClientName = "api-login",
+            AuthFlows = new AuthFlow()
             {
-                UserPool = userPool,
-                UserPoolClientName = "api-login",
-                AuthFlows = new AuthFlow()
+                AdminUserPassword = true,
+                Custom = true,
+                UserSrp = true
+            },
+            SupportedIdentityProviders = new[]
+            {
+                UserPoolClientIdentityProvider.COGNITO,
+            },
+            ReadAttributes = new ClientAttributes().WithStandardAttributes(
+                new StandardAttributesMask()
                 {
-                    AdminUserPassword = true,
-                    Custom = true,
-                    UserSrp = true
-                },
-                SupportedIdentityProviders = new[]
+                    GivenName = true,
+                    FamilyName = true,
+                    Email = true,
+                    EmailVerified = true
+                }),
+            WriteAttributes = new ClientAttributes().WithStandardAttributes(
+                new StandardAttributesMask()
                 {
-                    UserPoolClientIdentityProvider.COGNITO,
-                },
-                ReadAttributes = new ClientAttributes().WithStandardAttributes(
-                    new StandardAttributesMask()
-                    {
-                        GivenName = true,
-                        FamilyName = true,
-                        Email = true,
-                        EmailVerified = true
-                    }),
-                WriteAttributes = new ClientAttributes().WithStandardAttributes(
-                    new StandardAttributesMask()
-                    {
-                        GivenName = true,
-                        FamilyName = true,
-                        Email = true
-                    })
-            });
+                    GivenName = true,
+                    FamilyName = true,
+                    Email = true
+                })
+        });
 
 
         var userPoolParameter = new StringParameter(this, $"UserPoolParameter{authProps.Postfix}",

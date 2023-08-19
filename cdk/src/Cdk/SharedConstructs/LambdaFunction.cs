@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Reflection;
-using Amazon.CDK;
 using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.Logs;
 using Constructs;
@@ -21,11 +18,15 @@ public class LambdaFunctionProps : FunctionProps
     public bool IsNativeAot { get; set; }
     
     public string CodePath { get; set; }
+    
+    public string Postfix { get; set; }
 }
 
 public class LambdaFunction : Construct
 {
     public Function Function { get; }
+    
+    public Alias FunctionAlias { get; }
     
     public LambdaFunction(Construct scope, string id, LambdaFunctionProps props) : base(scope, id)
     {
@@ -35,7 +36,7 @@ public class LambdaFunction : Construct
             {
                 FunctionName = id,
                 Runtime = Runtime.PROVIDED_AL2,
-                MemorySize = 1024,
+                MemorySize = props.MemorySize ?? 1024,
                 LogRetention = RetentionDays.ONE_DAY,
                 Handler = "bootstrap",
                 Environment = props.Environment,
@@ -51,13 +52,13 @@ public class LambdaFunction : Construct
             {
                 FunctionName = id,
                 Runtime = Runtime.DOTNET_6,
-                MemorySize = 1024,
+                MemorySize = props.MemorySize ?? 1024,
                 LogRetention = RetentionDays.ONE_DAY,
                 Handler = props.Handler,
                 Environment = props.Environment,
                 Tracing = Tracing.ACTIVE,
                 ProjectDir = props.CodePath,
-                Architecture = Architecture.X86_64,
+                Architecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64 ? Architecture.ARM_64 : Architecture.X86_64,
                 OnFailure = new SqsDestination(new Queue(this, $"{id}FunctionDLQ")),
             });   
         }

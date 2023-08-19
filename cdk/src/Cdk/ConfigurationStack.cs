@@ -40,6 +40,7 @@ public class ConfigurationStack : Stack
         {
             filePath = $"./cdk/src/Cdk/configuration/Dev_configuration.json";
         }
+        
         var fileContents = File.ReadAllText(filePath);
 
         return fileContents;
