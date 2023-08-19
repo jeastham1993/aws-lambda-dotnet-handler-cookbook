@@ -1,4 +1,6 @@
-﻿namespace Cdk.SharedConstructs;
+﻿using Amazon.CDK.AWS.Lambda.EventSources;
+
+namespace Cdk.SharedConstructs;
 
 using System;
 using System.Collections.Generic;
@@ -185,12 +187,19 @@ public class PointToPointChannel : Construct
             case nameof(DynamoDbSource):
                 (this.Source as DynamoDbSource).Table.GrantStreamRead(pipeRole);
                 break;
+            case nameof(SqsQueueSource):
+                (this.Source as SqsQueueSource).Queue.GrantConsumeMessages(pipeRole);
+                break;
         }
         
         switch (this.Target.GetType().Name)
         {
             case nameof(SnsTarget):
                 (this.Target as SnsTarget).Topic.GrantPublish(pipeRole);
+                break;
+            case nameof(WorkflowTarget):
+                (this.Target as WorkflowTarget).Workflow.GrantStartExecution(pipeRole);
+                (this.Target as WorkflowTarget).Workflow.GrantStartSyncExecution(pipeRole);
                 break;
         }
 

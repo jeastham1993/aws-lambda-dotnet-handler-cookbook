@@ -36,10 +36,7 @@ public class NotificationServiceStack : Stack
 
         var userPool = UserPool.FromUserPoolArn(this, "UserPool", userPoolParameterValue);
         
-        var topicArn =
-            StringParameter.ValueForStringParameter(this, $"/stocks/{apiProps.Postfix}/stock-price-updated-channel");
-
-        var stockPriceUpdatedTopic = Topic.FromTopicArn(this, "StockPriceUpdatedTopic", topicArn);
+        var stockPriceUpdatedTopic = GetStockPriceUpdatedTopic(apiProps);
 
         var stockPriceUpdatedQueue = new Queue(this, "StockPriceUpdatedQueue", new QueueProps());
 
@@ -69,5 +66,22 @@ public class NotificationServiceStack : Stack
         new PointToPointChannel(this, "StockPriceUpdateChannel")
             .From(new SqsQueueSource(stockPriceUpdatedQueue))
             .To(new WorkflowTarget(stockPriceUpdatedWorkflow));
+    }
+
+    private ITopic GetStockPriceUpdatedTopic(NotificationServiceStackProps apiProps)
+    {
+        if (System.Environment.GetEnvironmentVariable("STACK_POSTFIX") != "Dev" &&
+            System.Environment.GetEnvironmentVariable("STACK_POSTFIX") != "Prod")
+        {
+            // If not an integration environment return a topic created by this stack
+            return new Topic(this, "StockPriceUpdatedTopic");
+        }
+        
+        var topicArn =
+            StringParameter.ValueForStringParameter(this, $"/stocks/{apiProps.Postfix}/stock-price-updated-channel");
+
+        var stockPriceUpdatedTopic = Topic.FromTopicArn(this, "StockPriceUpdatedTopic", topicArn);
+        
+        return stockPriceUpdatedTopic;
     }
 }
