@@ -1,4 +1,8 @@
-﻿namespace Cdk.SharedConstructs;
+﻿using Amazon.CDK.AWS.IAM;
+using Amazon.CDK.AWS.SNS.Subscriptions;
+using Amazon.CDK.AWS.SQS;
+
+namespace Cdk.SharedConstructs;
 
 using System;
 using System.Collections.Generic;
@@ -20,6 +24,8 @@ public class PublishSubscribeChannel : Construct
     public IEventBus EventBus { get; private set; }
 
     private List<IFunction> lambdaSubscribers;
+
+    private List<IQueue> queueSubscribers;
     
     public PublishSubscribeChannel(Construct scope,
         string id) : base(
@@ -32,7 +38,7 @@ public class PublishSubscribeChannel : Construct
         this.lambdaSubscribers = new List<IFunction>();
     }
 
-    public PublishSubscribeChannel WithTopicName(string topicName)
+    public PublishSubscribeChannel SubscribeTo(string topicName)
     {
         if (this.EventBus != null)
         {
@@ -46,7 +52,19 @@ public class PublishSubscribeChannel : Construct
         return this;
     }
 
-    public PublishSubscribeChannel WithEventBus(IEventBus eventBus)
+    public PublishSubscribeChannel SubscribeTo(ITopic topic)
+    {
+        if (this.EventBus != null)
+        {
+            throw new ArgumentException("Cannot set Topic based publishing when an EventBus is configured");
+        }
+
+        this.Topic = topic;
+
+        return this;
+    }
+
+    public PublishSubscribeChannel SubscribeTo(IEventBus eventBus)
     {
         if (this.Topic != null)
         {
@@ -58,9 +76,16 @@ public class PublishSubscribeChannel : Construct
         return this;
     }
 
-    public PublishSubscribeChannel WithSubscriber(IFunction lambdaFunction)
+    public PublishSubscribeChannel Targeting(IFunction lambdaFunction)
     {
         this.lambdaSubscribers.Add(lambdaFunction);
+
+        return this;
+    }
+
+    public PublishSubscribeChannel Targeting(IQueue queue)
+    {
+        
 
         return this;
     }
@@ -115,6 +140,28 @@ public class PublishSubscribeChannel : Construct
             foreach (var function in this.lambdaSubscribers)
             {
                 function.AddEventSource(new SnsEventSource(this.Topic));
+            }
+
+            foreach (var queue in this.queueSubscribers)
+            {
+                queue.AddToResourcePolicy(new PolicyStatement(new PolicyStatementProps
+                {
+                    Effect = Effect.ALLOW,
+                    Conditions = new Dictionary<string, object>(1)
+                    {
+                        {
+                            "ArnEquals", new Dictionary<string, string>
+                            {
+                                { "aws:SourceArn", this.Topic.TopicArn }
+                            }
+                        }
+                    },
+                    Resources = new[] { queue.QueueArn },
+                    Principals = new[] { new ServicePrincipal("sns.amazonaws.com") },
+                    Actions = new[] {"sqs:SendMessage"}
+                }));
+
+                this.Topic.AddSubscription(new SqsSubscription(queue));
             }
         }
         
