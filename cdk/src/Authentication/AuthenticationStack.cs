@@ -1,10 +1,8 @@
-﻿using Amazon.CDK.AWS.SSM;
-
-namespace Cdk;
+﻿namespace Cdk.Authentication;
 
 using Amazon.CDK;
-using Amazon.CDK.AWS.APIGateway;
 using Amazon.CDK.AWS.Cognito;
+using Amazon.CDK.AWS.SSM;
 
 using Constructs;
 

@@ -7,7 +7,7 @@ on:
   push:
     branches: [main]
     paths:
-      - cdk/src/Cdk/**
+      - cdk/src/StockPriceService/**
       - src/StockTraderAPI/**
       - tests/**
       - .github/workflows/**
@@ -46,13 +46,14 @@ jobs:
       - name: Deploy Dev Test Infrastructure
         run: |
           export STACK_POSTFIX=Dev
-          cdk deploy StockTestInfrastructureDev --require-approval=never
+          cdk deploy StockTestInfrastructureDev --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
       - name: Deploy to AWS
         run: |
           export STACK_POSTFIX=Dev
-          cdk deploy StockPriceStackDev --require-approval=never
+          cdk deploy StockPriceStackDev --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
       - name: Integration tests
         run: |
+          export STACK_POSTFIX=Dev
           dotnet test ./tests/Stocks.IntegrationTests/Stocks.IntegrationTests.csproj
       - name: Functional tests
         env:
@@ -63,16 +64,16 @@ jobs:
       - name: Tear Down Dev Test Infrastructure
         run: |
           export STACK_POSTFIX=Dev
-          cdk destroy StockTestInfrastructureDev --require-approval=never
+          cdk destroy StockTestInfrastructureDev --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
       - name: Deploy Prod Test Infrastructure
         run: |
           export STACK_POSTFIX=Prod
-          cdk deploy StockTestInfrastructureProd --require-approval=never
+          cdk deploy StockTestInfrastructureProd --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
       - name: Deploy to AWS Production
         run: |
           export STACK_POSTFIX=Prod
-          cdk deploy StockPriceStackProd --require-approval=never
-      - name: Functional tests
+          cdk deploy StockPriceStackProd --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
+      - name: Functional tests prod
         env:
           TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
         run: |
@@ -81,4 +82,4 @@ jobs:
       - name: Tear Down Prod Test Infrastructure
         run: |
           export STACK_POSTFIX=Prod
-          cdk destroy StockTestInfrastructureProd --require-approval=never
+          cdk destroy StockTestInfrastructureProd --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"

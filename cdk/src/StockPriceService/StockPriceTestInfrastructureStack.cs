@@ -21,7 +21,7 @@ public class StockPriceTestInfrastructureStack : Stack
     {
         var topicArn =
             StringParameter.ValueForStringParameter(this, $"/stocks/{stackProps.Postfix}/stock-price-updated-channel");
-
+        
         var topic = Topic.FromTopicArn(this, "StockPriceUpdatedTopic", topicArn);
         
         new AsyncTestInfrastructure(this, $"StockPriceTest{stackProps.Postfix}", topic);

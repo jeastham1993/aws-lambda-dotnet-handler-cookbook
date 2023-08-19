@@ -17,29 +17,28 @@ There are many examples of 'hello world' Lambda functions, but few that dive int
 
 ## **The Solution**
 
-This project aims to reduce cognitive load and answer these questions for you by providing a skeleton .NET Serverless service template that implements best practices for AWS Lambda, Serverless CI/CD, and AWS CDK in one template project.
+This project aims to reduce cognitive load and answer these questions for you by providing a skeleton .NET Serverless service template that implements best practices for AWS Lambda, Serverless CI/CD, and the AWS CDK in one template project.
 
-### Serverless Service - The Stock Price service
+### Application Architecture
 
-- This project provides a working stock price service that allows users to update the stock price for a given stock, and retrieve the current stock price.
+![](./assets/Architecture.png)
 
-- The project deploys an API GW with an AWS Lambda integration under the path POST /price and stores data in a DynamoDB table.
+- A stock price service that allows users to update the stock price for a given stock, and retrieve the current stock price as well as the history
+    - The Stock Price service splits queries and commands into seperate functions. All GET endpoints are serviced by a single Lambda function that uses native AOT compilation for performance. Commands run as single purpose Lambda functions
+- A customer service that allows users to subscribe to notifications when a given stock price changes 
 
 <br></br>
 
 ### **Features**
 
 - .NET Serverless service with a recommended file structure, following the hexagonal architecture pattern
+- Demonstrates native ahead of time (AoT) compilation and the right places to introduce it
+- Asynchronous integration between multiple bounded contexts
 - CDK infrastructure with unit, integration and functional tests.
 - CI/CD pipelines based on Github actions that deploys to AWS.
-- The AWS Lambda handler embodies Serverless best practices and has all the bells and whistles for a proper production ready handler.
+- The AWS Lambda handler embodies Serverless best practices for a proper production ready handler.
 - AWS Lambda handler uses [AWS Lambda Powertools](https://docs.powertools.aws.dev/lambda-dotnet/){:target="_blank" rel="noopener"} as well as the [Lambda Annotations Framework](https://github.com/aws/aws-lambda-dotnet/tree/master/Libraries/src/Amazon.Lambda.Annotations)
 - Features flags and configuration based on AWS AppConfig
-- Unit, integration and functional tests.
-
-
-## CDK Deployment
-The CDK code create an API GW with a path of /price which triggers the Lambda on 'POST' requests.
 
 ## Serverless Best Practices
 The handler implements multiple best practice utilities.
@@ -64,15 +63,32 @@ You can deploy this sample application into your own AWS account using the AWS C
 
 You can also include a 'postfix' as part of your deployment, enabling multiple instances of the same stack to be deployed to the same AWS account.
 
+The project contains shared authentication infrastructure that needs to be deployed first. The StockPrice Application is also deployed independently to the feature flags, allowing features to be changed without an entire application deployment.
+
+If this is your first time deploying, you will need to deploy the CDK projects in the below order. After the first deployment, any order is ok.
+
 ```bash
 # Optionally set a postfix
 # export STACK_POSTFIX="-je"
-cdk deploy --all
+cdk deploy AuthenticationStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/Authentication/AuthenticationStack.csproj"
+cdk deploy ConfigurationStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
+cdk deploy StockPriceStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
+```
+
+If you to want to run the functional tests, you will also need to deploy the asynchronous test infrastructure:
+
+```bash
+cdk deploy StockTestInfrastructure<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
 ```
 
 ### Commands For Auth Flow
 
-The deployed API Gateway includes authentication using Amazon Cognito. Once deployed, you will need to run the below commands to create and configure a valid user within the Cognito user pool.
+The deployed API Gateway includes authentication using Amazon Cognito. Once deployed, you will need to run the below commands to create and configure a valid user within the Cognito user pool. Alternatively, you can run the application under `./utilities/ConfigureUserPoolUtility` to walk through the setup of a user you can use to access the API.
+
+```
+cd ./utilities/ConfigureUserPoolUtility
+dotnet run
+```
 
 ```
 aws cognito-idp admin-create-user --user-pool-id us-east-1_a94TspUGB --username john@example.com --user-attributes Name="given_name",Value="john" Name="family_name",Value="smith"
@@ -107,6 +123,8 @@ The project contains examples of multiple types of tests:
 - Functional Tests: Tests that run against actual AWS resources e.g. make API calls to API Gateway
 
 The integration tests also support using the same `STACK_POSTFIX` environment variable. If you set the variable, deploy the CDK stack and then run the integration tests using the same terminal window your test execution will use the postfixed resources.
+
+When running the functional tests locally, you also need to set the `TEMPORARY_PASSWORD` environment variable. This allows the functional tests to create a temporary user in Cognito for the tests to use.
 
 For more information on testing, check out this [YouTube Video on testing and debugging your Lambda functions locally](https://youtu.be/962ba6mgQXI).
 

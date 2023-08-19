@@ -1,14 +1,14 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Deploy Configuration
+name: Deploy Auth Infrastructure
 
 on:
   push:
     branches: [main]
     paths:
-      - cdk/src/StockPriceService/configuration/**
-      - cdk/src/StockPriceService/ConfigurationStack
+      - cdk/src/Authentication/**
+      - .github/workflows/**
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-python@v2
       - uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 6.x
+          dotnet-version: 8.x
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
@@ -34,26 +34,11 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
-      - name: Compile AOT
-        run: |
-          dotnet lambda package -pl src/StockTraderAPI/StockTrader.API
       - name: Deploy to AWS
         run: |
           export STACK_POSTFIX=Dev
-          cdk deploy ConfigurationStackDev --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
-      - name: Functional tests
-        env:
-          TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
-        run: |
-          export STACK_POSTFIX=Dev
-          dotnet test ./tests/Stocks.FunctionalTests/Stocks.FunctionalTests.csproj
+          cdk deploy AuthenticationStackDev --require-approval=never --app "dotnet run --project cdk/src/Authentication/AuthenticationStack.csproj"
       - name: Deploy to AWS Production
         run: |
           export STACK_POSTFIX=Prod
-          cdk deploy ConfigurationStackProd --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
-      - name: Functional tests
-        env:
-          TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
-        run: |
-          export STACK_POSTFIX=Prod
-          dotnet test ./tests/Stocks.FunctionalTests/Stocks.FunctionalTests.csproj
+          cdk deploy AuthenticationStackProd --require-approval=never --app "dotnet run --project cdk/src/Authentication/AuthenticationStack.csproj"

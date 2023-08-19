@@ -1,6 +1,7 @@
-﻿namespace Cdk;
+﻿namespace Cdk.StockPriceApi;
 
 using System.IO;
+
 using Amazon.CDK;
 using Amazon.CDK.AWS.SSM;
 
@@ -19,7 +20,7 @@ public class ConfigurationStack : Stack
         id,
         props)
     {
-        var configurationStr = parseAndValidateConfiguration(environment);
+        var configurationStr = this.parseAndValidateConfiguration(environment);
 
         this.Parameter = new StringParameter(
             this,
@@ -34,11 +35,13 @@ public class ConfigurationStack : Stack
 
     private string parseAndValidateConfiguration(string environment)
     {
-        var filePath = $"./cdk/src/Cdk/configuration/{environment}_configuration.json";
+        var pathRoot = "./cdk/src/StockPriceService/configuration";
+        
+        var filePath = $"{pathRoot}/{environment}_configuration.json";
 
         if (!File.Exists(filePath))
         {
-            filePath = $"./cdk/src/Cdk/configuration/Dev_configuration.json";
+            filePath = $"{pathRoot}/Dev_configuration.json";
         }
         
         var fileContents = File.ReadAllText(filePath);
