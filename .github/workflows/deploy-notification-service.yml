@@ -1,4 +1,4 @@
-name: Deploy Application
+name: Deploy Notification Service
 
 on:
   push:
