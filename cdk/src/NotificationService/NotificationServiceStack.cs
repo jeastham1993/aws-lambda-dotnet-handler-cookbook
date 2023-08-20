@@ -47,7 +47,10 @@ public class NotificationServiceStack : Stack
                     IncludeExecutionData = true,
                     Destination = new LogGroup(
                         this,
-                        $"{id}StockPriceUpdateLogs")
+                        $"{id}StockPriceUpdateLogs",new LogGroupProps()
+                        {
+                            LogGroupName = $"/aws/vendedlogs/states/StockPriceUpdateLogs{apiProps.Postfix}"
+                        })
                 },
                 RemovalPolicy = RemovalPolicy.DESTROY,
             });
