@@ -9,8 +9,7 @@ public class StockNotFoundException : Exception
         StockSymbol = stockSymbol;
     }
 
-    public StockNotFoundException(StockSymbol stockSymbol, string message)
-        : base(message)
+    public StockNotFoundException(StockSymbol stockSymbol, string message) : base(message)
     {
         StockSymbol = stockSymbol;
     }

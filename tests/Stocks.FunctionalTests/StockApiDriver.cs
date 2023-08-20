@@ -30,7 +30,7 @@ public class StockApiDriver
         return response;
     }
 
-    public async Task<StockDTO?> GetStock(string stockSymbol)
+    public async Task<StockDto?> GetStock(string stockSymbol)
     {
         var response = await this.httpClient.GetAsync($"price/{stockSymbol}");
 
@@ -39,12 +39,12 @@ public class StockApiDriver
             return null;
         }
 
-        var stock = await response.Content.ReadFromJsonAsync<ApiWrapper<StockDTO>>();
+        var stock = await response.Content.ReadFromJsonAsync<ApiWrapper<StockDto>>();
 
         return stock.Data;
     }
 
-    public async Task<StockDTO?> GetStockHistory(string stockSymbol)
+    public async Task<StockDto?> GetStockHistory(string stockSymbol)
     {
         var response = await this.httpClient.GetAsync($"history/{stockSymbol}");
 
@@ -53,7 +53,7 @@ public class StockApiDriver
             return null;
         }
 
-        var stock = await response.Content.ReadFromJsonAsync<ApiWrapper<StockDTO>>();
+        var stock = await response.Content.ReadFromJsonAsync<ApiWrapper<StockDto>>();
 
         return stock.Data;
     }

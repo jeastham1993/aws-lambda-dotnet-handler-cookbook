@@ -89,7 +89,7 @@ public class StockRepository : IStockRepository
     }
 
     [Tracing]
-    public async Task<StockDTO> GetCurrentStockPrice(StockSymbol symbol)
+    public async Task<StockDto> GetCurrentStockPrice(StockSymbol symbol)
     {
         var result = await this._dynamoDbClient.GetItemAsync(
             this._settings.TableName,
@@ -101,13 +101,13 @@ public class StockRepository : IStockRepository
 
         if (!result.IsItemSet) throw new StockNotFoundException(symbol);
 
-        return new StockDTO(
+        return new StockDto(
             result.Item["StockSymbol"].S,
             decimal.Parse(result.Item["Price"].N));
     }
 
     [Tracing]
-    public async Task<StockDTO> GetStockHistory(StockSymbol symbol)
+    public async Task<StockDto> GetStockHistory(StockSymbol symbol)
     {
         var result = await this._dynamoDbClient.QueryAsync(
             new QueryRequest(this._settings.TableName)
@@ -124,7 +124,7 @@ public class StockRepository : IStockRepository
 
         var stockRecord = result.Items.FirstOrDefault(p => p["Type"].S == "Stock");
 
-        var stockResponse = new StockDTO(
+        var stockResponse = new StockDto(
             stockRecord["StockSymbol"].S,
             decimal.Parse(stockRecord["Price"].N));
 

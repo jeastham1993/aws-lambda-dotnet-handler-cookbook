@@ -14,7 +14,7 @@ namespace Stocks.Tests.Shared;
 
 public class TestHarness
 {
-    private IServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
 
     public TestHarness(IFeatureFlags featureFlags)
     {

@@ -2,22 +2,22 @@
 
 namespace StockTrader.Core.StockAggregate;
 
-public record StockDTO
+public record StockDto
 {
-    public StockDTO()
+    public StockDto()
     {
         this.StockSymbol = "";
         this.History = new Dictionary<DateTime, decimal>();
     }
 
-    public StockDTO(Stock stock)
+    public StockDto(Stock stock)
     {
         this.StockSymbol = stock.StockSymbol.Code;
         this.Price = stock.CurrentStockPrice;
         this.History = new Dictionary<DateTime, decimal>();
     }
 
-    public StockDTO(string stockSymbol, decimal price)
+    public StockDto(string stockSymbol, decimal price)
     {
         this.StockSymbol = stockSymbol;
         this.Price = price;

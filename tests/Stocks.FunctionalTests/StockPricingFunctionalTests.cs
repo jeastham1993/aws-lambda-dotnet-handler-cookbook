@@ -3,7 +3,7 @@ using FluentAssertions;
 
 namespace Stocks.FunctionalTests;
 
-public class StockPricingFunctionalTests : IClassFixture<Setup>, IDisposable
+public sealed class StockPricingFunctionalTests : IClassFixture<Setup>, IDisposable
 {
     private readonly Setup _setup;
     private readonly HttpClient _client;
@@ -83,8 +83,8 @@ public class StockPricingFunctionalTests : IClassFixture<Setup>, IDisposable
 
         retrievedStock?.StockSymbol.Should().Be(null);
     }
-    
-    public void Dispose()
+
+    void IDisposable.Dispose()
     {
         if (disposed)
         {

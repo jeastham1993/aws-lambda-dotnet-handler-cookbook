@@ -8,11 +8,11 @@ using Constructs;
 
 namespace Cdk.SharedConstructs;
 
-public class TableToSNSChannel : Construct
+public class TableToSnsChannel : Construct
 {
     public Topic SnsTopic { get; private set; }
     
-    public TableToSNSChannel(Construct scope, string id, ITable table, string topicName, string transformerFile = null) : base(scope, id)
+    public TableToSnsChannel(Construct scope, string id, ITable table, string topicName, string transformerFile = null) : base(scope, id)
     {
         this.SnsTopic = new Topic(this, topicName, new TopicProps());
 

@@ -10,7 +10,7 @@ namespace Stocks.Tests.Shared;
 
 public class MockTestHarness
 {
-    private IServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
     
     public IStockRepository MockStockRepository { get; private set; }
     public IEventBus MockEventBus { get; private set; }

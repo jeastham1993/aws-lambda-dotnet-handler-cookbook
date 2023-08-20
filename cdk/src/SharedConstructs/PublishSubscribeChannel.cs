@@ -17,22 +17,20 @@ using Constructs;
 
 public class PublishSubscribeChannel : Construct
 {
-    private string _id;
-    private Construct _scope;
+    private readonly string _id;
     public ITopic Topic { get; private set; }
     
     public IEventBus EventBus { get; private set; }
 
-    private List<IFunction> lambdaSubscribers;
+    private readonly List<IFunction> lambdaSubscribers;
 
-    private List<IQueue> queueSubscribers;
+    private readonly List<IQueue> queueSubscribers;
     
     public PublishSubscribeChannel(Construct scope,
         string id) : base(
         scope,
         id)
     {
-        this._scope = scope;
         this._id = id;
 
         this.lambdaSubscribers = new List<IFunction>();
@@ -86,7 +84,7 @@ public class PublishSubscribeChannel : Construct
 
     public PublishSubscribeChannel Targeting(IQueue queue)
     {
-        
+        this.queueSubscribers.Add(queue);
 
         return this;
     }

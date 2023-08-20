@@ -170,7 +170,7 @@ public class FeatureFlags : IFeatureFlags
     }
 }
 
-public class Schema
+public static class Schema
 {
     public const string RULE_MATCH_VALUE = "when_match";
     public const string CONDITIONS_KEY = "conditions";

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Amazon.CDK;
 using Amazon.CDK.AWS.Cognito;
 using Amazon.CDK.AWS.Logs;
@@ -24,29 +25,17 @@ public class NotificationServiceStack : Stack
         id,
         props)
     {
-        var parameter =
-            StringParameter.FromStringParameterName(this, "ConfigurationParameter",
-                $"/{apiProps.Postfix}/configuration");
-
-        var userPoolParameterValue =
-            StringParameter.ValueForStringParameter(this, $"/authentication/{apiProps.Postfix}/user-pool-id");
-        
-        var userPoolClientParameterValue =
-            StringParameter.ValueForStringParameter(this, $"/authentication/{apiProps.Postfix}/user-pool-client-id");
-
-        var userPool = UserPool.FromUserPoolArn(this, "UserPool", userPoolParameterValue);
-        
         var stockPriceUpdatedTopic = GetStockPriceUpdatedTopic(apiProps);
 
-        var stockPriceUpdatedQueue = new Queue(this, "StockPriceUpdatedQueue", new QueueProps());
+        var stockPriceUpdatedQueue = new Queue(this, $"StockPriceUpdatedQueue{apiProps.Postfix}", new QueueProps());
 
-        new PublishSubscribeChannel(this, "StockPriceUpdatedSubscription")
+        new PublishSubscribeChannel(this, $"StockPriceUpdatedSubscription{apiProps.Postfix}")
             .SubscribeTo(stockPriceUpdatedTopic)
             .Targeting(stockPriceUpdatedQueue)
             .Build();
 
         var stockPriceUpdatedWorkflow =
-            new StateMachine(this, "StockPriceUpdateNotificationWorkflow", new StateMachineProps
+            new StateMachine(this, $"StockPriceUpdateNotificationWorkflow{apiProps.Postfix}", new StateMachineProps
             {
                 StateMachineType = StateMachineType.EXPRESS,
                 TracingEnabled = true,
@@ -63,8 +52,12 @@ public class NotificationServiceStack : Stack
                 RemovalPolicy = RemovalPolicy.DESTROY,
             });
 
-        new PointToPointChannel(this, "StockPriceUpdateChannel")
+        new PointToPointChannel(this, $"StockPriceUpdateChannel{apiProps.Postfix}")
             .From(new SqsQueueSource(stockPriceUpdatedQueue))
+            .WithMessageTranslation("FormatSQSObject", new Dictionary<string, object>(1)
+            {
+                {"Body.$", "States.StringToJson($.body)"}
+            })
             .To(new WorkflowTarget(stockPriceUpdatedWorkflow));
     }
 

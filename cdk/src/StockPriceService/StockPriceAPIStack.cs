@@ -37,9 +37,6 @@ public class StockPriceApiStack : Stack
 
         var userPoolParameterValue =
             StringParameter.ValueForStringParameter(this, $"/authentication/{apiProps.Postfix}/user-pool-id");
-        
-        var userPoolClientParameterValue =
-            StringParameter.ValueForStringParameter(this, $"/authentication/{apiProps.Postfix}/user-pool-client-id");
 
         var userPool = UserPool.FromUserPoolArn(this, "UserPool", userPoolParameterValue);
         

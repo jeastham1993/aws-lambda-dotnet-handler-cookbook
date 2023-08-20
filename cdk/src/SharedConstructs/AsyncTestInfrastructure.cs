@@ -120,7 +120,7 @@ public class AsyncTestInfrastructure : Construct
             }
         });
 
-        var testTableOutput = new CfnOutput(this, $"{id}AsyncTableOutput", new CfnOutputProps()
+        var output = new CfnOutput(this, $"{id}AsyncTableOutput", new CfnOutputProps()
         {
             ExportName = id,
             Value = testInfrastructureTable.TableName

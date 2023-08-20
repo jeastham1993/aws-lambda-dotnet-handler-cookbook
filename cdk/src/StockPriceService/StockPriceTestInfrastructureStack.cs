@@ -24,6 +24,6 @@ public class StockPriceTestInfrastructureStack : Stack
         
         var topic = Topic.FromTopicArn(this, "StockPriceUpdatedTopic", topicArn);
         
-        new AsyncTestInfrastructure(this, $"StockPriceTest{stackProps.Postfix}", topic);
+        var testInfrastructure = new AsyncTestInfrastructure(this, $"StockPriceTest{stackProps.Postfix}", topic);
     }
 }

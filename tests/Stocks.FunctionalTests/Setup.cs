@@ -82,7 +82,7 @@ public class Setup : IAsyncLifetime
 
     private async Task<string> CreateTestUser(string userPoolClientId)
     {
-        var createdUser = await _cognitoIdentityProviderClient.AdminCreateUserAsync(new AdminCreateUserRequest()
+        await _cognitoIdentityProviderClient.AdminCreateUserAsync(new AdminCreateUserRequest()
         {
             UserPoolId = this._userPoolId,
             Username = this._testUsername,
@@ -101,7 +101,7 @@ public class Setup : IAsyncLifetime
             }
         });
     
-        var setUserPassword = await _cognitoIdentityProviderClient.AdminSetUserPasswordAsync(
+        await _cognitoIdentityProviderClient.AdminSetUserPasswordAsync(
             new AdminSetUserPasswordRequest()
             {
                 UserPoolId = this._userPoolId,
@@ -146,8 +146,9 @@ public class Setup : IAsyncLifetime
             {
                 await _dynamoDbClient!.DeleteItemAsync(_tableName!, new() { ["StockSymbol"] = new(id) });
             }
-            catch
+            catch (Exception)
             {
+                Console.WriteLine($"Failure deleting record {id}");
             }
         }
     }

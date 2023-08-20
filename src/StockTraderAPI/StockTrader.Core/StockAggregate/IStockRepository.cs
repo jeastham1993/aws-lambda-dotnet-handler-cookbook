@@ -4,7 +4,7 @@ public interface IStockRepository
 {
     Task UpdateStock(Stock stock);
     
-    Task<StockDTO> GetCurrentStockPrice(StockSymbol symbol);
+    Task<StockDto> GetCurrentStockPrice(StockSymbol symbol);
     
-    Task<StockDTO> GetStockHistory(StockSymbol symbol);
+    Task<StockDto> GetStockHistory(StockSymbol symbol);
 }

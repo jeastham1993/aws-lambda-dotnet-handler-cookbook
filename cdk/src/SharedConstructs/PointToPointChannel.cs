@@ -26,8 +26,6 @@ public enum Comparator
 public class PointToPointChannel : Construct
 {
     private readonly string _id;
-    private Construct _scope;
-    private string _inputTransformer;
     private List<IChainable> _enrichmentSteps { get; }
     private Succeed _enrichmentSuccess { get; }
 
@@ -44,7 +42,6 @@ public class PointToPointChannel : Construct
         scope,
         id)
     {
-        this._scope = scope;
         this._id = id;
         this._enrichmentSteps = new List<IChainable>();
         this._enrichmentSuccess = new Succeed(
