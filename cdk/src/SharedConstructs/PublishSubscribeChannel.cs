@@ -160,7 +160,10 @@ public class PublishSubscribeChannel : Construct
                     Actions = new[] {"sqs:SendMessage"}
                 }));
 
-                this.Topic.AddSubscription(new SqsSubscription(queue));
+                this.Topic.AddSubscription(new SqsSubscription(queue, new SqsSubscriptionProps()
+                {
+                    RawMessageDelivery = true
+                }));
             }
         }
         

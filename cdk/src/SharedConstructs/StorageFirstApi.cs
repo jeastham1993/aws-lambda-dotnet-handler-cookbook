@@ -10,30 +10,55 @@ public record StorageFirstApiProps(IQueue Queue, IUserPool UserPool);
 
 public class StorageFirstApi : Construct
 {
-    public RestApi Api { get; private set; }
+    private readonly Construct _scope;
+    private readonly string _id;
+    private IQueue _targetQueue;
+    private IUserPool _userPool;
     
     public StorageFirstApi(
         Construct scope,
-        string id,
-        StorageFirstApiProps props) : base(
+        string id) : base(
         scope,
         id)
     {
-        var integrationRole = new Role(
-            this,
-            "SqsApiGatewayIntegrationRole",
+        _scope = scope;
+        _id = id;
+    }
+
+    public StorageFirstApi WithAuth(IUserPool userPool)
+    {
+        this._userPool = userPool;
+
+        return this;
+    }
+
+    public StorageFirstApi WithTarget(IQueue sqsQueue)
+    {
+        this._targetQueue = sqsQueue;
+
+        return this;
+    }
+
+    public RestApi Build()
+    {
+     var integrationRole = new Role(
+            _scope,
+            $"{_id}GatewayIntegrationRole",
             new RoleProps
             {
                 AssumedBy = new ServicePrincipal("apigateway.amazonaws.com")
             });
 
-        props.Queue.GrantSendMessages(integrationRole);
+     if (this._targetQueue != null)
+     {
+         this._targetQueue.GrantSendMessages(integrationRole);   
+     }
 
-        var integration = new AwsIntegration(
+     var integration = new AwsIntegration(
             new AwsIntegrationProps
             {
                 Service = "sqs",
-                Path = $"{Environment.GetEnvironmentVariable("CDK_DEFAULT_ACCOUNT")}/{props.Queue.QueueName}",
+                Path = $"{Environment.GetEnvironmentVariable("CDK_DEFAULT_ACCOUNT")}/{this._targetQueue.QueueName}",
                 IntegrationHttpMethod = "POST",
                 Options = new IntegrationOptions
                 {
@@ -65,8 +90,8 @@ public class StorageFirstApi : Construct
             });
 
         var frontendApi = new RestApi(
-            this,
-            "FrontendApi",
+            _scope,
+            $"{_id}Api",
             new RestApiProps());
 
         frontendApi.Root.AddMethod(
@@ -80,18 +105,18 @@ public class StorageFirstApi : Construct
                     new MethodResponse { StatusCode = "400" },
                     new MethodResponse { StatusCode = "500" }
                 },
-                AuthorizationType = AuthorizationType.COGNITO,
-                Authorizer = new CognitoUserPoolsAuthorizer(this, "CognitoAuthorizer", new CognitoUserPoolsAuthorizerProps()
+                AuthorizationType = _userPool != null ? AuthorizationType.COGNITO : null,
+                Authorizer = _userPool != null ? new CognitoUserPoolsAuthorizer(this, "CognitoAuthorizer", new CognitoUserPoolsAuthorizerProps()
                 {
                     CognitoUserPools = new IUserPool[]
                     {
-                        props.UserPool
+                        this._userPool
                     },
                     AuthorizerName = "cognitoauthorizer",
                     IdentitySource = "method.request.header.Authorization"
-                })
+                }) : null
             });
 
-        this.Api = frontendApi;
+        return frontendApi;
     }
 }
