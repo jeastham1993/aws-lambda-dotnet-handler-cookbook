@@ -250,6 +250,8 @@ UpgradeLog*.htm
 *.mdf
 *.ldf
 
+**/.idea/*
+
 # Business Intelligence projects
 *.rdl.data
 *.bim.layout
