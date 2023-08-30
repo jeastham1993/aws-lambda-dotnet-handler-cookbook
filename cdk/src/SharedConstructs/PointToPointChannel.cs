@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.IAM;
@@ -26,8 +27,13 @@ public enum Comparator
 public class PointToPointChannel : Construct
 {
     private readonly string _id;
+    private bool _isFirstStepFilter;
+    
     private List<IChainable> _enrichmentSteps { get; }
     private Succeed _enrichmentSuccess { get; }
+    private List<string> _steps { get; }
+
+    private Dictionary<string, string[]> _firstFilter;
 
     private Pass _skipToEnd { get; }
     
@@ -47,6 +53,7 @@ public class PointToPointChannel : Construct
         this._enrichmentSuccess = new Succeed(
             this,
             "EnrichmentSuccess");
+        this._steps = new List<string>();
 
         this._skipToEnd = new Pass(
             this,
@@ -62,6 +69,8 @@ public class PointToPointChannel : Construct
 
     public PointToPointChannel WithMessageTranslation(string translationIdentifier, Dictionary<string, object> translatedMessage)
     {
+        _steps.Add("TRANSLATION");
+        
         this._enrichmentSteps.Add(
             new Pass(
                 this,
@@ -79,6 +88,8 @@ public class PointToPointChannel : Construct
         Comparator comparator,
         double value)
     {
+        _steps.Add("FILTER");
+        
         Condition comparisonCondition = null;
 
         switch (comparator)
@@ -131,6 +142,19 @@ public class PointToPointChannel : Construct
 
     public PointToPointChannel WithMessageFilter(string filterName, Dictionary<string, string[]> filterValue)
     {
+        _steps.Add("FILTER");
+
+        if (this._firstFilter == null)
+        {
+            this._firstFilter = filterValue;
+        }
+
+        if (this._steps.Count == 1)
+        {
+            this._isFirstStepFilter = true;
+            return this;
+        }
+        
         var filterComplete = new Pass(
             this,
             $"{filterName}FilterComplete");
@@ -255,6 +279,28 @@ public class PointToPointChannel : Construct
                 });
 
             enrichment.GrantStartSyncExecution(pipeRole);
+        }
+
+        if (this._isFirstStepFilter)
+        {
+            var filterStringBuilder = new StringBuilder("{\"");
+            filterStringBuilder.Append(this._firstFilter.Keys.FirstOrDefault());
+            filterStringBuilder.Append("\": [\"");
+            filterStringBuilder.Append(string.Join(
+                "\",\"",
+                this._firstFilter.FirstOrDefault().Value));
+            filterStringBuilder.Append("\"]}");
+
+            this.Source.SourceParameters.FilterCriteria = new CfnPipe.FilterCriteriaProperty()
+            {
+                Filters = new object[]
+                {
+                    new CfnPipe.FilterProperty()
+                    {
+                        Pattern = filterStringBuilder.ToString()
+                    }
+                }
+            };
         }
 
         var pipe = new CfnPipe(
