@@ -129,7 +129,7 @@ public class PointToPointChannel : Construct
         return this;
     }
 
-    public PointToPointChannel WithMessageFilter(string filterName, Dictionary<string, string> filterValue)
+    public PointToPointChannel WithMessageFilter(string filterName, Dictionary<string, string[]> filterValue)
     {
         var filterComplete = new Pass(
             this,
@@ -140,10 +140,9 @@ public class PointToPointChannel : Construct
         foreach (var filter in filterValue)
         {
             conditions.Add(Condition.IsPresent($"$.{filter.Key}"));
-            conditions.Add(Condition.StringEquals($"$.{filter.Key}", filter.Value));
         }
 
-        var choice = new Choice(
+        var checkFieldsExistChoice = new Choice(
                 this,
                 $"{filterName.Replace(".", "-")}Filter")
             .When(
@@ -160,8 +159,38 @@ public class PointToPointChannel : Construct
                         Result = new Result("{}")
                     }).Next(_skipToEnd))
             .Afterwards();
+        
+        conditions = new List<Condition>(filterValue.Count * 2);
 
-        this._enrichmentSteps.Add(choice);
+        foreach (var filter in filterValue)
+        {
+            foreach (var filterString in filter.Value)
+            {
+                conditions.Add(Condition.StringEquals($"$.{filter.Key}", filterString));
+            }
+        }
+        
+        var checkValuesChoice = new Choice(
+                this,
+                $"{filterName.Replace(".", "-")}FilterValues")
+            .When(
+                Condition.Or(conditions.ToArray()),
+                new Pass(
+                    this,
+                    $"{filterName.Replace(".", "-")}FilterValuesPass").Next(filterComplete))
+            .Otherwise(
+                new Pass(
+                    this,
+                    $"{filterName.Replace(".", "-")}EmptyValuesState",
+                    new PassProps
+                    {
+                        Result = new Result("{}")
+                    }).Next(_skipToEnd))
+            .Afterwards();
+
+        var chain = checkFieldsExistChoice.Next(checkValuesChoice);
+
+        this._enrichmentSteps.Add(chain);
 
         return this;
     }

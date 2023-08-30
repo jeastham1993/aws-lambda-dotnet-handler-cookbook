@@ -16,11 +16,10 @@ public class NotificationApi : Construct
     
     public NotificationApi(Construct scope, string id, NotificationApiProps props) : base(scope, id)
     {
-        // Define the business workflow to integrate with the HTTP request, generate the case id
-        // store and publish.
-        // Abstract the complexities of each Workflow Step behind a method call of legibility
         var sqsWorkflow = new SqsSourcedWorkflow(this, $"ApiStateMachine{props.Postfix}",
-            WorkflowStep.ParseSQSInput(this).Next(WorkflowStep.StoreApiData(this, props.StockNotificationTable)));
+            WorkflowStep.ParseSQSInput(this)
+                .Next(WorkflowStep.StoreApiData(this, props.StockNotificationTable))
+            );
 
         props.StockNotificationTable.GrantReadWriteData(sqsWorkflow.Workflow);
 

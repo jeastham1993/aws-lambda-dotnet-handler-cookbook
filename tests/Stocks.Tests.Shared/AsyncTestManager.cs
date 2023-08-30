@@ -29,6 +29,12 @@ public class AsyncTestManager
 
             if (output.IsItemSet)
             {
+                await this._dynamoDbClient.DeleteItemAsync(
+                    this._outputTableName,
+                    new Dictionary<string, AttributeValue>(1)
+                    {
+                        { "PK", new AttributeValue(testIdentifier) }
+                    });
                 success = true;
                 break;
             }

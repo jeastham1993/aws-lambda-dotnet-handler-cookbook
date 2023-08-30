@@ -62,6 +62,24 @@ public sealed class StockPricingFunctionalTests : IClassFixture<Setup>, IDisposa
     }
     
     [Fact]
+    public async Task ManageStockPrice_WhenUpdateSameStockTwice_ShouldSendTwoAsyncMessages()
+    {
+        var testStockSymbol = Guid.NewGuid().ToString();
+
+        await this._driver.CreateStock(testStockSymbol, 100.00M);
+
+        var asyncTest = await _setup.AsyncTestManager.PollForOutput(testStockSymbol);
+
+        asyncTest.Should().BeTrue();
+
+        await this._driver.CreateStock(testStockSymbol, 95.00M);
+        
+        asyncTest = await _setup.AsyncTestManager.PollForOutput(testStockSymbol);
+
+        asyncTest.Should().BeTrue();
+    }
+    
+    [Fact]
     public async Task ManageStockPrice_WithValidInput_ShouldCreateAndAddHistory()
     {
         var testStockSymbol = Guid.NewGuid().ToString();

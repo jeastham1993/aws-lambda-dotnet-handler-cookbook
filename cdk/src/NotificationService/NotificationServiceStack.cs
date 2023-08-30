@@ -26,6 +26,7 @@ public class NotificationServiceStack : Stack
         id,
         props)
     {
+        // Load values stored in SSM from other stacks, for the User Pool and the SNS topic
         var userPoolParameterValue =
             StringParameter.ValueForStringParameter(this, $"/authentication/{apiProps.Postfix}/user-pool-id");
 
@@ -35,47 +36,13 @@ public class NotificationServiceStack : Stack
 
         var stockPriceUpdatedQueue = new Queue(this, $"StockPriceUpdatedQueue{apiProps.Postfix}", new QueueProps());
 
+        // Create a new subscription to the Stock Price Updated topic
         new PublishSubscribeChannel(this, $"StockPriceUpdatedSubscription{apiProps.Postfix}")
             .SubscribeTo(stockPriceUpdatedTopic)
             .Targeting(stockPriceUpdatedQueue)
             .Build();
 
-        var stockNotificationTable = new Table(
-            this,
-            "StockNotificationTable",
-            new TableProps
-            {
-                BillingMode = BillingMode.PAY_PER_REQUEST,
-                PartitionKey = new Attribute
-                {
-                    Name = "PK",
-                    Type = AttributeType.STRING
-                },
-                SortKey = new Attribute
-                {
-                    Name = "SK",
-                    Type = AttributeType.STRING
-                },
-                TableName = $"StockNotification-{apiProps.Postfix}",
-                Stream = StreamViewType.NEW_AND_OLD_IMAGES,
-                RemovalPolicy = RemovalPolicy.DESTROY
-            });
-
-        stockNotificationTable.AddGlobalSecondaryIndex(new GlobalSecondaryIndexProps
-        {
-            IndexName = "GSI1",
-            ProjectionType = ProjectionType.ALL,
-            PartitionKey = new Attribute
-            {
-                Name = "GSI1PK",
-                Type = AttributeType.STRING
-            },
-            SortKey = new Attribute
-            {
-                Name = "GSI1SK",
-                Type = AttributeType.STRING
-            }
-        });
+        var stockNotificationTable = this.CreateStockNotificationTable(apiProps);
 
         var api = new NotificationApi(this, $"NotificationApi{apiProps.Postfix}",
             new NotificationApiProps(apiProps.Postfix, stockNotificationTable, userPool));
@@ -109,6 +76,48 @@ public class NotificationServiceStack : Stack
             ExportName = $"NotificationEndpoint{apiProps.Postfix}",
             Value = api.Api.Url
         });
+    }
+
+    private Table CreateStockNotificationTable(NotificationServiceStackProps apiProps)
+    {
+        var stockNotificationTable = new Table(
+            this,
+            "StockNotificationTable",
+            new TableProps
+            {
+                BillingMode = BillingMode.PAY_PER_REQUEST,
+                PartitionKey = new Attribute
+                {
+                    Name = "PK",
+                    Type = AttributeType.STRING
+                },
+                SortKey = new Attribute
+                {
+                    Name = "SK",
+                    Type = AttributeType.STRING
+                },
+                TableName = $"StockNotification-{apiProps.Postfix}",
+                Stream = StreamViewType.NEW_AND_OLD_IMAGES,
+                RemovalPolicy = RemovalPolicy.DESTROY
+            });
+
+        stockNotificationTable.AddGlobalSecondaryIndex(
+            new GlobalSecondaryIndexProps
+            {
+                IndexName = "GSI1",
+                ProjectionType = ProjectionType.ALL,
+                PartitionKey = new Attribute
+                {
+                    Name = "GSI1PK",
+                    Type = AttributeType.STRING
+                },
+                SortKey = new Attribute
+                {
+                    Name = "GSI1SK",
+                    Type = AttributeType.STRING
+                }
+            });
+        return stockNotificationTable;
     }
 
     private ITopic GetStockPriceUpdatedTopic(NotificationServiceStackProps apiProps)
