@@ -106,7 +106,7 @@ public class NotificationServiceStack : Stack
 
         var apiEndpointOutput = new CfnOutput(this, "ApiOutput", new CfnOutputProps
         {
-            ExportName = $"NotificationApiEndpoint{apiProps.Postfix}",
+            ExportName = $"NotificationEndpoint{apiProps.Postfix}",
             Value = api.Api.Url
         });
     }
