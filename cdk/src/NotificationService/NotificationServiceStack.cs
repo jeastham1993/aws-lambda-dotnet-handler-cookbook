@@ -96,7 +96,7 @@ public class NotificationServiceStack : Stack
 
         stockNotificationTable.GrantReadData(stockPriceNotificationWorkflow.Workflow);
 
-        new PointToPointChannel(this, $"StockPriceUpdateChannel{apiProps.Postfix}")
+        new PointToPointChannel(this, $"PriceNotification{apiProps.Postfix}")
             .From(new SqsQueueSource(stockPriceUpdatedQueue))
             .WithMessageTranslation("FormatSQSObject", new Dictionary<string, object>(1)
             {
