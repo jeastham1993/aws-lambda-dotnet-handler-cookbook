@@ -88,7 +88,7 @@ public class StockPriceApiStack : Stack
                 $"StockPriceUpdatedChannel{apiProps.Postfix}")
             .From(new DynamoDbSource(this._table))
             .WithMessageFilter(
-                "Filter on event name",
+                "EventNameFilter",
                 new Dictionary<string, string[]>(2)
                 {
                     {"eventName", new []{"MODIFY", "INSERT"}}

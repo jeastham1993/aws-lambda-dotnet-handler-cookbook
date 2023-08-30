@@ -139,31 +139,6 @@ public class PointToPointChannel : Construct
 
         foreach (var filter in filterValue)
         {
-            conditions.Add(Condition.IsPresent($"$.{filter.Key}"));
-        }
-
-        var checkFieldsExistChoice = new Choice(
-                this,
-                $"{filterName.Replace(".", "-")}Filter")
-            .When(
-                Condition.And(conditions.ToArray()),
-                new Pass(
-                    this,
-                    $"{filterName.Replace(".", "-")}FilterPass").Next(filterComplete))
-            .Otherwise(
-                new Pass(
-                    this,
-                    $"{filterName.Replace(".", "-")}EmptyState",
-                    new PassProps
-                    {
-                        Result = new Result("{}")
-                    }).Next(_skipToEnd))
-            .Afterwards();
-        
-        conditions = new List<Condition>(filterValue.Count * 2);
-
-        foreach (var filter in filterValue)
-        {
             foreach (var filterString in filter.Value)
             {
                 conditions.Add(Condition.StringEquals($"$.{filter.Key}", filterString));
@@ -188,9 +163,7 @@ public class PointToPointChannel : Construct
                     }).Next(_skipToEnd))
             .Afterwards();
 
-        var chain = checkFieldsExistChoice.Next(checkValuesChoice);
-
-        this._enrichmentSteps.Add(chain);
+        this._enrichmentSteps.Add(checkValuesChoice);
 
         return this;
     }
