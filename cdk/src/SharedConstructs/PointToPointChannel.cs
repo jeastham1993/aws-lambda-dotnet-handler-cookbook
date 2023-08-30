@@ -240,7 +240,11 @@ public class PointToPointChannel : Construct
                         IncludeExecutionData = true,
                         Destination = new LogGroup(
                             this,
-                            $"{this._id}EnrichmentLogGroup")
+                            $"{this._id}EnrichmentLogGroup",
+                            new LogGroupProps()
+                            {
+                                LogGroupName = $"/aws/vendedlogs/states/{this._id}EnrichmentLogGroup"
+                            })
                     }
                 });
 

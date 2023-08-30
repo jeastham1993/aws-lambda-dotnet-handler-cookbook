@@ -13,19 +13,22 @@ It is inspired by the [Python AWS Lambda Handler Cookbook](https://github.com/ra
 
 Starting a Serverless service can be overwhelming. You are introducing a completely new programming model, and a vastly different way of thinking about applications as opposed to the familiar server based development experience.
 
-There are many examples of 'hello world' Lambda functions, but few that dive into a production-ready serverless application comprised of multiple services and teams.s 
+There are many examples of 'hello world' Lambda functions, but few that dive into a production-ready serverless application comprised of multiple services and teams.
 
 ## **The Solution**
 
 This project aims to reduce cognitive load and answer these questions for you by providing a skeleton .NET Serverless service template that implements best practices for AWS Lambda, Serverless CI/CD, and the AWS CDK in one template project.
+
+This project also demonstrates how you can minimize the amount of code you run in production, leveraging native AWS service integrations to further reduce the operational overhead of your systems.
 
 ### Application Architecture
 
 ![](./assets/Architecture.png)
 
 - A stock price service that allows users to update the stock price for a given stock, and retrieve the current stock price as well as the history
-    - The Stock Price service splits queries and commands into seperate functions. All GET endpoints are serviced by a single Lambda function that uses native AOT compilation for performance. Commands run as single purpose Lambda functions
-- A customer service that allows users to subscribe to notifications when a given stock price changes 
+  - The Stock Price service splits queries and commands into seperate functions. All GET endpoints are serviced by a single Lambda function that uses native AOT compilation for performance. Commands run as single purpose Lambda functions
+- A notification service that allows users to subscribe to notifications when a given stock price changes
+  - The notification service demonstrates how to build applications using the AWS CDK without using Lambda functions. It leverages services like Step Functions and Event Bridge Pipes to meet application use cases
 
 <br></br>
 
@@ -39,6 +42,7 @@ This project aims to reduce cognitive load and answer these questions for you by
 - The AWS Lambda handler embodies Serverless best practices for a proper production ready handler.
 - AWS Lambda handler uses [AWS Lambda Powertools](https://docs.powertools.aws.dev/lambda-dotnet/){:target="_blank" rel="noopener"} as well as the [Lambda Annotations Framework](https://github.com/aws/aws-lambda-dotnet/tree/master/Libraries/src/Amazon.Lambda.Annotations)
 - Features flags and configuration based on AWS AppConfig
+- Building application functionality without using Lambda functions, leveraging managed services and native AWS service integrations
 
 ## Serverless Best Practices
 The handler implements multiple best practice utilities.
@@ -73,6 +77,7 @@ If this is your first time deploying, you will need to deploy the CDK projects i
 cdk deploy AuthenticationStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/Authentication/AuthenticationStack.csproj"
 cdk deploy ConfigurationStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
 cdk deploy StockPriceStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
+cdk deploy NotificationStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/NotificationService/NotificationService.csproj"
 ```
 
 If you to want to run the functional tests, you will also need to deploy the asynchronous test infrastructure:
@@ -137,7 +142,6 @@ For more information on testing, check out this [YouTube Video on testing and de
     - [] EventBridge
     - [] S3
     - [] Kinesis
-- [] Add multiple micro-service example
 
 
 ## Code Contributions
