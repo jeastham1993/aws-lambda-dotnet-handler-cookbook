@@ -129,28 +129,32 @@ public class PointToPointChannel : Construct
         return this;
     }
 
-    public PointToPointChannel WithMessageFilter(string keyField, string value)
+    public PointToPointChannel WithMessageFilter(string filterName, Dictionary<string, string> filterValue)
     {
         var filterComplete = new Pass(
             this,
-            $"{keyField}FilterComplete");
+            $"{filterName}FilterComplete");
+
+        var conditions = new List<Condition>(filterValue.Count * 2);
+
+        foreach (var filter in filterValue)
+        {
+            conditions.Add(Condition.IsPresent($"$.{filter.Key}"));
+            conditions.Add(Condition.StringEquals($"$.{filter.Key}", filter.Value));
+        }
 
         var choice = new Choice(
                 this,
-                $"{keyField.Replace(".", "-")}Filter")
+                $"{filterName.Replace(".", "-")}Filter")
             .When(
-                Condition.And(
-                    Condition.IsPresent($"$.{keyField}"),
-                    Condition.StringEquals(
-                        $"$.{keyField}",
-                        value)),
+                Condition.And(conditions.ToArray()),
                 new Pass(
                     this,
-                    $"{keyField.Replace(".", "-")}FilterPass").Next(filterComplete))
+                    $"{filterName.Replace(".", "-")}FilterPass").Next(filterComplete))
             .Otherwise(
                 new Pass(
                     this,
-                    $"{keyField.Replace(".", "-")}EmptyState",
+                    $"{filterName.Replace(".", "-")}EmptyState",
                     new PassProps
                     {
                         Result = new Result("{}")

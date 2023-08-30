@@ -89,10 +89,17 @@ public class StockPriceApiStack : Stack
             .From(new DynamoDbSource(this._table))
             .WithMessageFilter(
                 "eventName",
-                "INSERT")
+                new Dictionary<string, string>(2)
+                {
+                    {"eventName", "INSERT"},
+                    {"eventName", "MODIFY"}
+                })
             .WithMessageFilter(
-                "dynamodb.NewImage.Type.S",
-                "Stock")
+                "StockRecordType",
+                new Dictionary<string, string>(2)
+                {
+                    {"dynamodb.NewImage.Type.S", "Stock"},
+                })
             .WithMessageTranslation(
                 "GenerateEvent",
                 new Dictionary<string, object>(2)
