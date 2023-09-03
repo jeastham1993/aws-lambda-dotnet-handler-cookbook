@@ -22,7 +22,7 @@ There are many examples of 'hello world' Lambda functions, but few that dive int
 
 This project aims to reduce cognitive load and answer these questions for you by providing a skeleton .NET Serverless service template that implements best practices for AWS Lambda, Serverless CI/CD, and the AWS CDK in one template project.
 
-This project also demonstrates how you can minimize the amount of code you run in production, leveraging native AWS service integrations to further reduce the operational overhead of your systems.
+It demonstrates both how you can use .NET and AWS Lambda to build your serverless applications. As well as defining .NET applications with the AWS CDK that fully leverage native service integrations, without a single line of code running in production.
 
 ### Application Architecture
 
