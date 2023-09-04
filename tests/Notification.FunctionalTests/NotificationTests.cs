@@ -1,3 +1,5 @@
+using Amazon.DynamoDBv2.Model;
+
 namespace Notification.FunctionalTests;
 
 using Amazon.StepFunctions.Model;
@@ -43,6 +45,39 @@ public class NotificationTests : IClassFixture<Setup>, IDisposable
             stockId);
 
         await this.driver.PublishStockUpdateMessage(stockId);
+
+        await Task.Delay(TimeSpan.FromSeconds(3));
+
+        var auditResult = await _setup.DynamoDbClient.GetItemAsync(_setup.TableName, new Dictionary<string, AttributeValue>(2)
+        {
+            { "PK", new($"AUDIT#{customerId}") },
+            { "SK", new(stockId) },
+        });
+
+        auditResult.IsItemSet.Should().BeTrue($"Customer {customerId} and {stockId} should be found");
+        
+        this._setup.CreatedNotifications.Add(
+            $"AUDIT#{customerId}",
+            stockId);
+    }
+    
+    [Fact]
+    public async Task AddNotificationAndPublishEvent_WhenEventIsForAnUnregisteredStock_NoAuditRecord()
+    {
+        var customerId = Guid.NewGuid().ToString();
+        var stockId = Guid.NewGuid().ToString();
+
+        await this.driver.PublishStockUpdateMessage(stockId);
+
+        await Task.Delay(TimeSpan.FromSeconds(3));
+
+        var auditResult = await _setup.DynamoDbClient.GetItemAsync(_setup.TableName, new Dictionary<string, AttributeValue>(2)
+        {
+            { "PK", new($"AUDIT#{customerId}") },
+            { "SK", new(stockId) },
+        });
+
+        auditResult.IsItemSet.Should().BeFalse($"Customer {customerId} and {stockId} should be found");
     }
 
     void IDisposable.Dispose()

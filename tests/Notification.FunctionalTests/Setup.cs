@@ -13,8 +13,6 @@ using Amazon.StepFunctions;
 
 public class Setup : IAsyncLifetime
 {
-    private string? _tableName;
-    private AmazonDynamoDBClient? _dynamoDbClient;
     private AmazonCognitoIdentityProviderClient _cognitoIdentityProviderClient;
     
     private string? _userPoolId;
@@ -27,12 +25,16 @@ public class Setup : IAsyncLifetime
     public string? StockUpdateQueueUrl { get; private set; }
     
     public string? StockUpdateWorkflowArn { get; private set; }
+    
+    public string? TableName { get; private set; }
 
     public Dictionary<string, string> CreatedNotifications { get; } = new();
     
     public AmazonSQSClient SqsClient { get; private set; }
     
     public AmazonStepFunctionsClient StepFunctionsClient { get; private set; }
+    
+    public AmazonDynamoDBClient DynamoDbClient { get; private set; }
 
     public async Task InitializeAsync()
     {
@@ -77,14 +79,14 @@ public class Setup : IAsyncLifetime
         this._testUsername = $"{Guid.NewGuid()}@example.com";
 
         var authToken = await this.CreateTestUser(clientId);
-        this._dynamoDbClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { RegionEndpoint = endpoint });
+        this.DynamoDbClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { RegionEndpoint = endpoint });
 
         this.ApiUrl = GetOutputVariableFromExportName(outputs, $"NotificationEndpoint{stackPostfix}", stackName); ;
         this.StockUpdateQueueUrl = GetOutputVariableFromExportName(outputs, $"StockUpdateQueue{stackPostfix}", stackName); ;
         this.StockUpdateWorkflowArn = GetOutputVariableFromExportName(outputs, $"StockUpdateWorkflowName{stackPostfix}", stackName); ;
         
         this.AuthToken = authToken;
-        this._tableName = GetOutputVariableFromExportName(outputs, $"NotificationTable{stackPostfix}", stackName);
+        this.TableName = GetOutputVariableFromExportName(outputs, $"NotificationTable{stackPostfix}", stackName);
     }
 
     private async Task<string> CreateTestUser(string userPoolClientId)
@@ -151,7 +153,7 @@ public class Setup : IAsyncLifetime
         {
             try
             {
-                await this._dynamoDbClient!.DeleteItemAsync(this._tableName!, new() { { "PK", new(id.Key) }, {"SK", new(id.Value)}  });
+                await this.DynamoDbClient!.DeleteItemAsync(this.TableName!, new() { { "PK", new(id.Key) }, {"SK", new(id.Value)}  });
             }
             catch (Exception)
             {

@@ -47,6 +47,7 @@ namespace NotificationService
                         stockNotificationTable.TableArn
                     },
                     Service = "dynamodb",
+                    ResultPath = "$.queryResults",
                     Parameters = new Dictionary<string, object>()
                     {
                         { "TableName", stockNotificationTable.TableName },
@@ -65,6 +66,20 @@ namespace NotificationService
                         }
                     }
                 });
+        }
+
+        public static Chain SendNotification(Construct scope, ITable table)
+        {
+            return Chain.Start(new DynamoPutItem(scope, "AuditEmailSend", new DynamoPutItemProps
+            {
+                OutputPath = JsonPath.DISCARD,
+                Item = new Dictionary<string, DynamoAttributeValue>(2)
+                {
+                    {"PK", DynamoAttributeValue.FromString(JsonPath.StringAt("States.Format('AUDIT#{}', $.PK.S)"))},
+                    {"SK", DynamoAttributeValue.FromString(JsonPath.StringAt("$.SK.S"))},
+                },
+                Table = table,
+            }));
         }
     }
 }

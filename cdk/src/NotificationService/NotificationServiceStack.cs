@@ -52,14 +52,8 @@ public class NotificationServiceStack : Stack
                 .QueryForStockNotificationRequests(this, stockNotificationTable)
                 .Next(new Map(this, "IterateResults", new MapProps
                 {
-                    ItemsPath = "$.Items"
-                }).Iterator(new Pass(this, "GatherNotificationCustomers", new PassProps
-                {
-                    Parameters = new Dictionary<string, object>(1)
-                    {
-                        { "Customer", JsonPath.StringAt("$.PK.S") }
-                    }
-                }))));
+                    ItemsPath = "$.queryResults.Items"
+                }).Iterator(WorkflowStep.SendNotification(this, stockNotificationTable))));
 
         stockNotificationTable.GrantReadData(stockPriceNotificationWorkflow.Workflow);
 
