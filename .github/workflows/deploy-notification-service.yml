@@ -35,7 +35,19 @@ jobs:
         run: |
           export STACK_POSTFIX=Dev
           cdk deploy NotificationServiceStackDev --require-approval=never --app "dotnet run --project cdk/src/NotificationService/NotificationService.csproj"
+      - name: Functional tests
+        env:
+          TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
+        run: |
+          export STACK_POSTFIX=Dev
+          dotnet test ./tests/Notification.FunctionalTests/Notification.FunctionalTests.csproj
       - name: Deploy to AWS Production
         run: |
           export STACK_POSTFIX=Prod
           cdk deploy NotificationServiceStackProd --require-approval=never --app "dotnet run --project cdk/src/NotificationService/NotificationService.csproj"
+      - name: Functional tests
+        env:
+          TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
+        run: |
+          export STACK_POSTFIX=Prod
+          dotnet test ./tests/Notification.FunctionalTests/Notification.FunctionalTests.csproj
