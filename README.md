@@ -80,7 +80,7 @@ If this is your first time deploying, you will need to deploy the CDK projects i
 cdk deploy AuthenticationStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/Authentication/AuthenticationStack.csproj"
 cdk deploy ConfigurationStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
 cdk deploy StockPriceStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
-cdk deploy NotificationStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/NotificationService/NotificationService.csproj"
+cdk deploy NotificationServiceStack<POSTFIX> --require-approval=never --app "dotnet run --project cdk/src/NotificationService/NotificationService.csproj"
 ```
 
 If you to want to run the functional tests, you will also need to deploy the asynchronous test infrastructure:

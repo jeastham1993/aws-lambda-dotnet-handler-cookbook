@@ -1,68 +1,45 @@
+namespace SharedConstructs;
+
 using Amazon.CDK.AWS.APIGateway;
 using Amazon.CDK.AWS.Cognito;
 using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.SQS;
-using Constructs;
 
-namespace SharedConstructs;
+using Constructs;
 
 public record StorageFirstApiProps(IQueue Queue, IUserPool UserPool);
 
 public class StorageFirstApi : Construct
 {
-    private readonly Construct _scope;
-    private readonly string _id;
-    private IQueue _targetQueue;
-    private IUserPool _userPool;
-    
+    public RestApi Api { get; }
+
     public StorageFirstApi(
         Construct scope,
-        string id) : base(
+        string id,
+        StorageFirstApiProps props) : base(
         scope,
         id)
     {
-        _scope = scope;
-        _id = id;
-    }
-
-    public StorageFirstApi WithAuth(IUserPool userPool)
-    {
-        this._userPool = userPool;
-
-        return this;
-    }
-
-    public StorageFirstApi WithTarget(IQueue sqsQueue)
-    {
-        this._targetQueue = sqsQueue;
-
-        return this;
-    }
-
-    public RestApi Build()
-    {
-     var integrationRole = new Role(
-            _scope,
-            $"{_id}GatewayIntegrationRole",
+        var integrationRole = new Role(
+            this,
+            "SqsApiGatewayIntegrationRole",
             new RoleProps
             {
                 AssumedBy = new ServicePrincipal("apigateway.amazonaws.com")
             });
 
-     if (this._targetQueue != null)
-     {
-         this._targetQueue.GrantSendMessages(integrationRole);   
-     }
+        props.Queue.GrantSendMessages(integrationRole);
 
-     var integration = new AwsIntegration(
+        var integration = new AwsIntegration(
             new AwsIntegrationProps
             {
                 Service = "sqs",
-                Path = $"{Environment.GetEnvironmentVariable("CDK_DEFAULT_ACCOUNT")}/{this._targetQueue.QueueName}",
+                Path = $"{Environment.GetEnvironmentVariable("CDK_DEFAULT_ACCOUNT")}/{props.Queue.QueueName}",
                 IntegrationHttpMethod = "POST",
                 Options = new IntegrationOptions
                 {
                     CredentialsRole = integrationRole,
+                    PassthroughBehavior = PassthroughBehavior.NEVER,
                     RequestParameters = new Dictionary<string, string>(1)
                     {
                         { "integration.request.header.Content-Type", "'application/x-www-form-urlencoded'" }
@@ -75,23 +52,28 @@ public class StorageFirstApi : Construct
                     {
                         new IntegrationResponse
                         {
-                            StatusCode = "200"
-                        },
-                        new IntegrationResponse
-                        {
-                            StatusCode = "400"
-                        },
-                        new IntegrationResponse
-                        {
-                            StatusCode = "500"
-                        },
+                            StatusCode = "200",
+                            ResponseTemplates = new Dictionary<string, string>(1)
+                            {
+                                {
+                                    "application/json", @"  #set($inputRoot = $input.path('$'))
+    #set($sndMsgResp = $inputRoot.SendMessageResponse)
+    #set($metadata = $sndMsgResp.ResponseMetadata)
+    #set($sndMsgRes = $sndMsgResp.SendMessageResult)
+    {
+        ""RequestId"" : ""$metadata.RequestId"",
+        ""MessageId"" : ""$sndMsgRes.MessageId""
+    }"
+                                }
+                            }
+                        }
                     }.ToArray()
                 }
             });
 
         var frontendApi = new RestApi(
-            _scope,
-            $"{_id}Api",
+            this,
+            $"{id}Api",
             new RestApiProps());
 
         frontendApi.Root.AddMethod(
@@ -101,22 +83,18 @@ public class StorageFirstApi : Construct
             {
                 MethodResponses = new[]
                 {
-                    new MethodResponse { StatusCode = "200" },
-                    new MethodResponse { StatusCode = "400" },
-                    new MethodResponse { StatusCode = "500" }
+                    new MethodResponse { StatusCode = "200" }
                 },
-                AuthorizationType = _userPool != null ? AuthorizationType.COGNITO : null,
-                Authorizer = _userPool != null ? new CognitoUserPoolsAuthorizer(this, "CognitoAuthorizer", new CognitoUserPoolsAuthorizerProps()
-                {
-                    CognitoUserPools = new IUserPool[]
+                AuthorizationType = AuthorizationType.COGNITO,
+                Authorizer = new CognitoUserPoolsAuthorizer(
+                    this,
+                    "CognitoAuth",
+                    new CognitoUserPoolsAuthorizerProps
                     {
-                        this._userPool
-                    },
-                    AuthorizerName = "cognitoauthorizer",
-                    IdentitySource = "method.request.header.Authorization"
-                }) : null
+                        CognitoUserPools = new[] { props.UserPool }
+                    })
             });
 
-        return frontendApi;
+        this.Api = frontendApi;
     }
 }

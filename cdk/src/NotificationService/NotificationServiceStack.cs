@@ -76,6 +76,24 @@ public class NotificationServiceStack : Stack
             ExportName = $"NotificationEndpoint{apiProps.Postfix}",
             Value = api.Api.Url
         });
+
+        var workflowNameOutput = new CfnOutput(
+            this,
+            "StockUpdateWorkflowName",
+            new CfnOutputProps()
+            {
+                ExportName = $"StockUpdateWorkflowName{apiProps.Postfix}",
+                Value = stockPriceNotificationWorkflow.Workflow.StateMachineArn
+            });
+
+        var stockPriceUpdatedQueueOutput = new CfnOutput(
+            this,
+            "StockPriceUpdatedQueueOutput",
+            new CfnOutputProps()
+            {
+                ExportName = $"StockUpdateQueue{apiProps.Postfix}",
+                Value = stockPriceUpdatedQueue.QueueUrl
+            });
     }
 
     private Table CreateStockNotificationTable(NotificationServiceStackProps apiProps)
@@ -117,6 +135,16 @@ public class NotificationServiceStack : Stack
                     Type = AttributeType.STRING
                 }
             });
+
+        var tableNameOutput = new CfnOutput(
+            this,
+            "TableNameOutput",
+            new CfnOutputProps()
+            {
+                ExportName = $"NotificationTable{apiProps.Postfix}",
+                Value = stockNotificationTable.TableName
+            });
+        
         return stockNotificationTable;
     }
 

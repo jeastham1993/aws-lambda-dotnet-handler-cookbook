@@ -25,10 +25,9 @@ public class NotificationApi : Construct
 
         var requestNotificationQueue = new Queue(this, $"RequestNotification{props.Postfix}");
 
-        this.Api = new StorageFirstApi(this, $"StockNotificationApi{props.Postfix}")
-            .WithAuth(props.UserPool)
-            .WithTarget(requestNotificationQueue)
-            .Build();
+        this.Api = new StorageFirstApi(
+            this,
+            $"StockNotificationApi{props.Postfix}", new StorageFirstApiProps(requestNotificationQueue, props.UserPool)).Api;
 
         new PointToPointChannel(this, $"StockNotificationWorkflowChannel{props.Postfix}")
             .From(new SqsQueueSource(requestNotificationQueue))
