@@ -35,8 +35,6 @@ public static class Program
 
     public static async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        Logger.LogInformation($"Resource: {request.Resource}");
-        
         APIGatewayProxyResponse response = null;
         
         switch (request.Resource)
