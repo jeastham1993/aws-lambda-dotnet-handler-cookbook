@@ -20,7 +20,7 @@
           "AWSLambdaBasicExecutionRole"
         ],
         "PackageType": "Zip",
-        "Handler": "bootstrap::StockTrader.API.Endpoints.GetStockEndpoints_GetStockPrice_Generated::GetStockPrice",
+        "Handler": "StockTrader.API::StockTrader.API.Endpoints.GetStockEndpoints_GetStockPrice_Generated::GetStockPrice",
         "Events": {
           "RootGet": {
             "Type": "Api",
@@ -49,7 +49,7 @@
           "AWSLambdaBasicExecutionRole"
         ],
         "PackageType": "Zip",
-        "Handler": "bootstrap::StockTrader.API.Endpoints.GetStockEndpoints_GetStockHistory_Generated::GetStockHistory",
+        "Handler": "StockTrader.API::StockTrader.API.Endpoints.GetStockEndpoints_GetStockHistory_Generated::GetStockHistory",
         "Events": {
           "RootGet": {
             "Type": "Api",
