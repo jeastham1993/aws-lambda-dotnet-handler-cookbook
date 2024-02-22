@@ -24,8 +24,6 @@ builder.Logging.AddJsonConsole(options =>
     options.TimestampFormat = "hh:mm:ss ";
 });
 
-builder.Services.AddSharedServices();
-
 var infrastructureSettings = new InfrastructureSettings
 {
     TableName = Environment.GetEnvironmentVariable("TABLE_NAME"),
