@@ -136,6 +136,12 @@ When running the functional tests locally, you also need to set the `TEMPORARY_P
 
 For more information on testing, check out this [YouTube Video on testing and debugging your Lambda functions locally](https://youtu.be/962ba6mgQXI).
 
+## Performance
+
+[AWS Lambda PowerTuning](https://docs.aws.amazon.com/lambda/latest/operatorguide/profile-functions.html) is used as a data driven way to set the memory allocation. For example, below is an output from Lambda PowerTuning for the .NET 8 AOT compile ASP.NET example.
+
+![](./assets/net-8-aot-performance.png)
+
 ## Roadmap
 
 - [] Add examples of different Lambda event sources
