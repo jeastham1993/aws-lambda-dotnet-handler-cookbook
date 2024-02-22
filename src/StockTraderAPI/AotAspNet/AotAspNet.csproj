@@ -20,7 +20,7 @@
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.1" />
     <PackageReference Include="AWS.Lambda.Powertools.Logging" Version="1.6.0-alpha" />
     <PackageReference Include="AWS.Lambda.Powertools.Tracing" Version="1.4.0" />
-    <PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="1.6.0" />
+    <PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="1.7.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StockTrader.Core\StockTrader.Core.csproj" />

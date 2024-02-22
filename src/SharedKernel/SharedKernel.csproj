@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="AWS.Lambda.Powertools.Parameters" Version="0.0.2-preview" />
+      <PackageReference Include="AWS.Lambda.Powertools.Parameters" Version="1.2.0" />
       <PackageReference Include="AWS.Lambda.Powertools.Tracing" Version="1.1.1" />
     </ItemGroup>
 
