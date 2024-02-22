@@ -1,9 +1,7 @@
-﻿using Amazon.CDK.AWS.StepFunctions;
+﻿using Amazon.CDK.AWS.Pipes;
+using Amazon.CDK.AWS.StepFunctions;
 
-namespace Cdk.SharedConstructs;
-
-using Amazon.CDK.AWS.Pipes;
-using Amazon.CDK.AWS.SNS;
+namespace SharedConstructs;
 
 public class WorkflowTarget : ChannelTarget
 {

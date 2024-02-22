@@ -1,9 +1,7 @@
-﻿using Amazon.CDK.AWS.SQS;
+﻿using Amazon.CDK.AWS.Pipes;
+using Amazon.CDK.AWS.SQS;
 
-namespace Cdk.SharedConstructs;
-
-using Amazon.CDK.AWS.DynamoDB;
-using Amazon.CDK.AWS.Pipes;
+namespace SharedConstructs;
 
 public class SqsQueueSource : ChannelSource
 {

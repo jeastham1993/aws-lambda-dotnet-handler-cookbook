@@ -10,6 +10,7 @@ on:
     paths:
       - cdk/src/StockPriceService/configuration/**
       - cdk/src/StockPriceService/ConfigurationStack
+      - .github/workflows/deploy-configuration.yml
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -42,19 +43,19 @@ jobs:
         run: |
           export STACK_POSTFIX=Dev
           cdk deploy ConfigurationStackDev --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
-      # - name: Functional tests
-      #   env:
-      #     TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
-      #   run: |
-      #     export STACK_POSTFIX=Dev
-      #     dotnet test ./tests/Stocks.FunctionalTests/Stocks.FunctionalTests.csproj
+      - name: Functional tests
+        env:
+          TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
+        run: |
+          export STACK_POSTFIX=Dev
+          dotnet test ./tests/Stocks.FunctionalTests/Stocks.FunctionalTests.csproj
       - name: Deploy to AWS Production
         run: |
           export STACK_POSTFIX=Prod
           cdk deploy ConfigurationStackProd --require-approval=never --app "dotnet run --project cdk/src/StockPriceService/StockPriceService.csproj"
-      # - name: Functional tests
-      #   env:
-      #     TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
-      #   run: |
-      #     export STACK_POSTFIX=Prod
-      #     dotnet test ./tests/Stocks.FunctionalTests/Stocks.FunctionalTests.csproj
+      - name: Functional tests
+        env:
+          TEMPORARY_PASSWORD: ${{ secrets.TEMPORARY_PASSWORD }}
+        run: |
+          export STACK_POSTFIX=Prod
+          dotnet test ./tests/Stocks.FunctionalTests/Stocks.FunctionalTests.csproj

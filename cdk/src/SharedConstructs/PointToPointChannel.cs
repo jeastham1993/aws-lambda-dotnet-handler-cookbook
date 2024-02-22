@@ -1,21 +1,11 @@
-﻿using Amazon.CDK.AWS.Lambda.EventSources;
-
-namespace Cdk.SharedConstructs;
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-
-using Amazon.CDK.AWS.DynamoDB;
+﻿using System.Text;
 using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Logs;
 using Amazon.CDK.AWS.Pipes;
-using Amazon.CDK.AWS.SNS;
 using Amazon.CDK.AWS.StepFunctions;
-
 using Constructs;
+
+namespace SharedConstructs;
 
 public enum Comparator
 {

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Lambda;
-using Cdk.SharedConstructs;
 using Constructs;
+using SharedConstructs;
 
 namespace Cdk.StockPriceApi;
 

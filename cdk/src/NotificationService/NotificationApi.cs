@@ -2,7 +2,6 @@ using Amazon.CDK.AWS.APIGateway;
 using Amazon.CDK.AWS.Cognito;
 using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.SQS;
-using Cdk.SharedConstructs;
 using Constructs;
 using SharedConstructs;
 

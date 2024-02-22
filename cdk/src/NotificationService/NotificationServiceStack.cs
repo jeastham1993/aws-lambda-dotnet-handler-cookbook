@@ -6,7 +6,6 @@ using Amazon.CDK.AWS.SNS;
 using Amazon.CDK.AWS.SQS;
 using Amazon.CDK.AWS.SSM;
 using Amazon.CDK.AWS.StepFunctions;
-using Cdk.SharedConstructs;
 using Constructs;
 using SharedConstructs;
 

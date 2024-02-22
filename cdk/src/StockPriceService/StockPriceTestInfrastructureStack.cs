@@ -1,8 +1,8 @@
 using Amazon.CDK;
 using Amazon.CDK.AWS.SNS;
 using Amazon.CDK.AWS.SSM;
-using Cdk.SharedConstructs;
 using Constructs;
+using SharedConstructs;
 
 namespace Cdk.StockPriceApi;
 

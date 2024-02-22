@@ -1,7 +1,7 @@
-﻿namespace Cdk.SharedConstructs;
-
-using Amazon.CDK.AWS.Pipes;
+﻿using Amazon.CDK.AWS.Pipes;
 using Amazon.CDK.AWS.SNS;
+
+namespace SharedConstructs;
 
 public class SnsTarget : ChannelTarget
 {

@@ -1,18 +1,17 @@
 using Amazon.CDK.AWS.Lambda;
-using Amazon.CDK.AWS.Logs;
-using Constructs;
-using XaasKit.CDK.AWS.Lambda.DotNet;
-
-namespace Cdk.SharedConstructs;
-
 using Amazon.CDK.AWS.Lambda.Destinations;
+using Amazon.CDK.AWS.Logs;
 using Amazon.CDK.AWS.SQS;
+using Constructs;
+
+namespace SharedConstructs;
 
 public class LambdaFunctionProps : FunctionProps
 {
     public LambdaFunctionProps(string codePath)
     {
         CodePath = codePath;
+        Postfix = "Dev";
     }
     
     public bool IsNativeAot { get; set; }
@@ -30,37 +29,18 @@ public class LambdaFunction : Construct
     
     public LambdaFunction(Construct scope, string id, LambdaFunctionProps props) : base(scope, id)
     {
-        if (props.IsNativeAot)
+        this.Function = new Function(this, id, new FunctionProps()
         {
-            this.Function = new Function(this, id, new FunctionProps()
-            {
-                FunctionName = id,
-                Runtime = Runtime.DOTNET_8,
-                MemorySize = props.MemorySize ?? 1024,
-                LogRetention = RetentionDays.ONE_DAY,
-                Handler = props.Handler,
-                Environment = props.Environment,
-                Tracing = Tracing.ACTIVE,
-                Code = Code.FromAsset(props.CodePath),
-                Architecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64 ? Architecture.ARM_64 : Architecture.X86_64,
-                OnFailure = new SqsDestination(new Queue(this, $"{id}FunctionDLQ")),
-            });
-        }
-        else
-        {
-            this.Function = new DotNetFunction(this, id, new DotNetFunctionProps()
-            {
-                FunctionName = id,
-                Runtime = Runtime.DOTNET_8,
-                MemorySize = props.MemorySize ?? 1024,
-                LogRetention = RetentionDays.ONE_DAY,
-                Handler = props.Handler,
-                Environment = props.Environment,
-                Tracing = Tracing.ACTIVE,
-                ProjectDir = props.CodePath,
-                Architecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64 ? Architecture.ARM_64 : Architecture.X86_64,
-                OnFailure = new SqsDestination(new Queue(this, $"{id}FunctionDLQ")),
-            });   
-        }
+            FunctionName = id,
+            Runtime = Runtime.DOTNET_8,
+            MemorySize = props.MemorySize ?? 1024,
+            LogRetention = RetentionDays.ONE_DAY,
+            Handler = props.Handler,
+            Environment = props.Environment,
+            Tracing = Tracing.ACTIVE,
+            Code = props.IsNativeAot ? Code.FromAsset(props.CodePath) : props.Code,
+            Architecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64 ? Architecture.ARM_64 : Architecture.X86_64,
+            OnFailure = new SqsDestination(new Queue(this, $"{id}FunctionDLQ")),
+        });
     }
 }

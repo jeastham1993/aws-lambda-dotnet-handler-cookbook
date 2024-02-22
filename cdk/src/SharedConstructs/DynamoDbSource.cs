@@ -1,7 +1,7 @@
-﻿namespace Cdk.SharedConstructs;
-
-using Amazon.CDK.AWS.DynamoDB;
+﻿using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.Pipes;
+
+namespace SharedConstructs;
 
 public class DynamoDbSource : ChannelSource
 {

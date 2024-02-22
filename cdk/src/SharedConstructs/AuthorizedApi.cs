@@ -1,10 +1,10 @@
-﻿namespace Cdk.SharedConstructs;
-
-using Amazon.CDK.AWS.APIGateway;
+﻿using Amazon.CDK.AWS.APIGateway;
 using Amazon.CDK.AWS.Cognito;
 using Amazon.CDK.AWS.Lambda;
-
 using Constructs;
+using HttpMethod = Amazon.CDK.AWS.Lambda.HttpMethod;
+
+namespace SharedConstructs;
 
 public class AuthorizedApi : RestApi
 {

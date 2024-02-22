@@ -10,7 +10,7 @@ using Amazon.CDK.AWS.StepFunctions;
 using Amazon.CDK.AWS.StepFunctions.Tasks;
 using Constructs;
 
-namespace Cdk.SharedConstructs;
+namespace SharedConstructs;
 
 public class AsyncTestInfrastructure : Construct
 {

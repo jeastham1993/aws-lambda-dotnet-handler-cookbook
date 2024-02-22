@@ -1,7 +1,7 @@
 using Amazon.CDK.AWS.Lambda;
-using Cdk.SharedConstructs;
 using Cdk.StockPriceApi;
 using Constructs;
+using SharedConstructs;
 
 namespace StockPriceService;
 

@@ -7,8 +7,8 @@ using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.SNS;
 using Amazon.CDK.AWS.SSM;
-using Cdk.SharedConstructs;
 using Constructs;
+using SharedConstructs;
 using StockPriceService;
 
 namespace Cdk.StockPriceApi;

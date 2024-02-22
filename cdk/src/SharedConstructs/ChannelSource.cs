@@ -1,6 +1,6 @@
-﻿namespace Cdk.SharedConstructs;
+﻿using Amazon.CDK.AWS.Pipes;
 
-using Amazon.CDK.AWS.Pipes;
+namespace SharedConstructs;
 
 public abstract class ChannelSource
 {

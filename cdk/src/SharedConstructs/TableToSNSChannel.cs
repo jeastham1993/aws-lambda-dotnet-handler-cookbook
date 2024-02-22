@@ -1,12 +1,10 @@
-using System.Collections.Generic;
-using System.IO;
 using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Pipes;
 using Amazon.CDK.AWS.SNS;
 using Constructs;
 
-namespace Cdk.SharedConstructs;
+namespace SharedConstructs;
 
 public class TableToSnsChannel : Construct
 {
