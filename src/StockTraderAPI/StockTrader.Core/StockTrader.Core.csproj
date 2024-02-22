@@ -11,8 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="AWS.Lambda.Powertools.Logging" Version="1.6.0-alpha" />
-      <PackageReference Include="AWS.Lambda.Powertools.Tracing" Version="1.1.1" />
+      <PackageReference Include="AWS.Lambda.Powertools.Logging" Version="1.5.0" />
+      <PackageReference Include="AWS.Lambda.Powertools.Tracing" Version="1.4.0" />
     </ItemGroup>
 
 </Project>
