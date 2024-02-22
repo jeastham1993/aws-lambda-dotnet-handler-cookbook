@@ -13,12 +13,30 @@
     <OutputType>exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.Annotations" Version="1.2.0" />
+    <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.7.0" />
+    <PackageReference Include="Amazon.Lambda.Core" Version="2.2.0" />
+    <PackageReference Include="Amazon.Lambda.RuntimeSupport" Version="1.10.0" />
+    <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.1" />
+    <PackageReference Include="AWS.Lambda.Powertools.Logging" Version="1.6.0-alpha" />
+    <PackageReference Include="AWS.Lambda.Powertools.Tracing" Version="1.4.0" />
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="1.6.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StockTrader.Core\StockTrader.Core.csproj" />
+    <ProjectReference Include="..\StockTrader.Infrastructure\StockTrader.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <TrimmerRootAssembly Include="AotAspNet" />
     <TrimmerRootAssembly Include="Amazon.Lambda.APIGatewayEvents" />
     <TrimmerRootAssembly Include="Amazon.Lambda.AspNetCoreServer.Hosting"/>
     <TrimmerRootAssembly Include="Amazon.Lambda.RuntimeSupport"/>
+    <TrimmerRootAssembly Include="StockTrader.Core" />
+    <TrimmerRootAssembly Include="StockTrader.Infrastructure" />
+    <TrimmerRootAssembly Include="AWSSDK.Core" />
+    <TrimmerRootAssembly Include="AWS.Lambda.Powertools.Logging" />
+    <TrimmerRootAssembly Include="AWS.Lambda.Powertools.Tracing" />
+    <TrimmerRootAssembly Include="AWSXRayRecorder.Core" />
+    <TrimmerRootAssembly Include="AWSXRayRecorder.Handlers.AwsSdk" />
   </ItemGroup>
 </Project>
