@@ -15,8 +15,6 @@ builder.Services.AddAWSLambdaHosting(LambdaEventSource.RestApi, options =>
     options.Serializer = new SourceGeneratorLambdaJsonSerializer<CustomSerializationContext>();
 });
 
-builder.Services.AddAuthorization();
-
 builder.Logging.ClearProviders();
 builder.Logging.AddJsonConsole(options =>
 {
@@ -26,9 +24,6 @@ builder.Logging.AddJsonConsole(options =>
 });
 
 var app = builder.Build();
-
-app.UseAuthorization();
-app.MapControllers();
 
 app.MapGet("/", () => "Welcome to running AOT compiled ASP.NET Core Minimal API on AWS Lambda");
 
