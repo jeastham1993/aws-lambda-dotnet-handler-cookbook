@@ -9,6 +9,7 @@ using Amazon.CDK.AWS.SNS;
 using Amazon.CDK.AWS.SSM;
 using Cdk.SharedConstructs;
 using Constructs;
+using StockPriceService;
 
 namespace Cdk.StockPriceApi;
 
@@ -57,6 +58,8 @@ public class StockPriceApiStack : Stack
             this,
             "QueryApiEndpoints",
             endpointProps);
+        
+        var aspAotExample = new AotAspNetExample(this, "AotAspNetExample", endpointProps);
 
         var api = new AuthorizedApi(
                 this,
@@ -66,6 +69,7 @@ public class StockPriceApiStack : Stack
                     RestApiName = $"StockPriceApi{apiProps.Postfix}"
                 })
             .WithCognito(userPool)
+            .WithEndpoint("/{proxy+}", HttpMethod.ALL, aspAotExample.Function)
             .WithEndpoint(
                 "/price/{stockSymbol}",
                 HttpMethod.GET,

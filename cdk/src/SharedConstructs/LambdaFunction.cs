@@ -38,7 +38,7 @@ public class LambdaFunction : Construct
                 Runtime = Runtime.DOTNET_8,
                 MemorySize = props.MemorySize ?? 1024,
                 LogRetention = RetentionDays.ONE_DAY,
-                Handler = "bootstrap",
+                Handler = props.Handler,
                 Environment = props.Environment,
                 Tracing = Tracing.ACTIVE,
                 Code = Code.FromAsset(props.CodePath),
