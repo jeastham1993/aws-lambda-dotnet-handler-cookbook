@@ -15,6 +15,8 @@ builder.Services.AddAWSLambdaHosting(LambdaEventSource.RestApi, options =>
     options.Serializer = new SourceGeneratorLambdaJsonSerializer<CustomSerializationContext>();
 });
 
+builder.Services.AddAuthorization();
+
 builder.Logging.ClearProviders();
 builder.Logging.AddJsonConsole(options =>
 {
