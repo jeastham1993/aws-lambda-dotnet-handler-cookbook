@@ -3,6 +3,7 @@ using Amazon.CDK.AWS.Lambda.Destinations;
 using Amazon.CDK.AWS.Logs;
 using Amazon.CDK.AWS.SQS;
 using Constructs;
+using XaasKit.CDK.AWS.Lambda.DotNet;
 
 namespace SharedConstructs;
 
@@ -29,7 +30,7 @@ public class LambdaFunction : Construct
     
     public LambdaFunction(Construct scope, string id, LambdaFunctionProps props) : base(scope, id)
     {
-        this.Function = new Function(this, id, new FunctionProps()
+        this.Function = new DotNetFunction(this, id, new DotNetFunctionProps()
         {
             FunctionName = id,
             Runtime = Runtime.DOTNET_8,
@@ -38,7 +39,7 @@ public class LambdaFunction : Construct
             Handler = props.Handler,
             Environment = props.Environment,
             Tracing = Tracing.ACTIVE,
-            Code = props.IsNativeAot ? Code.FromAsset(props.CodePath) : props.Code,
+            ProjectDir = props.CodePath,
             Architecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture == System.Runtime.InteropServices.Architecture.Arm64 ? Architecture.ARM_64 : Architecture.X86_64,
             OnFailure = new SqsDestination(new Queue(this, $"{id}FunctionDLQ")),
         });

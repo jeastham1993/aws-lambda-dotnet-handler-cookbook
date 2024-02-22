@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>bootstrap</AssemblyName>
     <OutputType>exe</OutputType>
     <PublishAot>true</PublishAot>
     <OptimizationPreference>Size</OptimizationPreference>

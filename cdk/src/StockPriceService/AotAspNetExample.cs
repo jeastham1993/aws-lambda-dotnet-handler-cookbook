@@ -19,7 +19,7 @@ public class AotAspNetExample: Construct
         this.Function = new LambdaFunction(
             this,
             $"AspnetAot{props.StackProps.Postfix}",
-            new LambdaFunctionProps("./src/StockTraderAPI/AotAspNet/bin/Release/net8.0/AotAspNet.zip")
+            new LambdaFunctionProps("./src/StockTraderAPI/AotAspNet")
             {
                 Handler = "AotAspNet",
                 IsNativeAot = true
