@@ -28,7 +28,7 @@ var app = builder.Build();
 app.UseAuthorization();
 app.MapControllers();
 
-app.MapGet("/", () => "Welcome to running ASP.NET Core Minimal API on AWS Lambda");
+app.MapGet("/", () => "Welcome to running AOT compiled ASP.NET Core Minimal API on AWS Lambda");
 
 app.MapGet("/_health", () => "We are healthy");
 
