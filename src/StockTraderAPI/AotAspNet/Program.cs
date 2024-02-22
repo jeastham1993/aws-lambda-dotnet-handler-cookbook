@@ -50,7 +50,7 @@ app.MapGet("/asp/price/{stockSymbol}", async (string stockSymbol) =>
 
 app.MapGet("/asp/history/{stockSymbol}", async (string stockSymbol) =>
 {
-    var res = await getStockEndpoints.GetStockPrice(stockSymbol);
+    var res = await getStockEndpoints.GetStockHistory(stockSymbol);
 
     return res;
 });
