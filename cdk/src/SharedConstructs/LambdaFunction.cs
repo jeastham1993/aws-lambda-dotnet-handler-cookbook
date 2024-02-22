@@ -35,7 +35,7 @@ public class LambdaFunction : Construct
             this.Function = new Function(this, id, new FunctionProps()
             {
                 FunctionName = id,
-                Runtime = Runtime.PROVIDED_AL2,
+                Runtime = Runtime.DOTNET_8,
                 MemorySize = props.MemorySize ?? 1024,
                 LogRetention = RetentionDays.ONE_DAY,
                 Handler = "bootstrap",
@@ -51,7 +51,7 @@ public class LambdaFunction : Construct
             this.Function = new DotNetFunction(this, id, new DotNetFunctionProps()
             {
                 FunctionName = id,
-                Runtime = Runtime.DOTNET_6,
+                Runtime = Runtime.DOTNET_8,
                 MemorySize = props.MemorySize ?? 1024,
                 LogRetention = RetentionDays.ONE_DAY,
                 Handler = props.Handler,

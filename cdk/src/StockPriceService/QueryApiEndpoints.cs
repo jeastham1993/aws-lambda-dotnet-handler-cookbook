@@ -20,7 +20,7 @@ public class QueryApiEndpoints : Construct
         this.Function = new LambdaFunction(
             this,
             $"StockQueryEndpoints{props.StackProps.Postfix}",
-            new LambdaFunctionProps("./src/StockTraderAPI/StockTrader.API/bin/Release/net7.0/StockTrader.API.zip")
+            new LambdaFunctionProps("./src/StockTraderAPI/StockTrader.API/bin/Release/net8.0/StockTrader.API.zip")
             {
                 Handler = "StockTrader.API::StockTrader.API.Endpoints.GetStockPriceEndpoint_GetStockPrice_Generated::GetStockPrice",
             Environment = new Dictionary<string, string>(1)
