@@ -19,6 +19,11 @@
             "action": "EQUALS",
             "key": "stock_symbol",
             "value": "456"
+          },
+          {
+            "action": "EQUALS",
+            "key": "stock_symbol",
+            "value": "GOO"
           }
         ]
       }
