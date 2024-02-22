@@ -40,10 +40,6 @@ jobs:
       - name: Unit tests
         run: |
           dotnet test ./tests/Stocks.UnitTests/Stocks.UnitTests.csproj
-      # - name: Compile AOT
-      #   run: |
-      #     dotnet lambda package -pl src/StockTraderAPI/StockTrader.API
-      #     dotnet lambda package -pl src/StockTraderAPI/AotAspNet
       - name: Deploy Dev Test Infrastructure
         run: |
           export STACK_POSTFIX=Dev
