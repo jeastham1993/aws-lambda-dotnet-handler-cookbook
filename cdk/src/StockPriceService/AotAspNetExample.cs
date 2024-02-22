@@ -33,6 +33,7 @@ public class AotAspNetExample: Construct
                     { "POWERTOOLS_SERVICE_NAME", $"StockPriceApi{props.StackProps.Postfix}" },
                     { "CONFIGURATION_PARAM_NAME", props.ConfigurationParameter.ParameterName }
                 },
+                MemorySize = 2048
             }).Function;
 
         props.Table.GrantReadWriteData(this.Function);
