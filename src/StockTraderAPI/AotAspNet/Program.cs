@@ -3,9 +3,6 @@ using AotAspNet;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers();
-
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.TypeInfoResolver = CustomSerializationContext.Default;
@@ -32,5 +29,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapGet("/", () => "Welcome to running ASP.NET Core Minimal API on AWS Lambda");
+
+app.MapGet("/_health", () => "We are healthy");
 
 app.Run();
