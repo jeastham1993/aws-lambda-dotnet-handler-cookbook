@@ -13,12 +13,14 @@ public static class StartupExtensions
 {
     public static IServiceCollection AddSharedInfrastructure(this IServiceCollection services, IConfiguration config)
     {
-        Console.WriteLine("Retrieving SSM parameter");
+        Console.WriteLine($"Retrieving SSM parameter: {config["CONFIGURATION_PARAM_NAME"]}");
         
         var provider = ParametersManager.SsmProvider
             .WithMaxAge(TimeSpan.FromMinutes(5));
 
-        var dataString = provider.Get(config["CONFIGURATION_PARAM_NAME"]);
+        var dataString = provider.GetAsync(config["CONFIGURATION_PARAM_NAME"]).GetAwaiter().GetResult();
+        
+        Console.WriteLine("Retrieveed");
 
         services.AddSingleton<IFeatureFlags>(new FeatureFlags(JsonSerializer.Deserialize<Dictionary<string, object>>(dataString)));
         

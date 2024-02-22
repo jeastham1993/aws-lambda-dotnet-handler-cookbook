@@ -20,8 +20,6 @@ public static class StartupExtensions
 {
     public static IServiceCollection AddSharedServices(this IServiceCollection services, SharedServiceOptions? options = null)
     {
-        Console.WriteLine("Adding shared services");
-        
         var postfix = Environment.GetEnvironmentVariable("STACK_POSTFIX");
         
         if (options is null)
@@ -30,30 +28,21 @@ public static class StartupExtensions
         }
 
         services.AddSingleton<IStockPriceFeatures, StockPriceFeatures>();
-        
-        Console.WriteLine("Added stock price features");
-
+     
         if (!options.SkipAppConfiguration)
         {
-            Console.WriteLine("Adding app config");
             services.AddApplicationConfiguration(postfix);
         }
 
         if (!options.SkipAwsSdks)
         {
-            Console.WriteLine("Adding SDK's");
-            
             services.AddAwsSdks(postfix);   
         }
 
         if (!options.SkipRepository)
         {
-            Console.WriteLine("Adding repo");
-            
             services.AddSingleton<IStockRepository, StockRepository>();    
         }
-        
-        Console.WriteLine("Adding handler");
         
         services.AddSingleton<SetStockPriceHandler>();
 
