@@ -44,6 +44,7 @@ var app = builder.Build();
 app.MapGet("/", () => "Welcome to running AOT compiled ASP.NET Core Minimal API on AWS Lambda");
 
 app.MapGet("/_health", () => "We are healthy");
+
 app.MapGet("/asp/price/{stockSymbol}", async (string stockSymbol) =>
 {
     var res = await getStockEndpoints.GetStockPrice(stockSymbol);

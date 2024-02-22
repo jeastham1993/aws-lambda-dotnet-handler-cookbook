@@ -20,7 +20,7 @@ public static class StartupExtensions
 {
     public static IServiceCollection AddSharedServices(this IServiceCollection services, SharedServiceOptions? options = null)
     {
-        AWSSDKHandler.RegisterXRayForAllServices();
+        // AWSSDKHandler.RegisterXRayForAllServices();
         
         var postfix = Environment.GetEnvironmentVariable("STACK_POSTFIX");
         
