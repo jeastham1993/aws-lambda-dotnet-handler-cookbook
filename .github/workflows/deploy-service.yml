@@ -43,7 +43,7 @@ jobs:
       - name: Compile AOT
         run: |
           dotnet lambda package -pl src/StockTraderAPI/StockTrader.API
-          dotnet lambda package -pl src/AotAspNet/AotAspNet
+          dotnet lambda package -pl src/StockTraderAPI/AotAspNet
       # - name: Deploy Dev Test Infrastructure
       #   run: |
       #     export STACK_POSTFIX=Dev
