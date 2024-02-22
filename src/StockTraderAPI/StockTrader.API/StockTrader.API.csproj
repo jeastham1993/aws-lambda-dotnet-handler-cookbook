@@ -29,7 +29,7 @@
     <ProjectReference Include="..\StockTrader.Infrastructure\StockTrader.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <TrimmerRootAssembly Include="bootstrap" />
+    <TrimmerRootAssembly Include="StockTrader.API" />
     <TrimmerRootAssembly Include="StockTrader.Core" />
     <TrimmerRootAssembly Include="StockTrader.Infrastructure" />
     <TrimmerRootAssembly Include="AWSSDK.Core" />
