@@ -71,14 +71,9 @@ public static class StartupExtensions
     
     private static IServiceCollection AddAwsSdks(this IServiceCollection services, string postfix)
     {
-        AWSSDKHandler.RegisterXRayForAllServices();
+        //AWSSDKHandler.RegisterXRayForAllServices();
 
         var dynamoDbClient = new AmazonDynamoDBClient();
-
-        var primingTasks = new List<Task>();
-        primingTasks.Add(dynamoDbClient.DescribeTableAsync($"{Environment.GetEnvironmentVariable("TABLE_NAME")}{postfix}"));
-
-        Task.WaitAll(primingTasks.ToArray());
 
         services.AddSingleton(dynamoDbClient);
 
