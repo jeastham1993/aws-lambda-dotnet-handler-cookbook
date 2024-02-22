@@ -18,5 +18,7 @@
   <ItemGroup>
     <TrimmerRootAssembly Include="AotAspNet" />
     <TrimmerRootAssembly Include="Amazon.Lambda.APIGatewayEvents" />
+    <TrimmerRootAssembly Include="Amazon.Lambda.AspNetCoreServer.Hosting"/>
+    <TrimmerRootAssembly Include="Amazon.Lambda.RuntimeSupport"/>
   </ItemGroup>
 </Project>

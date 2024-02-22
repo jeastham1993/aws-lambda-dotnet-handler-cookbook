@@ -22,7 +22,6 @@ public static class Program
         };
         
         var dynamoClient = new AmazonDynamoDBClient();
-        await dynamoClient.DescribeTableAsync(infrastructureSettings.TableName);
         
         var stockRepository = new StockRepository(Options.Create(infrastructureSettings), dynamoClient);
 
