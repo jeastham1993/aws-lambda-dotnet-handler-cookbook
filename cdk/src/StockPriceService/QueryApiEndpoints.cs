@@ -23,15 +23,15 @@ public class QueryApiEndpoints : Construct
             new LambdaFunctionProps("./src/StockTraderAPI/StockTrader.API")
             {
                 Handler = "StockTrader.API",
-            Environment = new Dictionary<string, string>(1)
-            {
-                { "TABLE_NAME", props.Table.TableName },
-                { "IDEMPOTENCY_TABLE_NAME", props.Idempotency.TableName },
-                { "ENV", props.StackProps.Postfix },
-                { "POWERTOOLS_SERVICE_NAME", $"StockPriceApi{props.StackProps.Postfix}" },
-                { "CONFIGURATION_PARAM_NAME", props.ConfigurationParameter.ParameterName }
-            },
-            IsNativeAot = true
+                Environment = new Dictionary<string, string>(1)
+                {
+                    { "TABLE_NAME", props.Table.TableName },
+                    { "IDEMPOTENCY_TABLE_NAME", props.Idempotency.TableName },
+                    { "ENV", props.StackProps.Postfix },
+                    { "POWERTOOLS_SERVICE_NAME", $"StockPriceApi{props.StackProps.Postfix}" },
+                    { "CONFIGURATION_PARAM_NAME", props.ConfigurationParameter.ParameterName }
+                },
+                IsNativeAot = true
             }).Function;
 
         props.Table.GrantReadWriteData(this.Function);

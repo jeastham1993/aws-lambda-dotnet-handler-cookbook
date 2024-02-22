@@ -13,6 +13,8 @@ public static class StartupExtensions
 {
     public static IServiceCollection AddSharedInfrastructure(this IServiceCollection services, IConfiguration config)
     {
+        Console.WriteLine("Retrieving SSM parameter");
+        
         var provider = ParametersManager.SsmProvider
             .WithMaxAge(TimeSpan.FromMinutes(5));
 

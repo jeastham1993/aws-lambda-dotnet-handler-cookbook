@@ -34,6 +34,7 @@ public class AotAspNetExample: Construct
                     { "CONFIGURATION_PARAM_NAME", props.ConfigurationParameter.ParameterName }
                 },
             }).Function;
+
         props.Table.GrantReadWriteData(this.Function);
         props.Idempotency.GrantReadWriteData(this.Function);
         props.ConfigurationParameter.GrantRead(this.Function);
