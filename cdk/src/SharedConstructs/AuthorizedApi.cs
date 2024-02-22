@@ -64,7 +64,7 @@ public class AuthorizedApi : RestApi
       }
 
       lastResource?.AddMethod(
-         method.ToString().ToUpper(),
+         method == HttpMethod.ALL ? "ANY" : method.ToString().ToUpper(),
          new LambdaIntegration(function),
          new MethodOptions
          {
