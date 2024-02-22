@@ -15,4 +15,8 @@
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="1.6.0" />
   </ItemGroup>
+  <ItemGroup>
+    <TrimmerRootAssembly Include="AotAspNet" />
+    <TrimmerRootAssembly Include="Amazon.Lambda.APIGatewayEvents" />
+  </ItemGroup>
 </Project>
