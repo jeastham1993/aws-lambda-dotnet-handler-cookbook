@@ -152,6 +152,10 @@ For more information on testing, check out this [YouTube Video on testing and de
     - [] S3
     - [] Kinesis
 
+## Resources
+
+- [Upgrading to the .NET 8 Managed Runtime](https://youtu.be/ZKkZuzGfijs)
+- [Test & Debug Your Lambda Functions Locally](https://youtu.be/962ba6mgQXI)
 
 ## Code Contributions
 Code contributions are welcomed. Read this [guide.](https://github.com/jeastham1993/aws-lambda-dotnet-handler-cookbook/blob/main/CONTRIBUTING.md)
