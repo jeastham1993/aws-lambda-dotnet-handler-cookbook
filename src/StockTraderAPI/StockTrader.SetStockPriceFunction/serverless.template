@@ -12,7 +12,7 @@
         ]
       },
       "Properties": {
-        "Runtime": "dotnet8",
+        "Runtime": "dotnet6",
         "CodeUri": ".",
         "MemorySize": 256,
         "Timeout": 30,

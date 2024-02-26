@@ -33,7 +33,6 @@ public class SetStockPriceEndpoint : Construct
                     { "ENV", props.StackProps.Postfix },
                     { "POWERTOOLS_SERVICE_NAME", serviceName },
                     { "CONFIGURATION_PARAM_NAME", props.ConfigurationParameter.ParameterName },
-                    { "CONFIGURATION_PARAM_NAME", props.ConfigurationParameter.ParameterName },
                     { "SERVICE_NAME", serviceName },
                     { "EVENT_BUS_NAME", props.EventBus.EventBusName}
                 }
