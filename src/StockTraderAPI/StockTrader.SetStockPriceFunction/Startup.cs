@@ -1,5 +1,7 @@
 using Amazon.Lambda.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Events;
+using SharedKernel.Events;
 using StockTrader.Infrastructure;
 
 namespace StockTrader.SetStockPriceHandler;
@@ -9,6 +11,7 @@ public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddSharedServices();
+        services.AddSharedServices()
+            .AddEventInfrastructure();
     }
 }

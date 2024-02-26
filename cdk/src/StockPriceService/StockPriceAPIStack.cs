@@ -3,13 +3,14 @@ using Amazon.CDK;
 using Amazon.CDK.AWS.APIGateway;
 using Amazon.CDK.AWS.Cognito;
 using Amazon.CDK.AWS.DynamoDB;
+using Amazon.CDK.AWS.Events;
 using Amazon.CDK.AWS.IAM;
-using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.SNS;
 using Amazon.CDK.AWS.SSM;
 using Constructs;
 using SharedConstructs;
 using StockPriceService;
+using HttpMethod = Amazon.CDK.AWS.Lambda.HttpMethod;
 
 namespace Cdk.StockPriceApi;
 
@@ -32,6 +33,8 @@ public class StockPriceApiStack : Stack
         id,
         props)
     {
+        var eventBus = new EventBus(this, "StockPriceEventBus");
+        
         var parameter =
             StringParameter.FromStringParameterName(this, "ConfigurationParameter",
                 $"/{apiProps.Postfix}/configuration");
@@ -47,7 +50,8 @@ public class StockPriceApiStack : Stack
             apiProps,
             this._table,
             this._idempotency,
-            parameter);
+            parameter,
+            eventBus);
 
         var setStockPriceEndpoint = new SetStockPriceEndpoint(
             this,

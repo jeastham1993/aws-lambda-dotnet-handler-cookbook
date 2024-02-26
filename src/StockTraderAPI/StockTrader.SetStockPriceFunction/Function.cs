@@ -5,6 +5,9 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using AWS.Lambda.Powertools.Logging;
 using AWS.Lambda.Powertools.Tracing;
+using Shared.Events;
+using SharedKernel.Events;
+using StockTrader.Core.StockAggregate;
 using StockTrader.Core.StockAggregate.Handlers;
 using StockTrader.Infrastructure;
 
@@ -13,22 +16,26 @@ namespace StockTrader.SetStockPriceHandler;
 public class Function
 {
     private readonly Core.StockAggregate.Handlers.SetStockPriceHandler handler;
+    private readonly IEventBus _publisher;
 
-    public Function(Core.StockAggregate.Handlers.SetStockPriceHandler handler)
+    public Function(Core.StockAggregate.Handlers.SetStockPriceHandler handler, IEventBus publisher)
     {
         this.handler = handler;
+        _publisher = publisher;
     }
 
     [LambdaFunction]
     [RestApi(LambdaHttpMethod.Put, "/price")]
     [Tracing]
-    public async Task<APIGatewayProxyResponse> SetStockPrice([FromBody] SetStockPriceRequest request, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> SetStockPrice([FromBody] SetStockPriceRequest request)
     {
         try
         {
             Tracing.AddAnnotation("stock_symbol", request.StockSymbol);
             
             var result = await this.handler.Handle(request);
+
+            await _publisher.Publish(new StockPriceUpdatedEvent(result.StockSymbol, result.Price));
 
             return ApiGatewayResponseBuilder.Build(
                 HttpStatusCode.OK,

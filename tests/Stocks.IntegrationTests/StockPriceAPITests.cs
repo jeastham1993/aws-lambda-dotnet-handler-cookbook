@@ -38,7 +38,7 @@ public class SetStockPriceTests
         };
 
         // Act
-        var result = await setStockPriceEndpoint.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
+        var result = await setStockPriceEndpoint.SetStockPrice(testRequest);
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -78,7 +78,7 @@ public class SetStockPriceTests
         };
 
         // Act
-        var result = await setStockPriceEndpoint.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
+        var result = await setStockPriceEndpoint.SetStockPrice(testRequest);
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -104,7 +104,7 @@ public class SetStockPriceTests
         var setStockPriceEndpoint = testHarness.GetService<Function>();
 
         // Act
-        var result = await setStockPriceEndpoint.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
+        var result = await setStockPriceEndpoint.SetStockPrice(testRequest);
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -130,7 +130,7 @@ public class SetStockPriceTests
         var setStockPriceEndpoint = testHarness.GetService<Function>();
 
         // Act
-        var result = await setStockPriceEndpoint.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
+        var result = await setStockPriceEndpoint.SetStockPrice(testRequest);
         
         // Assert
         result.StatusCode.Should().Be(400);

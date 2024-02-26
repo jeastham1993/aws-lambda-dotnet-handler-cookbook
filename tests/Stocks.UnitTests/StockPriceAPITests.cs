@@ -33,7 +33,7 @@ public class SetStockPriceTests
         };
 
         // Act
-        var result = await function.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
+        var result = await function.SetStockPrice(testRequest);
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -61,7 +61,7 @@ public class SetStockPriceTests
         };
 
         // Act
-        var result = await function.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
+        var result = await function.SetStockPrice(testRequest);
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -89,7 +89,7 @@ public class SetStockPriceTests
         };
 
         // Act
-        var result = await function.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
+        var result = await function.SetStockPrice(testRequest);
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -117,7 +117,7 @@ public class SetStockPriceTests
         };
 
         // Act
-        var result = await function.SetStockPrice(testRequest, A.Fake<ILambdaContext>());
+        var result = await function.SetStockPrice(testRequest);
         
         // Assert
         result.StatusCode.Should().Be(400);

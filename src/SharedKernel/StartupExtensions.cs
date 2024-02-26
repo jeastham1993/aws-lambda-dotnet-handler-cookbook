@@ -1,4 +1,5 @@
-﻿using Amazon.SimpleSystemsManagement;
+﻿using Amazon.EventBridge;
+using Amazon.SimpleSystemsManagement;
 using Amazon.SimpleSystemsManagement.Model;
 
 namespace SharedKernel;
@@ -29,6 +30,7 @@ public static class StartupExtensions
         Console.WriteLine("Retrieved");
 
         services.AddSingleton<IFeatureFlags>(new FeatureFlags(JsonSerializer.Deserialize<Dictionary<string, object>>(response.Parameter.Value)));
+        services.AddSingleton(new AmazonEventBridgeClient());
         
         return services;
     }

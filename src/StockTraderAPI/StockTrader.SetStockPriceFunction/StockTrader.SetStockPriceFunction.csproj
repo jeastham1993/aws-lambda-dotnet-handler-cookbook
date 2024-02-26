@@ -22,13 +22,11 @@
         <PackageReference Include="AWS.Lambda.Powertools.Tracing" Version="1.4.0" />
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\..\Shared.Events\Shared.Events.csproj" />
         <ProjectReference Include="..\StockTrader.Core\StockTrader.Core.csproj" />
         <ProjectReference Include="..\StockTrader.Infrastructure\StockTrader.Infrastructure.csproj" />
     </ItemGroup>
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Endpoints\" />
     </ItemGroup>
 </Project>

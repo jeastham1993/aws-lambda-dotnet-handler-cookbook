@@ -1,4 +1,6 @@
-﻿namespace Notification.FunctionalTests;
+﻿using Shared.Events;
+
+namespace Notification.FunctionalTests;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -38,7 +40,7 @@ public class NotificationDriver
         await this.sqsClient.SendMessageAsync(
             this.queueUrl,
             JsonSerializer.Serialize(
-                new EventWrapper<StockUpdateEvent>(
+                new EventWrapper(
                     new StockUpdateEvent()
                     {
                         StockSymbol = stockSymbol,

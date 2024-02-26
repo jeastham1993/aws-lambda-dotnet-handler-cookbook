@@ -3,6 +3,7 @@ using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Lambda;
 using Constructs;
 using SharedConstructs;
+using StockPriceService;
 
 namespace Cdk.StockPriceApi;
 

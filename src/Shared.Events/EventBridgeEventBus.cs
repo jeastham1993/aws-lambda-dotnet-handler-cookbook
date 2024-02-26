@@ -1,4 +1,6 @@
-﻿namespace SharedKernel.Events;
+﻿using AWS.Lambda.Powertools.Logging;
+
+namespace SharedKernel.Events;
 
 using System.Text.Json;
 
@@ -24,9 +26,14 @@ public class EventBridgeEventBus : IEventBus
 
     /// <inheritdoc />
     [Tracing]
-    public async Task Publish<T>(T evt)
-        where T : Event
+    public async Task Publish(Event evt)
     {
+        var wrapper = new EventWrapper(evt);
+        
+        var evtData = JsonSerializer.Serialize(wrapper);
+
+        Logger.LogInformation(evtData);
+        
         await this._eventBridgeClient.PutEventsAsync(
             new PutEventsRequest()
             {
@@ -35,7 +42,7 @@ public class EventBridgeEventBus : IEventBus
                      new PutEventsRequestEntry()
                      {
                          EventBusName = this._settings.EventBusName,
-                         Detail = JsonSerializer.Serialize(evt),
+                         Detail = evtData,
                          DetailType = evt.EventType,
                          Source = this._settings.ServiceName,
                          TraceHeader = Tracing.GetEntity().TraceId
