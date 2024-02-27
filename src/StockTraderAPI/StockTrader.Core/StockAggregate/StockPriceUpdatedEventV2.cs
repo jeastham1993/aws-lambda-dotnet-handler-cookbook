@@ -19,10 +19,10 @@ public class StockPriceUpdatedEventV2(string stockSymbol, decimal newPrice, stri
     public override string EventVersion => "v2";
 }
 
-public record PriceData(string currency, decimal newPrice)
+public record PriceData(string Currency, decimal Price)
 {
     [JsonPropertyName("Currency")]
-    public string Currency { get; } = currency;
+    public string Currency { get; } = Currency;
 
-    [JsonPropertyName("Price")] public decimal Price { get; } = newPrice;
+    [JsonPropertyName("Price")] public decimal Price { get; } = Price;
 }
