@@ -15,7 +15,7 @@ using SharedKernel.Features;
 
 public static class StartupExtensions
 {
-    public static IServiceCollection AddSharedInfrastructure(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddFeatureFlags(this IServiceCollection services, IConfiguration config)
     {
         Console.WriteLine($"Retrieving SSM parameter: {config["CONFIGURATION_PARAM_NAME"]}");
 
@@ -29,8 +29,12 @@ public static class StartupExtensions
         
         Console.WriteLine("Retrieved");
 
-        services.AddSingleton<IFeatureFlags>(new FeatureFlags(JsonSerializer.Deserialize<Dictionary<string, object>>(response.Parameter.Value)));
-        services.AddSingleton(new AmazonEventBridgeClient());
+        var features = JsonSerializer.Deserialize<Dictionary<string, object>>(response.Parameter.Value);
+
+        if (features != null)
+        {
+            services.AddSingleton<IFeatureFlags>(new FeatureFlags(features));    
+        }
         
         return services;
     }

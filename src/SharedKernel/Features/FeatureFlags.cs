@@ -1,7 +1,19 @@
-﻿namespace SharedKernel.Features;
+﻿// This code is in development, and is not considered stable. It's a POC of PowerTools Feature Flag Functionality, warnings are disabled
+// for the moment to clean up build outputs
+#pragma warning disable CS8602
+#pragma warning disable CS8603
+#pragma warning disable CS8604
+#pragma warning disable CS8767
+#pragma warning disable CS1634
+#pragma warning disable CS8625
+#pragma warning disable CS8600
+#pragma warning disable CS8620
+
+namespace SharedKernel.Features;
 
 using System.Text.Json;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CS8602: Dereference of a possibly null reference.", Justification = "WIP code.")]
 public class FeatureFlags : IFeatureFlags
 {
     private readonly Dictionary<string, object> features;

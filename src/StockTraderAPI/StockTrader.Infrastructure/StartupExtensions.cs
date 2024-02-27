@@ -60,7 +60,7 @@ public static class StartupExtensions
             TableName = $"{config["TABLE_NAME"]}{postfix}",
         };
 
-        services.AddSharedInfrastructure(config);
+        services.AddFeatureFlags(config);
         services.AddSingleton(Options.Create(infrastructureSettings));
         services.AddSingleton<IConfiguration>(config);
 
