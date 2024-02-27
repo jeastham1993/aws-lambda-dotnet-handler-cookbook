@@ -7,8 +7,6 @@ using System.Text.Json.Serialization;
 
 using Amazon.SQS;
 
-using SharedKernel.Events;
-
 public class NotificationDriver
 {
     private readonly HttpClient httpClient;

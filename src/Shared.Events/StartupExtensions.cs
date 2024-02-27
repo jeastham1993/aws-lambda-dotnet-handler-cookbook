@@ -7,8 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-using SharedKernel.Events;
-
 public static class StartupExtensions
 {
     public static IServiceCollection AddEventInfrastructure(this IServiceCollection services)

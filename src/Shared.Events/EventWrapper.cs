@@ -1,6 +1,5 @@
 ﻿using System.Text.Json.Serialization;
 using AWS.Lambda.Powertools.Tracing;
-using SharedKernel.Events;
 
 namespace Shared.Events;
 

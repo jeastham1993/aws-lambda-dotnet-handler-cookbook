@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using FakeItEasy;
 using Shared.Events;
-using SharedKernel.Events;
 using SharedKernel.Features;
 using StockTrader.Core.StockAggregate;
 using StockTrader.Infrastructure;

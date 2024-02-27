@@ -6,7 +6,6 @@ using Amazon.Lambda.Core;
 using AWS.Lambda.Powertools.Logging;
 using AWS.Lambda.Powertools.Tracing;
 using Shared.Events;
-using SharedKernel.Events;
 using StockTrader.Core.StockAggregate;
 using StockTrader.Core.StockAggregate.Handlers;
 using StockTrader.Infrastructure;
@@ -35,7 +34,7 @@ public class Function
             
             var result = await this.handler.Handle(request);
 
-            await _publisher.Publish(new StockPriceUpdatedEvent(result.StockSymbol, result.Price));
+            await _publisher.Publish(new List<Event>(2){new StockPriceUpdatedEvent(result.StockSymbol, result.Price), new StockPriceUpdatedEventV2(result.StockSymbol, result.Price)});
 
             return ApiGatewayResponseBuilder.Build(
                 HttpStatusCode.OK,

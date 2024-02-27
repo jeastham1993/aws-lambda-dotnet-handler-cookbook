@@ -1,6 +1,6 @@
-﻿namespace SharedKernel.Events;
+﻿using System.Text.Json.Serialization;
 
-using System.Text.Json.Serialization;
+namespace Shared.Events;
 
 public abstract class Event
 {
