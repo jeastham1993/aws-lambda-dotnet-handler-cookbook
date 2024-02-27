@@ -4,7 +4,7 @@ public static class DateTimeExtensions
 {
     public static int ToEpochTime(this DateTime dateTime)
     {
-        TimeSpan t = dateTime - new DateTime(1970, 1, 1);
+        TimeSpan t = dateTime - DateTime.UnixEpoch;
         return (int)t.TotalSeconds;
     }
 }

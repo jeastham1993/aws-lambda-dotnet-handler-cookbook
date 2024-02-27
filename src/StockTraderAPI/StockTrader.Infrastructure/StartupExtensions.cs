@@ -69,8 +69,6 @@ public static class StartupExtensions
     
     private static IServiceCollection AddAwsSdks(this IServiceCollection services, string postfix)
     {
-        //AWSSDKHandler.RegisterXRayForAllServices();
-
         var dynamoDbClient = new AmazonDynamoDBClient();
 
         services.AddSingleton(dynamoDbClient);

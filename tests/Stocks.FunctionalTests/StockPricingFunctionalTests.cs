@@ -89,7 +89,7 @@ public sealed class StockPricingFunctionalTests : IClassFixture<Setup>, IDisposa
         var retrievedStock = await this._driver.GetStockHistory(testStockSymbol);
 
         retrievedStock?.StockSymbol.Should().Be(testStockSymbol);
-        retrievedStock.History.Count().Should().Be(1);
+        retrievedStock.History.Count.Should().Be(1);
     }
     
     [Fact]

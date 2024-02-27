@@ -81,9 +81,9 @@ public class Setup : IAsyncLifetime
         var authToken = await this.CreateTestUser(clientId);
         this.DynamoDbClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig() { RegionEndpoint = endpoint });
 
-        this.ApiUrl = GetOutputVariableFromExportName(outputs, $"NotificationEndpoint{stackPostfix}", stackName); ;
-        this.StockUpdateQueueUrl = GetOutputVariableFromExportName(outputs, $"StockUpdateQueue{stackPostfix}", stackName); ;
-        this.StockUpdateWorkflowArn = GetOutputVariableFromExportName(outputs, $"StockUpdateWorkflowName{stackPostfix}", stackName); ;
+        this.ApiUrl = GetOutputVariableFromExportName(outputs, $"NotificationEndpoint{stackPostfix}", stackName);
+        this.StockUpdateQueueUrl = GetOutputVariableFromExportName(outputs, $"StockUpdateQueue{stackPostfix}", stackName);
+        this.StockUpdateWorkflowArn = GetOutputVariableFromExportName(outputs, $"StockUpdateWorkflowName{stackPostfix}", stackName);
         
         this.AuthToken = authToken;
         this.TableName = GetOutputVariableFromExportName(outputs, $"NotificationTable{stackPostfix}", stackName);
@@ -163,5 +163,5 @@ public class Setup : IAsyncLifetime
     }
 
     private static string GetOutputVariableFromExportName(List<Output> outputs, string name, string stackName) =>
-        outputs.FirstOrDefault(o => o.ExportName == name)?.OutputValue ?? throw new Exception($"CloudFormation stack {stackName} does not have an output variable named '{name}'");
+        outputs.Find(o => o.ExportName == name)?.OutputValue ?? throw new Exception($"CloudFormation stack {stackName} does not have an output variable named '{name}'");
 }

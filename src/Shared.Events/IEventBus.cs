@@ -3,5 +3,5 @@
 public interface IEventBus
 {
     Task Publish(Event evt);
-    Task Publish(List<Event> evt);
+    Task Publish(List<Event> evts);
 }
