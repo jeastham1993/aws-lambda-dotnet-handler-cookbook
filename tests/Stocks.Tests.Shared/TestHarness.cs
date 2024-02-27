@@ -61,6 +61,13 @@ public class TestHarness
             serviceCollection.AddSingleton(new AmazonEventBridgeClient(endpoint));
         }
 
+        var sharedSettings = new SharedSettings()
+        {
+            EventBusName = Environment.GetEnvironmentVariable("EVENT_BUS_NAME"),
+            ServiceName = Environment.GetEnvironmentVariable("SERVICE_NAME")
+        };
+
+        serviceCollection.AddSingleton(Options.Create(sharedSettings));
         serviceCollection.AddSingleton<IEventBus, EventBridgeEventBus>();
 
         _serviceProvider = serviceCollection.BuildServiceProvider();
