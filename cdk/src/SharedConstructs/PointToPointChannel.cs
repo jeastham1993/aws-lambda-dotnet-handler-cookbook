@@ -23,13 +23,13 @@ public class PointToPointChannel : Construct
     private Succeed _enrichmentSuccess { get; }
     private List<string> _steps { get; }
 
-    private Dictionary<string, string[]> _firstFilter;
+    private Dictionary<string, string[]>? _firstFilter;
 
     private Pass _skipToEnd { get; }
     
-    private ChannelSource Source { get; set; }
+    private ChannelSource? Source { get; set; }
     
-    private ChannelTarget Target { get; set; }
+    private ChannelTarget? Target { get; set; }
     
 
     public PointToPointChannel(
@@ -80,7 +80,7 @@ public class PointToPointChannel : Construct
     {
         _steps.Add("FILTER");
         
-        Condition comparisonCondition = null;
+        Condition? comparisonCondition = null;
 
         switch (comparator)
         {
@@ -198,34 +198,43 @@ public class PointToPointChannel : Construct
             {
                 AssumedBy = new ServicePrincipal("pipes.amazonaws.com")
             });
+        
+        if (this.Source == null)
+        {
+            throw new ArgumentException("A PointToPoint channel cannot be created with a null Source.");
+        }
 
         switch (this.Source.GetType().Name)
         {
             case nameof(DynamoDbSource):
-                (this.Source as DynamoDbSource).Table.GrantStreamRead(pipeRole);
+                (this.Source as DynamoDbSource)?.Table.GrantStreamRead(pipeRole);
                 break;
             case nameof(SqsQueueSource):
-                (this.Source as SqsQueueSource).Queue.GrantConsumeMessages(pipeRole);
+                (this.Source as SqsQueueSource)?.Queue.GrantConsumeMessages(pipeRole);
                 break;
+        }
+        
+        if (this.Target == null) {
+            throw new ArgumentException("A PointToPoint channel cannot be created with a null Target.");
         }
         
         switch (this.Target.GetType().Name)
         {
             case nameof(SnsTarget):
-                (this.Target as SnsTarget).Topic.GrantPublish(pipeRole);
+                (this.Target as SnsTarget)?.Topic.GrantPublish(pipeRole);
                 break;
             case nameof(WorkflowTarget):
-                (this.Target as WorkflowTarget).Workflow.GrantStartExecution(pipeRole);
-                (this.Target as WorkflowTarget).Workflow.GrantStartSyncExecution(pipeRole);
+                (this.Target as WorkflowTarget)?.Workflow.GrantStartExecution(pipeRole);
+                (this.Target as WorkflowTarget)?.Workflow.GrantStartSyncExecution(pipeRole);
                 break;
         }
 
-        StateMachine enrichment = null;
+        StateMachine? enrichment = null;
 
         if (this._enrichmentSteps.Any())
         {
-            Chain chain = null;
-            IChainable previousStep = null;
+            Chain? chain = null;
+            IChainable? previousStep = null;
 
             foreach (var step in this._enrichmentSteps)
             {
@@ -245,7 +254,7 @@ public class PointToPointChannel : Construct
             var loopInputRecords = new Map(
                 this,
                 "LoopRecords",
-                new MapProps()).Iterator(chain);
+                new MapProps()).ItemProcessor(chain);
 
             enrichment = new StateMachine(
                 this,
@@ -271,7 +280,7 @@ public class PointToPointChannel : Construct
             enrichment.GrantStartSyncExecution(pipeRole);
         }
 
-        if (this._isFirstStepFilter)
+        if (this._isFirstStepFilter && this._firstFilter != null)
         {
             var filterStringBuilder = new StringBuilder("{\"");
             filterStringBuilder.Append(this._firstFilter.Keys.FirstOrDefault());

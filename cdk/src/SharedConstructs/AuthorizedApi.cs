@@ -8,7 +8,7 @@ namespace SharedConstructs;
 
 public class AuthorizedApi : RestApi
 {
-   public CognitoUserPoolsAuthorizer Authorizer { get; private set; }
+   public CognitoUserPoolsAuthorizer? Authorizer { get; private set; }
    
    public AuthorizedApi(
       Construct scope,

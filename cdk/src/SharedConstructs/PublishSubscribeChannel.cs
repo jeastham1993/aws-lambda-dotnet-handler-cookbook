@@ -12,9 +12,9 @@ namespace SharedConstructs;
 public class PublishSubscribeChannel : Construct
 {
     private readonly string _id;
-    public ITopic Topic { get; private set; }
+    public ITopic? Topic { get; private set; }
     
-    public IEventBus EventBus { get; private set; }
+    public IEventBus? EventBus { get; private set; }
 
     private readonly List<IFunction> lambdaSubscribers;
 

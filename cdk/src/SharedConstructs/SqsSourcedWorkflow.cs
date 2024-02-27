@@ -16,7 +16,7 @@ public class SqsSourcedWorkflow : Construct
             DefinitionBody = DefinitionBody.FromChainable(new Map(this, "LoopInputRecords", new MapProps
             {
                 InputPath = JsonPath.EntirePayload
-            }).Iterator(iteratorChain)),
+            }).ItemProcessor(iteratorChain)),
             StateMachineType = StateMachineType.EXPRESS,
             TracingEnabled = true,
             Logs = new LogOptions

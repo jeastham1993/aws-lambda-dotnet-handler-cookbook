@@ -72,7 +72,7 @@ public class AsyncTestInfrastructure : Construct
             }).AddCatch(new Succeed(this, $"{id}MapFallbackSuccess"))));
 
         var chain = Chain.Start(new Map(this, $"{id}TestMap")
-            .Iterator(messageProcessingChain).AddCatch(new Succeed(this, $"{id}FallbackSuccess")));
+            .ItemProcessor(messageProcessingChain).AddCatch(new Succeed(this, $"{id}FallbackSuccess")));
 
         var integrationTestWorkflow = new StateMachine(this, $"{id}TestWorkflow", new StateMachineProps
         {

@@ -26,8 +26,6 @@ public class LambdaFunction : Construct
 {
     public Function Function { get; }
     
-    public Alias FunctionAlias { get; }
-    
     public LambdaFunction(Construct scope, string id, LambdaFunctionProps props) : base(scope, id)
     {
         this.Function = new DotNetFunction(this, id, new DotNetFunctionProps()

@@ -10,7 +10,7 @@ public class TableToSnsChannel : Construct
 {
     public Topic SnsTopic { get; private set; }
     
-    public TableToSnsChannel(Construct scope, string id, ITable table, string topicName, string transformerFile = null) : base(scope, id)
+    public TableToSnsChannel(Construct scope, string id, ITable table, string topicName, string? transformerFile = null) : base(scope, id)
     {
         this.SnsTopic = new Topic(this, topicName, new TopicProps());
 
@@ -24,6 +24,11 @@ public class TableToSnsChannel : Construct
 
         table.GrantStreamRead(pipeRole);
         SnsTopic.GrantPublish(pipeRole);
+
+        if (table.TableStreamArn is null)
+        {
+            throw new ArgumentException("Table Stream ARN cannot be null if using a TableToSNSChannel");
+        }
 
         var pipe = new CfnPipe(
             this,

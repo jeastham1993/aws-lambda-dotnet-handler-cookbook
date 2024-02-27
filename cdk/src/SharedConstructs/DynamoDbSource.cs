@@ -21,7 +21,7 @@ public class DynamoDbSource : ChannelSource
     }
 
     /// <inheritdoc />
-    public override string SourceArn => this.Table.TableStreamArn;
+    public override string SourceArn => this.Table.TableStreamArn ?? "";
 
     /// <inheritdoc />
     public override CfnPipe.PipeSourceParametersProperty SourceParameters { get; }

@@ -16,5 +16,5 @@ public class SnsTarget : ChannelTarget
     public override string TargetArn { get; }
 
     /// <inheritdoc />
-    public override CfnPipe.PipeTargetParametersProperty TargetParameters { get; }
+    public override CfnPipe.PipeTargetParametersProperty? TargetParameters { get; }
 }
