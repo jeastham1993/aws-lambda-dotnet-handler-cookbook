@@ -5,10 +5,10 @@ namespace StockTrader.Core.StockAggregate;
 
 public class StockPriceUpdatedEvent(string stockSymbol, decimal newPrice) : Event
 {
-    [JsonPropertyName("stockSymbol")]
+    [JsonPropertyName("StockSymbol")]
     public string StockSymbol { get; } = stockSymbol;
     
-    [JsonPropertyName("newPrice")]
+    [JsonPropertyName("NewPrice")]
     public decimal NewPrice { get; } = newPrice;
     
     [JsonIgnore]

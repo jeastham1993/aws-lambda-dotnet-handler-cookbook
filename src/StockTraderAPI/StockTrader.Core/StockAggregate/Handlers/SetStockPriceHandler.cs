@@ -1,4 +1,6 @@
-﻿namespace StockTrader.Core.StockAggregate.Handlers;
+﻿using Shared.Events;
+
+namespace StockTrader.Core.StockAggregate.Handlers;
 
 using AWS.Lambda.Powertools.Logging;
 using AWS.Lambda.Powertools.Tracing;
@@ -7,11 +9,13 @@ public class SetStockPriceHandler
 {
     private readonly IStockRepository _stockRepository;
     private readonly IStockPriceFeatures _featureFlags;
+    private readonly IEventBus _eventBus;
 
-    public SetStockPriceHandler(IStockRepository stockRepository, IStockPriceFeatures featureFlags)
+    public SetStockPriceHandler(IStockRepository stockRepository, IStockPriceFeatures featureFlags, IEventBus eventBus)
     {
         this._stockRepository = stockRepository;
         this._featureFlags = featureFlags;
+        _eventBus = eventBus;
     }
     
     [Tracing]
@@ -38,6 +42,8 @@ public class SetStockPriceHandler
         stock.SetStockPrice(request.NewPrice);
 
         await this._stockRepository.UpdateStock(stock);
+        
+        await _eventBus.Publish(new List<Event>(2){new StockPriceUpdatedEvent(request.StockSymbol, request.NewPrice), new StockPriceUpdatedEventV2(request.StockSymbol, request.NewPrice, request.Currency)});
 
         return new SetStockPriceResponse() { StockSymbol = stock.StockSymbol.Code, Price = stock.CurrentStockPrice };
     }

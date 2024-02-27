@@ -22,7 +22,8 @@ public class StockApiDriver
         var request = new SetStockPriceRequest()
         {
             StockSymbol = stockSymbol,
-            NewPrice = price
+            NewPrice = price,
+            Currency = "GBP"
         };
         
         var response = await this.httpClient.PostAsync("price", new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json`"));

@@ -34,7 +34,8 @@ public class SetStockPriceTests
         var testRequest = new SetStockPriceRequest()
         {
             NewPrice = 100,
-            StockSymbol = "AMZ"
+            StockSymbol = "AMZ",
+            Currency = "GBP"
         };
 
         // Act
@@ -74,7 +75,8 @@ public class SetStockPriceTests
         var testRequest = new SetStockPriceRequest()
         {
             NewPrice = 100,
-            StockSymbol = "AMZ"
+            StockSymbol = "AMZ",
+            Currency = "GBP"
         };
 
         // Act
@@ -96,7 +98,8 @@ public class SetStockPriceTests
         var testRequest = new SetStockPriceRequest()
         {
             NewPrice = 100,
-            StockSymbol = "AMZ"
+            StockSymbol = "AMZ",
+            Currency = "GBP"
         };
         
         var testHarness = new TestHarness(mockFeatureFlags);
@@ -122,7 +125,8 @@ public class SetStockPriceTests
         var testRequest = new SetStockPriceRequest()
         {
             NewPrice = 0,
-            StockSymbol = "AMZ"
+            StockSymbol = "AMZ",
+            Currency = "GBP"
         };
         
         var testHarness = new TestHarness(mockFeatureFlags);
